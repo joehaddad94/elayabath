@@ -12,19 +12,11 @@ import categoriesData from "../../data/categories.json" with { type: "json" };
 import finishesData from "../../data/finishes.json" with { type: "json" };
 import metaData from "../../data/meta.json" with { type: "json" };
 import productsData from "../../data/products.json" with { type: "json" };
-import searchData from "../../data/search.json" with { type: "json" };
-import type {
-  CatalogueMeta,
-  Category,
-  Finish,
-  Product,
-  SearchEntry,
-} from "./types";
+import type { CatalogueMeta, Category, Finish, Product } from "./types";
 
 const products = productsData as Product[];
 const categories = categoriesData as Category[];
 const finishes = finishesData as Finish[];
-const searchIndex = searchData as SearchEntry[];
 const meta = metaData as CatalogueMeta;
 
 const productBySlug = new Map(products.map((p) => [p.slug, p]));
@@ -90,35 +82,7 @@ export function getFinishesFor(product: Product): Finish[] {
     .filter((f): f is Finish => Boolean(f));
 }
 
-/** Finishes grouped by the material they belong to, which is the structure
- *  the live site's own filter throws away. Groups are ordered largest first
- *  so the material a category is mostly made of leads. */
-export function groupFinishesByFamily(
-  list: Finish[],
-): Array<{ family: string; familyName: string; finishes: Finish[] }> {
-  const groups = new Map<string, { familyName: string; finishes: Finish[] }>();
-  for (const finish of list) {
-    const group = groups.get(finish.family) ?? {
-      familyName: finish.familyName,
-      finishes: [],
-    };
-    group.finishes.push(finish);
-    groups.set(finish.family, group);
-  }
-  return [...groups.entries()]
-    .map(([family, group]) => ({ family, ...group }))
-    .sort(
-      (a, b) =>
-        b.finishes.length - a.finishes.length ||
-        a.familyName.localeCompare(b.familyName),
-    );
-}
-
 /* ── misc ───────────────────────────────────────────────────────────── */
-
-export function getSearchIndex(): SearchEntry[] {
-  return searchIndex;
-}
 
 /** Counts for the whole client catalogue, not just what this build ships.
  *  Used wherever the site states a number, so it never overclaims. */

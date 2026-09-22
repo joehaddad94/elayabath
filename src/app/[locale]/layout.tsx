@@ -4,6 +4,7 @@ import { Barlow, Barlow_Condensed } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader/SiteHeader";
 import { LOCALES, directionOf, isLocale } from "@/lib/i18n/config";
+import { SITE_ORIGIN } from "@/lib/site";
 import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "@/styles/globals.css";
 
@@ -13,7 +14,10 @@ import "@/styles/globals.css";
    as they swap in. */
 const barlow = Barlow({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  // Only 400 is ever painted: the system sets headings in Barlow Condensed at
+  // --font-heading-weight, and nothing calls for a medium or bold body face.
+  // Loading 500 and 700 shipped two font files per page for nothing.
+  weight: ["400"],
   variable: "--font-barlow",
   display: "swap",
 });
@@ -26,7 +30,7 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://elayabath.com"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: "Elaya Bath — Because Bathrooms Matter",
     template: "%s — Elaya Bath",

@@ -153,6 +153,46 @@ Three defects found by that audit and fixed:
 
 ---
 
+## Post-build audit
+
+Run after M9, against a production build, measuring rather than reading.
+
+**Contrast.** Every rendered text node measured against the background actually
+painted behind it, on ten routes in both palettes. Five styles were below their
+4.5:1 floor, all in components written for this repo, all from using 50-60%
+muted text where the prototype had already established 65% as the floor: facet
+counts (3.93:1), the finish-group counts, the "n/a" swatch marker (3.00:1) and
+the breadcrumb separator (2.35:1). All raised. Now clean.
+
+The first version of that measurement reported every style on the site as
+failing at about 1.14:1, which was the script and not the site: `color-mix()`
+serialises as `color(srgb 0.92 0.91 0.89)`, floats rather than bytes, so a
+hand-written parser reads near-white as near-black. Colours are now resolved by
+painting them to a canvas.
+
+**Client bundle.** `lib/catalogue.ts` imports every catalogue JSON at module
+scope. Routing the search index through it, to honour the rule that nothing
+reads `data/` directly, put a 45 KB chunk of product records into the browser
+bundle. The loader moved to `lib/search.ts`, which imports no data statically.
+Client JS 741 KB to 700 KB, and nothing carries catalogue records now.
+
+**Fonts.** Three of five weights were loaded and never painted. A product page
+now requests one font file instead of five.
+
+**Dead code.** Two unused dictionary keys, two unused exports, and three
+`data-*` attributes on every product card left over from the prototype's DOM
+filtering, which React replaced.
+
+**Duplication.** Finish-grouping was implemented twice inline and a third time
+unused in `catalogue.ts`; consolidated into `lib/finishes.ts`. The category page
+still carried its own copy of the page-heading CSS after `PageHead` existed.
+
+**Missing boundary.** No `error.tsx`, so an unhandled render error dropped the
+visitor onto Next's own error screen with no header, footer, fonts or theme:
+the same defect the 404 had before M9. Added.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

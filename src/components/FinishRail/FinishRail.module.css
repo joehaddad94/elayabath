@@ -28,7 +28,7 @@
   border-style: dashed;
   font-size: 0.6rem;
   letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
 
 .name {

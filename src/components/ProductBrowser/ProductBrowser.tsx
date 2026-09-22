@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
+import { groupFinishesByFamily } from "@/lib/finishes";
 import { format, type Dictionary } from "@/lib/i18n";
 import {
   getSearch,
@@ -99,20 +100,10 @@ export function ProductBrowser({
     [products, selection],
   );
 
-  const colourGroups = useMemo(() => {
-    const groups = new Map<string, { name: string; finishes: Finish[] }>();
-    for (const finish of finishes) {
-      const group = groups.get(finish.family) ?? {
-        name: finish.familyName,
-        finishes: [],
-      };
-      group.finishes.push(finish);
-      groups.set(finish.family, group);
-    }
-    return [...groups.entries()].sort(
-      (a, b) => b[1].finishes.length - a[1].finishes.length,
-    );
-  }, [finishes]);
+  const colourGroups = useMemo(
+    () => groupFinishesByFamily(finishes),
+    [finishes],
+  );
 
   const active =
     selection.type.length + selection.material.length + selection.colour.length;
@@ -144,10 +135,10 @@ export function ProductBrowser({
             {t.common.colour}{" "}
             <span className={styles.groupCount}>{finishes.length}</span>
           </h3>
-          {colourGroups.map(([family, group], index) => (
-            <details key={family} className={styles.group} open={index === 0}>
+          {colourGroups.map((group, index) => (
+            <details key={group.family} className={styles.group} open={index === 0}>
               <summary>
-                {group.name}
+                {group.familyName}
                 <span className={styles.groupCount}>{group.finishes.length}</span>
               </summary>
               <div className={styles.swatches}>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { groupFinishesByFamily } from "@/lib/finishes";
 import { format, type Dictionary } from "@/lib/i18n";
 import type { Finish } from "@/lib/types";
 import styles from "./FinishPicker.module.css";
@@ -26,20 +27,7 @@ export function FinishPicker({
     finishes[0]?.slug,
   );
 
-  const groups = useMemo(() => {
-    const map = new Map<string, { name: string; finishes: Finish[] }>();
-    for (const finish of finishes) {
-      const group = map.get(finish.family) ?? {
-        name: finish.familyName,
-        finishes: [],
-      };
-      group.finishes.push(finish);
-      map.set(finish.family, group);
-    }
-    return [...map.entries()].sort(
-      (a, b) => b[1].finishes.length - a[1].finishes.length,
-    );
-  }, [finishes]);
+  const groups = useMemo(() => groupFinishesByFamily(finishes), [finishes]);
 
   if (finishes.length === 0) {
     return (
@@ -64,10 +52,10 @@ export function FinishPicker({
         </p>
       )}
 
-      {groups.map(([family, group], index) => (
-        <details key={family} className={styles.group} open={index === 0}>
+      {groups.map((group, index) => (
+        <details key={group.family} className={styles.group} open={index === 0}>
           <summary>
-            {group.name}
+            {group.familyName}
             <span className={styles.count}>{group.finishes.length}</span>
           </summary>
           <div className={styles.swatches}>

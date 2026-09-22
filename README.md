@@ -68,12 +68,18 @@ src/
     globals.css
 ```
 
-Two rules keep this from rotting:
+Three rules keep this from rotting:
 
 1. **Pages never import from `data/` directly.** They go through `lib/catalogue.ts`, so the
    storage decision can change later without touching a single page.
 2. **`scripts/ingest/` is the only code that knows the source archive exists.** Everything
    downstream sees clean typed records.
+3. **Client components never import `lib/catalogue.ts`.** It imports every catalogue JSON at
+   module scope, so anything a `"use client"` file pulls from it drags the whole catalogue into
+   the browser bundle. Shared logic that both sides need lives in a data-free module
+   (`lib/finishes.ts`, `lib/search.ts`) instead. This is not hypothetical: routing the search
+   index through `catalogue.ts` put a 45 KB chunk of product records in front of every visitor
+   who opened the search page, and the only symptom was the bundle size.
 
 ## Search
 

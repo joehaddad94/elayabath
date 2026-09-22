@@ -209,7 +209,6 @@ const en = {
   about: {
     title: "About Us",
     /** verbatim — the whole of the live About page's copy. */
-    statsLabel: "By the numbers",
     products: "Products",
     categories: "Categories",
     finishesLabel: "Finishes",
@@ -299,7 +298,6 @@ const en = {
   },
 
   draft: {
-    badge: "Draft",
     needsApproval: "Needs client approval",
     needsLegalReview: "Draft. Needs legal review before launch",
   },

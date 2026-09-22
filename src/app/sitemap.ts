@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { SITE_ORIGIN } from "@/lib/site";
 import { getCategories, getProducts } from "@/lib/catalogue";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 
-const ORIGIN = "https://elayabath.com";
+const ORIGIN = SITE_ORIGIN;
 
 /**
  * Every route the build generates, at its canonical URL. The locale segment

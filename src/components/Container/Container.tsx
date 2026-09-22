@@ -6,13 +6,17 @@ export function Container({
   as: Tag = "div",
   className,
   children,
+  ...rest
 }: {
   as?: ElementType;
   className?: string;
   children: ReactNode;
-}) {
+} & Record<string, unknown>) {
   return (
-    <Tag className={className ? `${styles.wrap} ${className}` : styles.wrap}>
+    <Tag
+      className={className ? `${styles.wrap} ${className}` : styles.wrap}
+      {...rest}
+    >
       {children}
     </Tag>
   );

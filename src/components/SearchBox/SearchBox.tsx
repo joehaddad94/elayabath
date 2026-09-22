@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { format, type Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
-import { searchCatalogue } from "@/lib/search";
+import { loadSearchIndex, searchCatalogue } from "@/lib/search";
 import type { SearchEntry } from "@/lib/types";
 import styles from "./SearchBox.module.css";
 
@@ -30,8 +30,8 @@ export function SearchBox({
 
   useEffect(() => {
     let cancelled = false;
-    void import("../../../data/search.json").then((module) => {
-      if (!cancelled) setIndex(module.default as SearchEntry[]);
+    void loadSearchIndex().then((entries) => {
+      if (!cancelled) setIndex(entries);
     });
     return () => {
       cancelled = true;

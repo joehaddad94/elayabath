@@ -27,5 +27,5 @@
 }
 
 .sep {
-  color: color-mix(in srgb, var(--color-text) 40%, transparent);
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
 }

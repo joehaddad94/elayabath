@@ -1,16 +1,7 @@
-.head {
-  border-bottom: var(--rule);
-}
-
-.title {
-  font-size: clamp(2.3rem, 6vw, 4.4rem);
-  text-transform: uppercase;
-  margin: 0;
-}
-
+/* The page heading band is PageHead. What remains is the closing section's
+   supporting line, which is not a page lede and does not want its size. */
 .lede {
-  margin-top: var(--space-6);
   max-width: 62ch;
-  font-size: clamp(1rem, 1.4vw, 1.12rem);
+  font-size: 1.02rem;
   color: color-mix(in srgb, var(--color-text) 80%, transparent);
 }

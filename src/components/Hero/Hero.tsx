@@ -45,7 +45,12 @@ export function Hero({
         />
         <div className={styles.veil} />
 
-        <Container className={styles.inner}>
+        {/* Text here sits over a photograph, not a painted background, so
+            its contrast is governed by the two-layer veil above and has to be
+            measured against composited pixels rather than a CSS colour. The
+            attribute marks it so an automated colour audit does not report a
+            false failure by reading --color-bg underneath. */}
+        <Container className={styles.inner} data-over-photo="">
           <h1>{title}</h1>
           {lede && <p className={styles.lede}>{lede}</p>}
           {actions && <div className={styles.actions}>{actions}</div>}

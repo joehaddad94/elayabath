@@ -96,7 +96,7 @@
 }
 
 .missing {
-  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
   font-size: 0.85rem;
 }
 

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Marks } from "@/components/Blueprint/Blueprint";
-import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
+import { PageHead } from "@/components/PageHead/PageHead";
 import { ProductBrowser } from "@/components/ProductBrowser/ProductBrowser";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
@@ -63,27 +63,20 @@ export default async function CategoryPage({
 
   return (
     <main id="main">
-      <Section className={styles.head}>
-        <Container>
-          <Breadcrumbs
-            label={t.common.breadcrumb}
-            items={[
-              { label: t.nav.home, href: routes.home(locale) },
-              { label: t.products.title, href: routes.products(locale) },
-              { label: category.name },
-            ]}
-          />
-          <h1 className={styles.title}>{category.name}</h1>
-          {category.blurb ? (
-            <p className={styles.lede}>{category.blurb[0]}</p>
-          ) : (
-            <p className={styles.lede}>
-              {category.totalInCatalogue} {category.name.toLowerCase()} in the
-              full catalogue, {category.count} of them in this build.
-            </p>
-          )}
-        </Container>
-      </Section>
+      <PageHead
+        title={category.name}
+        lede={
+          category.blurb
+            ? category.blurb[0]
+            : `${category.totalInCatalogue} ${category.name.toLowerCase()} in the full catalogue, ${category.count} of them in this build.`
+        }
+        crumbLabel={t.common.breadcrumb}
+        crumbs={[
+          { label: t.nav.home, href: routes.home(locale) },
+          { label: t.products.title, href: routes.products(locale) },
+          { label: category.name },
+        ]}
+      />
 
       <Section tight>
         <Container>

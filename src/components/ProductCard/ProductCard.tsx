@@ -29,12 +29,7 @@ export function ProductCard({
   const href = routes.product(product.slug, locale);
 
   return (
-    <article
-      className={`card blueprint ${styles.card}`}
-      data-type={product.type.slug}
-      data-materials={product.materials.join(" ")}
-      data-finishes={product.finishes.join(" ")}
-    >
+    <article className={`card blueprint ${styles.card}`}>
       <Link className={styles.media} href={href} tabIndex={-1} aria-hidden="true">
         <Image
           src={product.image.src}
