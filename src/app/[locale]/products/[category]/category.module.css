@@ -5,3 +5,44 @@
   font-size: 1.02rem;
   color: color-mix(in srgb, var(--color-text) 80%, transparent);
 }
+
+/* A row of the other categories, so a page that has been filtered down to
+   nothing still offers a way onward that is not the browser's back button. */
+.others {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.others a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 24px;
+  padding: var(--space-4) var(--space-6);
+  border: var(--rule);
+  text-decoration: none;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+.others a:hover {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  border-color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+
+.otherCount {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  white-space: nowrap;
+}

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { EnquiryForm } from "@/components/EnquiryForm/EnquiryForm";
 import { Hero } from "@/components/Hero/Hero";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { Note } from "@/components/Note/Note";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
+import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./contact.module.css";
 import { canonical } from "@/lib/seo";
@@ -71,24 +72,16 @@ export default async function ContactPage({
       <Hero
         compact
         title={t.contact.title}
-        image={{
-          src: "/rooms/contact-banner.webp",
-          alt: "A showroom wall of wall-hung toilets and floor-standing basins in dusty pink, grey and black, set in lit recesses",
-          width: 1440,
-          height: 600,
-        }}
+        image={PHOTOS.contactBanner}
+        crumbLabel={t.common.breadcrumb}
+        crumbs={[
+          { label: t.nav.home, href: routes.home(locale) },
+          { label: t.nav.contact },
+        ]}
       />
 
       <Section tight>
         <Container>
-          <Breadcrumbs
-            label={t.common.breadcrumb}
-            items={[
-              { label: t.nav.home, href: routes.home(locale) },
-              { label: t.nav.contact },
-            ]}
-          />
-
           <SectionHead
             label={t.contact.regionalHeading}
             count={t.contact.regionalLabel}
@@ -118,6 +111,15 @@ export default async function ContactPage({
           </div>
         </Container>
       </Section>
+
+      {/* Between the offices and the form: it separates "who to reach" from
+          "send an enquiry", which a heading alone was doing. Not the hero's
+          photograph repeated. */}
+      <PhotoBand
+        image={PHOTOS.aboutBanner}
+        label={t.contact.formLabel}
+        heading={t.contact.formHeading}
+      />
 
       <Section id="enquiry" band>
         <Container>

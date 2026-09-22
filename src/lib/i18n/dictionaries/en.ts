@@ -132,6 +132,20 @@ const en = {
     showing: "Showing {shown} of {total}",
     noResults:
       "Nothing matches that combination. Clear a filter to widen the results.",
+    /** The inset block. Most categories carry no second blurb paragraph, so
+     *  this is what stands in: true of every category, and useful. */
+    insetLabel: "How to specify",
+    insetHeading: "Every item carries a code",
+    insetBody:
+      "Each product here has an item code, recorded dimensions and, where the client published one, a technical data sheet. Send the code with your enquiry and the quote comes back against the exact item rather than a description of it.",
+    /** Shown where a category does have more of the client's own copy. */
+    moreLabel: "In this range",
+    finishesHeading: "Finishes in this range",
+    finishesLede:
+      "{n} finishes are recorded across these products. Not every finish is offered on every item.",
+    bandLabel: "Request a quote",
+    bandHeading: "Send an item code and we come back with pricing and lead time",
+    otherHeading: "Other categories",
     swatchNote:
       "Finish swatches are photographs of the real material and will vary slightly from the finished product. Ask for a physical sample with your quote.",
     noSwatch: "n/a",
@@ -219,6 +233,14 @@ const en = {
       "From washbasins and bathtubs to urinals, kitchen and accessories.",
     finishesNote:
       "Across ceramic, solid surface, resin, marble, concrete and plated metal.",
+    materialsLabel: "Materials",
+    materialsHeading: "Six material families, one item code",
+    materialsBody:
+      "Ceramic, solid surface, resin, marble, concrete and plated metal. A finish code like SS13 or C00 identifies the exact material on the exact item, which is what a quote, a sample request and a site delivery all have to agree on.",
+    materialsNote:
+      "Swatches are photographs of the real material and vary slightly from the finished product.",
+    bandLabel: "The range",
+    bandHeading: "Browse by category, or send an item code straight to a person",
     workingHeading: "Specify, then ask",
     workingBody:
       "There are no prices on this site. Find the item, send the code, and the right person comes back to you with pricing, lead time and availability.",

@@ -278,6 +278,69 @@ with `npm run audit:browser`.
 
 ---
 
+## Inner-page design pass
+
+The whole-site audit was correctness, accessibility and SEO. It said nothing
+about design, and a separate look found that the design work had effectively
+stopped at the homepage.
+
+The measurement that made it plain: `PhotoBand`, `PullQuote`, `FinishRail`
+and `CategoryBlock` were each used on exactly one page, the homepage. Every
+other page was the same skeleton, a head then one band then content, and
+three of them carried no photograph at all. Category pages were the worst
+case, and they are the pages that sell: 3575px of uninterrupted product grid
+with no photography and no rhythm.
+
+What changed.
+
+- **`lib/imagery.ts`** now holds every photograph with its real dimensions and
+  one agreed alt text. Dimensions were being retyped from memory at each call
+  site and the same image described itself differently on different pages.
+- **Category pages** open on a photograph instead of a text band, and carry an
+  editorial block, a finish rail, a photo band and a row of the other
+  categories. The editorial block surfaces the client's own second and third
+  blurb paragraphs, which were sitting in the data and had never been painted.
+- **`EditorialBlock`** is a new contained photo-and-copy shape. The archive has
+  four photographs wide enough to run full-bleed and six that are not; the
+  narrow ones now have a placement where their size is an asset instead of
+  being stretched.
+- **Product, products, about, contact, catalogue and FAQ** all gained a break.
+  Every page on the site now carries photography; the FAQ and the category
+  pages previously carried none.
+- **`Hero` takes breadcrumbs**, so a photographic head can replace `PageHead`
+  without dropping the trail.
+
+Three of the six categories have no photograph of their own and borrow one
+that genuinely contains the product: bathtubs the frame with the bath, showers
+the frame with the shower column, accessories the frame with the towel rail.
+That is a content gap for the client, not a design decision.
+
+### Two measurement lessons
+
+**The over-photo blind spot.** Every contrast check reads the CSS background
+behind an element, which over a photograph is the wrong answer, so those
+regions are marked `[data-over-photo]` and skipped. That meant every hero
+heading, every breadcrumb in a plate and every `PhotoBand` was unmeasured, and
+this pass added a great deal more text into exactly those regions. The backdrop
+cannot be sampled from a plain screenshot either: inside a text node's box most
+pixels are the glyphs, and sampling those reports a flawless 1:1 for
+white-on-dark. The audit now hides the text, keeping layout, and samples the
+photograph underneath. It immediately found the breadcrumb on the washbasins
+hero at 4.20:1 against a 4.5 floor, because a compact plate puts its content
+around 29% down, in the weakest part of a veil tuned for the tall homepage
+hero. The compact variant got its own stronger veil.
+
+**`--space-5` does not exist.** The scale runs 1, 2, 3, 4, 6, 8. An undefined
+custom property makes the whole declaration invalid, so
+`padding: var(--space-4) var(--space-5)` computed to zero padding while the
+border and grid on the same element applied normally. The row just looked
+tight. It passed the build, the lint, the type check and the browser audit,
+and was only caught by looking at a screenshot. There is now a static check
+that every custom property a stylesheet uses is defined somewhere, including
+the ones `next/font` generates rather than writing into CSS.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

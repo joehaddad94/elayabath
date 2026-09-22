@@ -1,0 +1,67 @@
+.block {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--space-8) * 1.4);
+  align-items: center;
+}
+
+@media (min-width: 58rem) {
+  .block {
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space-8) * 2);
+  }
+
+  .flip .media {
+    order: -1;
+  }
+}
+
+.label {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: var(--space-4);
+}
+
+.heading {
+  margin: 0 0 var(--space-6);
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.body p {
+  max-width: 52ch;
+  font-size: 1.02rem;
+}
+
+.body p + p {
+  margin-top: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.media {
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+/* An intrinsic `height` attribute plus `aspect-ratio` makes both dimensions
+   definite, and the aspect ratio is then never applied. `height: auto` is
+   what lets the image scale with its column. This trap has cost this build
+   three separate bugs. */
+.media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

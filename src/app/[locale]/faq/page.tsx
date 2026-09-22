@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
 import { Faq } from "@/components/Faq/Faq";
+import { Hero } from "@/components/Hero/Hero";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { Note } from "@/components/Note/Note";
-import { PageHead } from "@/components/PageHead/PageHead";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
+import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./faq.module.css";
 import { canonical, faqSchema } from "@/lib/seo";
@@ -36,8 +38,10 @@ export default async function FaqPage({
           page as unapproved, and structured data would strip that caveat and
           present a proposal as the company's published position. */}
       <JsonLd graph={[faqSchema([...t.faq.real])]} />
-      <PageHead
+      <Hero
+        compact
         title={t.faq.title}
+        image={PHOTOS.aboutBanner}
         lede={t.faq.lede}
         crumbLabel={t.common.breadcrumb}
         crumbs={[
@@ -52,6 +56,23 @@ export default async function FaqPage({
           <Faq items={t.faq.real} />
         </Container>
       </Section>
+
+      {/* This page was 2200px of unbroken text. The break also does editorial
+          work: it separates the client's own three answers from the three
+          drafted below, which the warning alone was carrying. */}
+      <PhotoBand
+        image={PHOTOS.contactBanner}
+        label={t.category.bandLabel}
+        heading={t.category.bandHeading}
+        actions={
+          <Link
+            className="btn btn-primary blueprint"
+            href={`${routes.contact(locale)}#enquiry`}
+          >
+            {t.common.requestQuote}
+          </Link>
+        }
+      />
 
       {/* Drafted answers sit in their own section behind a warning, so nobody
           can mistake one for the client's own words. */}

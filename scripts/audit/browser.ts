@@ -20,6 +20,8 @@
  *   - target size, duplicate ids and unlabelled controls
  *   - canonical link, structured data and meta description length
  *   - images served at more pixels than the layout paints
+ *   - contrast of text sitting over a photograph, measured by hiding the
+ *     text and sampling the backdrop it is composited against
  *
  * Routes come from the catalogue rather than a list, so widening the slice
  * widens the audit with it.
@@ -46,6 +48,8 @@ type Page = {
   evaluate: <T>(fn: unknown, arg?: unknown) => Promise<T>;
   setViewportSize: (s: { width: number; height: number }) => Promise<void>;
   waitForTimeout: (ms: number) => Promise<void>;
+  addStyleTag: (o: { content: string }) => Promise<unknown>;
+  screenshot: (o: { type: string }) => Promise<Buffer>;
 };
 
 let chromium: Chromium;
@@ -94,6 +98,7 @@ const ROUTES = [
 const browser = await chromium.launch();
 let failures = 0;
 const contrast: string[] = [];
+let overPhotoChecked = 0;
 
 for (const theme of ["ink", "stone"] as const) {
   for (const route of ROUTES) {
@@ -344,6 +349,133 @@ for (const theme of ["ink", "stone"] as const) {
       };
     });
 
+    /* Text over a photograph. Every other contrast check reads the CSS
+       background behind an element, which over a photograph is the wrong
+       answer, so those regions are marked [data-over-photo] and skipped.
+       That left the hero headings, the breadcrumbs in the plate and every
+       PhotoBand entirely unmeasured.
+
+       The backdrop cannot be sampled from a plain screenshot either: inside
+       a text node's box most pixels are the glyphs themselves, and sampling
+       those reports a perfect 1:1 for white-on-dark. So the text is hidden
+       first, keeping layout, and the exposed photograph is sampled. */
+    const overPhoto = await page.evaluate<
+      Array<{
+        text: string;
+        fg: [number, number, number];
+        size: number;
+        weight: number;
+        tag: string;
+        box: { x: number; y: number; w: number; h: number };
+      }>
+    >(() => {
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = 1;
+      const cx = cv.getContext("2d", { willReadFrequently: true })!;
+      const resolve = (css: string): [number, number, number] => {
+        cx.clearRect(0, 0, 1, 1);
+        cx.fillStyle = "#000";
+        cx.fillStyle = css;
+        cx.fillRect(0, 0, 1, 1);
+        const d = cx.getImageData(0, 0, 1, 1).data;
+        return [d[0]!, d[1]!, d[2]!];
+      };
+      const out = [];
+      for (const region of document.querySelectorAll("[data-over-photo]")) {
+        const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT);
+        let n: Node | null;
+        while ((n = walker.nextNode())) {
+          const text = (n.textContent ?? "").trim();
+          // The breadcrumb separator is decorative and aria-hidden, so it is
+          // outside the text minimum.
+          if (!text || text === "/") continue;
+          const el = n.parentElement;
+          if (!el) continue;
+          const cs = getComputedStyle(el);
+          const r = el.getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          out.push({
+            text: text.slice(0, 24),
+            fg: resolve(cs.color),
+            size: parseFloat(cs.fontSize),
+            weight: Number(cs.fontWeight) || 400,
+            tag: el.tagName.toLowerCase(),
+            box: { x: r.x, y: r.y, w: r.width, h: r.height },
+          });
+        }
+      }
+      return out;
+    });
+
+    if (overPhoto.length > 0) {
+      await page.addStyleTag({
+        content:
+          "[data-over-photo] * { color: transparent !important; text-shadow: none !important; }",
+      });
+      await page.waitForTimeout(150);
+      const shot = await page.screenshot({ type: "png" });
+      const samples = await page.evaluate<
+        Array<{ text: string; tag: string; size: number; ratio: number; floor: number }>
+      >(
+        async ({ items, b64 }: { items: typeof overPhoto; b64: string }) => {
+          const img = new Image();
+          await new Promise((r) => {
+            img.onload = r;
+            img.src = "data:image/png;base64," + b64;
+          });
+          const c = document.createElement("canvas");
+          c.width = img.width;
+          c.height = img.height;
+          const x = c.getContext("2d", { willReadFrequently: true })!;
+          x.drawImage(img, 0, 0);
+          const lum = (p: number[]) => {
+            const f = (v: number) => {
+              const n = v / 255;
+              return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4);
+            };
+            return 0.2126 * f(p[0]!) + 0.7152 * f(p[1]!) + 0.0722 * f(p[2]!);
+          };
+          const out = [];
+          for (const it of items) {
+            if (it.box.y < 0 || it.box.y + it.box.h > c.height) continue;
+            const fgL = lum(it.fg);
+            let worst = Infinity;
+            for (let a = 0; a < 14; a++) {
+              for (let d = 0; d < 5; d++) {
+                const sx = Math.round(it.box.x + (it.box.w * (a + 0.5)) / 14);
+                const sy = Math.round(it.box.y + (it.box.h * (d + 0.5)) / 5);
+                if (sx < 0 || sy < 0 || sx >= c.width || sy >= c.height) continue;
+                const p = x.getImageData(sx, sy, 1, 1).data;
+                const bgL = lum([p[0]!, p[1]!, p[2]!]);
+                const ratio = (Math.max(fgL, bgL) + 0.05) / (Math.min(fgL, bgL) + 0.05);
+                if (ratio < worst) worst = ratio;
+              }
+            }
+            if (!isFinite(worst)) continue;
+            const large = it.size >= 24 || (it.size >= 18.66 && it.weight >= 700);
+            out.push({
+              text: it.text,
+              tag: it.tag,
+              size: Math.round(it.size),
+              ratio: Number(worst.toFixed(2)),
+              floor: large ? 3 : 4.5,
+            });
+          }
+          return out;
+        },
+        { items: overPhoto, b64: shot.toString("base64") },
+      );
+      overPhotoChecked += samples.length;
+      for (const s of samples) {
+        if (s.ratio < s.floor) {
+          contrast.push(
+            `${String(s.ratio).padStart(5)}:1 (floor ${s.floor}) ${s.size}px ${theme} ` +
+              `over-photo ${s.tag} "${s.text}" ${route}`,
+          );
+        }
+      }
+    }
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(250);
     const overflow390 = await page.evaluate<number>(
@@ -400,6 +532,7 @@ if (contrast.length > 0) {
 const loads = ROUTES.length * 2;
 console.log(
   `\n${loads} page loads across ${ROUTES.length} routes and 2 palettes, ` +
-    `${failures} with problems, ${contrast.length} contrast failures`,
+    `${failures} with problems, ${contrast.length} contrast failures ` +
+    `(${overPhotoChecked} text nodes measured over photographs)`,
 );
 process.exit(failures > 0 || contrast.length > 0 ? 1 : 0);

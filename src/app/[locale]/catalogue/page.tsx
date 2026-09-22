@@ -4,11 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
 import { Note } from "@/components/Note/Note";
-import { PageHead } from "@/components/PageHead/PageHead";
+import { Hero } from "@/components/Hero/Hero";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { getCatalogueMeta } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
+import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./catalogue.module.css";
 import { canonical } from "@/lib/seo";
@@ -33,8 +35,10 @@ export default async function CataloguePage({
 
   return (
     <main id="main">
-      <PageHead
+      <Hero
+        compact
         title={t.catalogue.title}
+        image={PHOTOS.heroRoom}
         lede={t.catalogue.lede}
         crumbLabel={t.common.breadcrumb}
         crumbs={[
@@ -50,10 +54,10 @@ export default async function CataloguePage({
         <Container className={styles.grid}>
           <figure className={`${styles.figure} blueprint`}>
             <Image
-              src="/rooms/catalogue-room.webp"
-              alt="A flat-lay of bathroom materials: stone and ceramic tiles, timber, plaster and a dried stem on a pale surface"
-              width={960}
-              height={756}
+              src={PHOTOS.materials.src}
+              alt={PHOTOS.materials.alt}
+              width={PHOTOS.materials.width}
+              height={PHOTOS.materials.height}
               sizes="(max-width: 58rem) 100vw, 32rem"
             />
           </figure>
@@ -94,6 +98,17 @@ export default async function CataloguePage({
           </div>
         </Container>
       </Section>
+
+      <PhotoBand
+        image={PHOTOS.shopBanner}
+        label={t.category.bandLabel}
+        heading={t.category.bandHeading}
+        actions={
+          <Link className="btn btn-primary blueprint" href={routes.products(locale)}>
+            {t.common.browseProducts}
+          </Link>
+        }
+      />
 
       <Section band>
         <Container>

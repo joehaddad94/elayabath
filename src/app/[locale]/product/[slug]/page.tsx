@@ -7,6 +7,7 @@ import { Container, Section } from "@/components/Container/Container";
 import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
 import { Icon } from "@/components/Icon/Icon";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
+import { categoryBand } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
 import styles from "./product.module.css";
@@ -183,6 +185,28 @@ export default async function ProductPage({
           </div>
         </Container>
       </Section>
+
+      {/* The product page ran spec table straight into a grid of more
+          products. A photograph between them separates "this item" from
+          "other items" without a heading having to do that work alone. */}
+      <PhotoBand
+        image={categoryBand(product.categorySlug)}
+        label={t.category.bandLabel}
+        heading={t.category.bandHeading}
+        actions={
+          <>
+            <Link
+              className="btn btn-primary blueprint"
+              href={routes.quote(product.sku, locale)}
+            >
+              {t.common.requestQuote}
+            </Link>
+            <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
+              {t.common.downloadCatalogue}
+            </Link>
+          </>
+        }
+      />
 
       {related.length > 0 && (
         <Section band>

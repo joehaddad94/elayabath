@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs/Breadcrumbs";
 import type { ReactNode } from "react";
 import { Container } from "@/components/Container/Container";
 import styles from "./Hero.module.css";
@@ -8,6 +9,11 @@ export interface HeroProps {
   /** Described from what is visibly in the photograph. The source has no alt
    *  text for any of its background imagery, because it has no img tags. */
   image: { src: string; alt: string; width: number; height: number };
+  /** Shown above the title, inside the photograph. An inner page that opens
+   *  on a photograph still has to say where it sits in the site; without
+   *  this, swapping PageHead for Hero would silently drop the trail. */
+  crumbs?: Crumb[];
+  crumbLabel?: string;
   lede?: ReactNode;
   actions?: ReactNode;
   /** Inner pages get a shorter band than the homepage. */
@@ -25,6 +31,8 @@ export interface HeroProps {
 export function Hero({
   title,
   image,
+  crumbs,
+  crumbLabel,
   lede,
   actions,
   compact = false,
@@ -50,6 +58,11 @@ export function Hero({
             attribute marks it so an automated colour audit does not report a
             false failure by reading --color-bg underneath. */}
         <Container className={styles.inner} data-over-photo="">
+          {crumbs && crumbLabel && (
+            <div className={styles.crumbs}>
+              <Breadcrumbs label={crumbLabel} items={crumbs} />
+            </div>
+          )}
           <h1>{title}</h1>
           {lede && <p className={styles.lede}>{lede}</p>}
           {actions && <div className={styles.actions}>{actions}</div>}

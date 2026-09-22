@@ -94,6 +94,55 @@
   padding-block: calc(var(--space-8) * 1.6);
 }
 
+/* Breadcrumbs default to --color-text and the accent, both of which are
+   tuned for a painted ground. Over a photograph they have to be re-stated in
+   the light-on-dark scale the veil is built for, in both palettes. */
+/* The vertical veil is tuned for the tall homepage plate, where the text
+   block sits in the bottom third. A compact plate is less than half the
+   height, so its content starts around 29% down, in the weakest part of the
+   gradient: the current crumb measured 4.20:1 there against a 4.5 floor.
+   The crumb is already near-white, so the only remaining lever is the
+   backdrop. Raising just the compact variant leaves the homepage hero, which
+   passes comfortably, exactly as it was. */
+.small .veil {
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-neutral-900) 80%, transparent) 0%,
+      color-mix(in srgb, var(--color-neutral-900) 66%, transparent) 42%,
+      color-mix(in srgb, var(--color-neutral-900) 20%, transparent) 76%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-neutral-900) 88%, transparent) 0%,
+      color-mix(in srgb, var(--color-neutral-900) 74%, transparent) 55%,
+      color-mix(in srgb, var(--color-neutral-900) 56%, transparent) 100%
+    );
+}
+
+.crumbs {
+  margin-bottom: var(--space-4);
+}
+
+.crumbs ol {
+  padding-block: 0;
+  /* The separator only. Decorative and aria-hidden, so it is exempt from the
+     text minimum, but it still has to be legible. */
+  color: color-mix(in srgb, var(--color-neutral-100) 82%, transparent);
+}
+
+.crumbs a {
+  color: var(--color-neutral-100);
+}
+
+/* The current page. Measured at 4.20:1 over the brightest part of the
+   contact banner when this was 76%, against a 4.5 floor: the crumbs sit
+   higher in the plate than the heading does, where the veil is weakest. */
+.crumbs span {
+  color: var(--color-neutral-100);
+}
+
 .inner h1 {
   color: var(--color-neutral-100);
   max-width: 15ch;

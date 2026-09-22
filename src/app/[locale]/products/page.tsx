@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { Hero } from "@/components/Hero/Hero";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { getCatalogueMeta, getCategories } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
+import { PHOTOS, categoryInset } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./products.module.css";
 import { canonical } from "@/lib/seo";
@@ -37,24 +38,16 @@ export default async function ProductsPage({
       <Hero
         compact
         title={t.products.title}
-        image={{
-          src: "/rooms/shop-banner.webp",
-          alt: "A dark timber bathroom with a free-standing bath and a stone vessel basin, forest visible through full-height glass",
-          width: 2048,
-          height: 797,
-        }}
+        image={PHOTOS.shopBanner}
+        crumbLabel={t.common.breadcrumb}
+        crumbs={[
+          { label: t.nav.home, href: routes.home(locale) },
+          { label: t.products.title },
+        ]}
       />
 
       <Section tight>
         <Container>
-          <Breadcrumbs
-            label={t.common.breadcrumb}
-            items={[
-              { label: t.nav.home, href: routes.home(locale) },
-              { label: t.products.title },
-            ]}
-          />
-
           <SectionHead
             label={t.products.startWithCategory}
             count={`${categories.length} ${t.common.of} ${meta.categoriesInCatalogue}`}
@@ -71,24 +64,18 @@ export default async function ProductsPage({
                   tabIndex={-1}
                   aria-hidden="true"
                 >
-                  {category.image ? (
-                    <Image
-                      src={category.image}
-                      alt=""
-                      width={817}
-                      height={670}
-                      sizes="(max-width: 48rem) 100vw, 24rem"
-                      className={styles.photo}
-                    />
-                  ) : category.icon ? (
-                    <Image
-                      src={category.icon}
-                      alt=""
-                      width={200}
-                      height={200}
-                      className={`${styles.icon} invert-on-dark`}
-                    />
-                  ) : null}
+                  {/* Three of the six have no photograph of their own and
+                      were falling back to a line-art icon, so half the grid
+                      was drawings beside photographs. categoryInset borrows
+                      a real frame for those. */}
+                  <Image
+                    src={category.image ?? categoryInset(category.slug).src}
+                    alt=""
+                    width={817}
+                    height={670}
+                    sizes="(max-width: 48rem) 100vw, 24rem"
+                    className={styles.photo}
+                  />
                 </Link>
 
                 <div className={styles.body}>
@@ -136,6 +123,17 @@ export default async function ProductsPage({
           </div>
         </Container>
       </Section>
+
+      <PhotoBand
+        image={PHOTOS.contactBanner}
+        label={t.category.finishesHeading}
+        heading={t.home.bandHeading}
+        actions={
+          <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
+            {t.common.downloadCatalogue}
+          </Link>
+        }
+      />
 
       <Section band>
         <Container>

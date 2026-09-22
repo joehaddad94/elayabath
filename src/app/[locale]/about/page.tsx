@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
+import { EditorialBlock } from "@/components/EditorialBlock/EditorialBlock";
 import { Hero } from "@/components/Hero/Hero";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
+import { PullQuote } from "@/components/PullQuote/PullQuote";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
 import { getCatalogueMeta, getCategories } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
+import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./about.module.css";
 import { canonical } from "@/lib/seo";
@@ -57,24 +60,16 @@ export default async function AboutPage({
       <Hero
         compact
         title={t.brand.tagline}
-        image={{
-          src: "/rooms/about-banner.webp",
-          alt: "A dark bathroom in bronze tiling, a folded white towel on a ring, a black stone basin and planting, lit warmly from one side",
-          width: 2048,
-          height: 647,
-        }}
+        image={PHOTOS.aboutBanner}
+        crumbLabel={t.common.breadcrumb}
+        crumbs={[
+          { label: t.nav.home, href: routes.home(locale) },
+          { label: t.nav.about },
+        ]}
       />
 
       <Section tight>
         <Container>
-          <Breadcrumbs
-            label={t.common.breadcrumb}
-            items={[
-              { label: t.nav.home, href: routes.home(locale) },
-              { label: t.nav.about },
-            ]}
-          />
-
           {/* The whole of the live About page's copy, verbatim. It is one
               paragraph and a four-item list, and there is nothing else. */}
           <div className={styles.intro}>
@@ -98,6 +93,38 @@ export default async function AboutPage({
         </Container>
       </Section>
 
+      {/* The flat-lay of samples was sitting on the catalogue page only.
+          It is the one image in the archive whose subject is the material
+          rather than the fitting, which is what this section is about. */}
+      <Section band>
+        <Container>
+          <EditorialBlock
+            image={PHOTOS.materials}
+            label={t.about.materialsLabel}
+            heading={t.about.materialsHeading}
+            flip
+            actions={
+              <Link className="btn btn-secondary" href={routes.products(locale)}>
+                {t.common.browseProducts}
+              </Link>
+            }
+          >
+            <p>{t.about.materialsBody}</p>
+            <p>{t.about.materialsNote}</p>
+          </EditorialBlock>
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <PullQuote
+            text={t.brand.tagline}
+            attribution={t.brand.name}
+            emphasise="Matter"
+          />
+        </Container>
+      </Section>
+
       <Section band>
         <Container>
           <SectionHead label={t.products.startWithCategory} />
@@ -114,6 +141,17 @@ export default async function AboutPage({
           </div>
         </Container>
       </Section>
+
+      <PhotoBand
+        image={PHOTOS.shopBanner}
+        label={t.about.bandLabel}
+        heading={t.about.bandHeading}
+        actions={
+          <Link className="btn btn-primary blueprint" href={routes.products(locale)}>
+            {t.common.browseProducts}
+          </Link>
+        }
+      />
 
       <Section>
         <Container>
