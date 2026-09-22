@@ -1,0 +1,6 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: calc(var(--space-8) * 1.6);
+}

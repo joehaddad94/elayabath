@@ -109,7 +109,7 @@ Everything that wraps a page.
 
 **Done when:** all 50 prerender, including the zero-variant and two-codes-in-one-field edge cases.
 
-## M7 — Content pages `[ ]`
+## M7 — Content pages `[x]`
 
 - About, Contact, FAQ, Catalogue
 - Real copy verbatim; anything drafted stays visibly marked

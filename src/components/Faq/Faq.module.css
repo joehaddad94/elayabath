@@ -1,0 +1,77 @@
+/* Native <details>, so it works with no JavaScript, is keyboard operable by
+   default, and browsers that open closed details on find can still find the
+   text inside. */
+.faq {
+  max-width: 70ch;
+}
+
+.faq details {
+  border-bottom: var(--rule);
+}
+
+.faq details:first-of-type {
+  border-top: var(--rule);
+}
+
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-6) calc(var(--space-8) * 1.6) var(--space-6) 0;
+  position: relative;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary:hover {
+  color: var(--accent-text);
+}
+
+/* The marker is drawn, not a glyph, so it matches the line weight of the
+   rules around it. */
+.faq summary::before,
+.faq summary::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: var(--space-4);
+  top: 50%;
+  background: currentColor;
+  transition: opacity 0.18s;
+}
+
+.faq summary::before {
+  width: 13px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.faq summary::after {
+  width: 1px;
+  height: 13px;
+  transform: translate(6px, -50%);
+}
+
+.faq details[open] summary::after {
+  opacity: 0;
+}
+
+.faq details[open] summary {
+  color: var(--accent-text);
+}
+
+.answer {
+  padding: 0 calc(var(--space-8) * 1.6) var(--space-8) 0;
+}
+
+.answer p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.66;
+  max-width: 62ch;
+}
