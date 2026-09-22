@@ -1,0 +1,54 @@
+.rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: var(--space-4);
+}
+
+.swatch {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  text-align: center;
+}
+
+.swatch img,
+.missing {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--color-divider);
+}
+
+/* A colour the client has no swatch image for. Marked, never faked: nine of
+   them have no file on their server at all, including Polished Brass. */
+.missing {
+  display: grid;
+  place-content: center;
+  border-style: dashed;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+
+.name {
+  font-size: 0.68rem;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.code {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  letter-spacing: 0.08em;
+  color: var(--accent-text);
+}
+
+.note {
+  margin-top: calc(var(--space-8) * 1.2);
+  font-size: 0.85rem;
+  max-width: 62ch;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}

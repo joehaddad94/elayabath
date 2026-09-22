@@ -1,0 +1,85 @@
+.block + .block {
+  margin-top: calc(var(--space-8) * 3);
+  padding-top: calc(var(--space-8) * 3);
+  border-top: var(--rule);
+}
+
+.grid {
+  display: grid;
+  gap: calc(var(--space-8) * 1.6);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+@media (min-width: 58rem) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space-8) * 2.2);
+  }
+
+  /* Alternate which side the photograph sits on, so a run of blocks reads
+     as a rhythm rather than a list. */
+  .flip .media {
+    order: -1;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.head img {
+  width: 2.3rem;
+  height: 2.3rem;
+  flex: none;
+}
+
+.head h3 {
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.copy p {
+  font-size: 1.02rem;
+  max-width: 52ch;
+}
+
+.copy p + p {
+  margin-top: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+/* A room photograph fills its frame rather than floating inside it.
+   height:auto matters: these are not square like the product cutouts, and
+   the intrinsic height attribute would otherwise make both dimensions
+   definite and leave aspect-ratio with nothing to do. */
+.figure img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.figure figcaption {
+  border-top: var(--rule);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+}

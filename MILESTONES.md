@@ -79,7 +79,7 @@ Everything that wraps a page.
 
 **Done when:** every route renders inside the shell with correct metadata and no hardcoded UI string.
 
-## M4 — Homepage `[ ]`
+## M4 — Homepage `[x]`
 
 - Full-bleed room hero with the recovered photography
 - The four category blocks with their verbatim copy

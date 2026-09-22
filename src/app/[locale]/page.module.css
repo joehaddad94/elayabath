@@ -1,0 +1,49 @@
+/* Product photography keeps true colour: no duotone. This brand sells
+   Polished Brass, Rose Gold, Polished Copper, Chrome and Matt Black, and
+   washing a tap into the accent destroys the one attribute the buyer is
+   choosing. */
+.heroProduct img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  padding: var(--space-6);
+  display: block;
+}
+
+.heroProduct figcaption {
+  border-top: var(--rule);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+}
+
+.close {
+  display: grid;
+  gap: calc(var(--space-8) * 1.5);
+  align-items: start;
+}
+
+@media (min-width: 58rem) {
+  .close {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.closeLede {
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  max-width: 40ch;
+  color: color-mix(in srgb, var(--color-text) 85%, transparent);
+}
+
+.closeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-content: start;
+}

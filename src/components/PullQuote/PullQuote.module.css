@@ -1,0 +1,29 @@
+.quote {
+  text-align: center;
+}
+
+.quote blockquote {
+  margin: 0 auto;
+  max-width: 22ch;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: clamp(2rem, 5.4vw, 3.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.quote em {
+  font-style: normal;
+  color: var(--accent-text);
+}
+
+.cite {
+  display: block;
+  margin-top: var(--space-8);
+  font-style: normal;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+}

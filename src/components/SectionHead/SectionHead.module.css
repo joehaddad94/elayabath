@@ -1,0 +1,37 @@
+/* Spec-sheet chrome: a section index and a label, the design system's
+   drawing-sheet grammar. The number is only used where the content really is
+   a numbered sequence of sections on one sheet. */
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin-bottom: calc(var(--space-8) * 1.5);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--rule);
+}
+
+.no {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  color: var(--accent-text);
+}
+
+.label {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  margin: 0;
+}
+
+.count {
+  margin-inline-start: auto;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+}
