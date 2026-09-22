@@ -294,6 +294,10 @@ const en = {
     findProduct: "Find a product",
   },
 
+  legal: {
+    onThisPage: "On this page",
+  },
+
   draft: {
     badge: "Draft",
     needsApproval: "Needs client approval",

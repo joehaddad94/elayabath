@@ -117,7 +117,7 @@ Everything that wraps a page.
 
 **Done when:** all four render and the only invented copy is labelled as such.
 
-## M8 — Legal pages `[ ]`
+## M8 — Legal pages `[x]`
 
 - Privacy, Terms, Returns, carried over with their draft banners intact
 - Bracketed placeholders for facts only the client can supply
