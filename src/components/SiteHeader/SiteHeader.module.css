@@ -1,0 +1,94 @@
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-bg);
+  border-bottom: var(--rule);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: var(--space-3) var(--gutter);
+}
+
+.brand {
+  margin-inline-end: auto;
+  display: inline-flex;
+  flex: none;
+}
+
+.brand img {
+  width: auto;
+  height: 1.9rem;
+}
+
+.links {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.links a {
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+}
+
+.links a:hover {
+  color: var(--color-text);
+}
+
+.links a[aria-current="page"] {
+  color: var(--accent-text);
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: var(--space-4);
+}
+
+/* Narrow screens: the links wrap onto their own row rather than collapsing
+   into a hamburger. No JS, nothing hidden, and it survives the longer strings
+   Arabic will bring. At five items it does not need a menu; past that it will. */
+@media (max-width: 62rem) {
+  .nav {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+  }
+
+  .tools {
+    margin-inline-start: auto;
+  }
+
+  .links {
+    order: 3;
+    width: 100%;
+    gap: var(--space-4);
+    justify-content: space-between;
+    padding-top: var(--space-3);
+    border-top: var(--rule);
+  }
+}
+
+.skip {
+  position: absolute;
+  inset-inline-start: -9999px;
+  top: 0;
+  z-index: 50;
+  padding: var(--space-2) var(--space-4);
+  background: var(--accent-text);
+  color: var(--color-bg);
+  font-family: var(--font-heading);
+  text-decoration: none;
+}
+
+.skip:focus {
+  inset-inline-start: 0;
+}

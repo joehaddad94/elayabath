@@ -67,7 +67,7 @@ The pipeline that turns the 1.1 GB scrape into a small typed dataset.
 
 **Done when:** `npm run ingest` regenerates every data file deterministically and the build type-checks against them.
 
-## M3 — App shell `[ ]`
+## M3 — App shell `[x]`
 
 Everything that wraps a page.
 

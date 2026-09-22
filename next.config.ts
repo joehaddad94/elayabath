@@ -21,6 +21,37 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: false },
 
   poweredByHeader: false,
+
+  /**
+   * Hide the default locale from URLs.
+   *
+   * Routes live under src/app/[locale] so adding Arabic later is a dictionary
+   * and a font rather than a routing migration. While there is only English,
+   * nobody should have to look at /en/about, so every request that is not
+   * already localised, not a Next internal, and not a file with an extension
+   * is rewritten into the en tree.
+   *
+   * Rewrites, not redirects: the canonical URL stays the clean one, which is
+   * what sitemap.ts emits and what Link produces.
+   */
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/", destination: "/en" },
+        {
+          // Everything that is not already localised, not a Next internal,
+          // and contains no dot. The dot test is what keeps /logo.png,
+          // /sitemap.xml, /robots.txt and every image in public/ out of the
+          // rewrite: they are files, not routes, and sending them into the
+          // locale tree 404s them.
+          source: "/:path((?!en$|en/|_next/|api/)[^.]*)",
+          destination: "/en/:path",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;
