@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import styles from "./Note.module.css";
 
 export function Note({
@@ -15,7 +14,6 @@ export function Note({
     <div className={`${styles.note} ${spaced ? styles.spaced : ""} blueprint`}>
       <b className={styles.label}>{label}</b>
       {children}
-      <Marks />
     </div>
   );
 }

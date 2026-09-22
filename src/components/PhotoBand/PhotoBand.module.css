@@ -64,33 +64,6 @@
   }
 }
 
-/* Inset, as on the hero: at the system's -6px they would sit off-screen on a
-   full-bleed band. Qualified with .blueprint so this beats the system rule,
-   which has the same specificity and would otherwise win on source order. */
-.plate > :global(.corner) {
-  color: color-mix(in srgb, var(--color-neutral-100) 70%, transparent);
-  z-index: 3;
-}
-
-.plate:global(.blueprint) > :global(.corner.tl) {
-  top: var(--space-6);
-  left: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.tr) {
-  top: var(--space-6);
-  right: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.bl) {
-  bottom: var(--space-6);
-  left: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.br) {
-  bottom: var(--space-6);
-  right: var(--space-6);
-}
 
 .inner {
   position: relative;

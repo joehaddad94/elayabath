@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { Hero } from "@/components/Hero/Hero";
@@ -91,7 +90,6 @@ export default async function AboutPage({
                 <span className={styles.n}>{stat.n}</span>
                 <span className={styles.k}>{stat.k}</span>
                 <p>{stat.note}</p>
-                <Marks />
               </div>
             ))}
           </div>
@@ -125,7 +123,6 @@ export default async function AboutPage({
               href={`${routes.contact(locale)}#enquiry`}
             >
               {t.common.requestQuote}
-              <Marks />
             </Link>
             <Link className="btn btn-secondary" href={routes.faq(locale)}>
               {t.footer.faq}

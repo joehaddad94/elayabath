@@ -194,6 +194,10 @@ for (const theme of ["ink", "stone"] as const) {
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
         if (el.closest(".sr-only") || cs.clipPath.startsWith("inset(50%")) continue;
+        // WCAG 1.4.3 exempts inactive controls from the contrast minimum.
+        // They still have to be legible, which is a design question, not a
+        // measurable one, so it is not asserted here.
+        if (el.closest(":disabled, [disabled], [aria-disabled='true']")) continue;
         // Text over a photograph: contrast is governed by the veil and is
         // measured from composited pixels, not from a CSS background.
         if (el.closest("[data-over-photo]")) continue;
@@ -226,6 +230,8 @@ for (const theme of ["ink", "stone"] as const) {
       const seenVariants = new Set<string>();
       for (const el of document.querySelectorAll(".btn")) {
         if (el.closest("[data-over-photo]")) continue;
+        // WCAG 1.4.11 exempts inactive components, as 1.4.3 does for text.
+        if (el.matches(":disabled, [disabled], [aria-disabled='true']")) continue;
         const cs = getComputedStyle(el);
         const variant = [...el.classList].filter((c) => c.startsWith("btn")).sort().join(".");
         if (seenVariants.has(variant)) continue;

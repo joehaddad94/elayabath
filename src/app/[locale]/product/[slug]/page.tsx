@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
@@ -119,7 +118,6 @@ export default async function ProductPage({
                 sizes="(max-width: 62rem) 100vw, 34rem"
                 priority
               />
-              <Marks />
             </figure>
           </div>
 
@@ -171,9 +169,7 @@ export default async function ProductPage({
                 href={routes.quote(product.sku, locale)}
               >
                 {format(t.common.requestQuoteFor, { sku: product.sku })}
-                <Marks />
               </Link>
-              <Marks />
             </div>
           </div>
         </Container>

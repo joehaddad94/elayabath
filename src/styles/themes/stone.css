@@ -22,6 +22,14 @@
   --color-band: #ded7c9;
   --color-text: #221f1a;
   --color-accent: #7d5c30;
+  /* The accent's own hover and pressed steps.
+     The generated ramp puts --color-accent and --color-accent-600 at the
+     same value, and the design system's hover rule points at 600, so the
+     primary button has never had a hover state on either palette.
+     darker on press. The fill carries light text on a light ground, so darker
+     widens the gap with its own label. */
+  --color-accent-hover: #634a28;
+  --color-accent-active: #4c3a22;
   --color-accent-2: #8a6a45;
   /* The boundary of an interactive control, which WCAG asks to clear 3:1
      against what surrounds it. --color-divider is a hairline rule between

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Container } from "@/components/Container/Container";
 import styles from "./PhotoBand.module.css";
 
@@ -50,8 +49,6 @@ export function PhotoBand({
           <p className={styles.heading}>{heading}</p>
           {actions && <div className={styles.actions}>{actions}</div>}
         </Container>
-
-        <Marks />
       </figure>
     </section>
   );

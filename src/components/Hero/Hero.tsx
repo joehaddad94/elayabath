@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Container } from "@/components/Container/Container";
 import styles from "./Hero.module.css";
 
@@ -55,8 +54,6 @@ export function Hero({
           {lede && <p className={styles.lede}>{lede}</p>}
           {actions && <div className={styles.actions}>{actions}</div>}
         </Container>
-
-        <Marks />
       </figure>
 
       {children && <Container className={styles.under}>{children}</Container>}

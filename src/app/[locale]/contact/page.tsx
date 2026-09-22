@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { EnquiryForm } from "@/components/EnquiryForm/EnquiryForm";
@@ -112,7 +111,6 @@ export default async function ContactPage({
                 >
                   {t.contact.sendEmail}
                 </a>
-                <Marks />
               </div>
             ))}
           </div>

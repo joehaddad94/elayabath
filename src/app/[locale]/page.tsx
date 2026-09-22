@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { CategoryBlock } from "@/components/CategoryBlock/CategoryBlock";
 import { Container, Section } from "@/components/Container/Container";
 import { FinishRail } from "@/components/FinishRail/FinishRail";
@@ -69,7 +68,6 @@ export default async function HomePage({
           <>
             <Link className="btn btn-primary blueprint" href={routes.products(locale)}>
               {t.common.shopTheSelection}
-              <Marks />
             </Link>
             <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
               {t.nav.catalogue}
@@ -96,7 +94,6 @@ export default async function HomePage({
               <span>{hero.name}</span>
               <span>{hero.type.name}</span>
             </figcaption>
-            <Marks />
           </figure>
         )}
       </Hero>
@@ -151,7 +148,6 @@ export default async function HomePage({
           <>
             <Link className="btn btn-primary blueprint" href={routes.products(locale)}>
               {t.common.browseProducts}
-              <Marks />
             </Link>
             <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
               {t.common.downloadCatalogue}
@@ -197,7 +193,6 @@ export default async function HomePage({
                 href={`${routes.contact(locale)}#enquiry`}
               >
                 {t.common.requestQuote}
-                <Marks />
               </Link>
               <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
                 {t.common.downloadCatalogue}

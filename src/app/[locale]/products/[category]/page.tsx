@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Container, Section } from "@/components/Container/Container";
 import { PageHead } from "@/components/PageHead/PageHead";
 import { ProductBrowser } from "@/components/ProductBrowser/ProductBrowser";
@@ -100,7 +99,6 @@ export default async function CategoryPage({
               href={`${routes.contact(locale)}#enquiry`}
             >
               {t.common.requestQuote}
-              <Marks />
             </Link>
           </p>
         </Container>

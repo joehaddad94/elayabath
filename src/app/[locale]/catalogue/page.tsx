@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Container, Section } from "@/components/Container/Container";
 import { Note } from "@/components/Note/Note";
 import { PageHead } from "@/components/PageHead/PageHead";
@@ -55,7 +54,6 @@ export default async function CataloguePage({
               height={756}
               sizes="(max-width: 58rem) 100vw, 32rem"
             />
-            <Marks />
           </figure>
 
           <div>

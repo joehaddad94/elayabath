@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { Hero } from "@/components/Hero/Hero";
@@ -117,7 +116,6 @@ export default async function ProductsPage({
                     {t.common.viewAll}
                   </Link>
                 </div>
-                <Marks />
               </article>
             ))}
           </div>
@@ -133,7 +131,6 @@ export default async function ProductsPage({
               and on its homepage with no products behind them. They are left
               out here rather than shown as dead ends.
             </p>
-            <Marks />
           </div>
         </Container>
       </Section>
@@ -148,7 +145,6 @@ export default async function ProductsPage({
               href={`${routes.contact(locale)}#enquiry`}
             >
               {t.common.requestQuote}
-              <Marks />
             </Link>
           </p>
         </Container>

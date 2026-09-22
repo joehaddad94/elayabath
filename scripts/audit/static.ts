@@ -78,8 +78,20 @@ const checks: Check[] = [
       const found: Finding[] = [];
       for (const file of cssFiles()) {
         if (isVendored(file)) continue;
+
+        // Track which selector each declaration belongs to. A flat line
+        // scan cannot tell an active control from a disabled one, and
+        // WCAG 1.4.3 exempts inactive controls from the minimum.
+        let selector = "";
         read(file).split("\n").forEach((line, i) => {
-          const m = /color:\s*color-mix\(in srgb, var\(--color-text\) (\d+)%/.exec(line);
+          const open = /^([^{}]*)\{/.exec(line.trim());
+          if (open && open[1]) selector = open[1];
+          else if (line.includes("}")) selector = "";
+          if (/:disabled|\[disabled\]|aria-disabled/.test(selector)) return;
+
+          // Anchored to `color:` so border-color and accent-color are not
+          // mistaken for text colour.
+          const m = /^\s*color:\s*color-mix\(in srgb, var\(--color-text\) (\d+)%/.exec(line);
           if (m && Number(m[1]) < MUTED_FLOOR) {
             found.push({ where: `${rel(file)}:${i + 1}`, detail: `${m[1]}% text` });
           }

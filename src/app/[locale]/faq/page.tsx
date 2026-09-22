@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { Container, Section } from "@/components/Container/Container";
 import { Faq } from "@/components/Faq/Faq";
 import { Note } from "@/components/Note/Note";
@@ -63,7 +62,6 @@ export default async function FaqPage({
               href={`${routes.contact(locale)}#enquiry`}
             >
               {t.common.requestQuote}
-              <Marks />
             </Link>
             <Link className="btn btn-secondary" href={routes.products(locale)}>
               {t.common.browseProducts}

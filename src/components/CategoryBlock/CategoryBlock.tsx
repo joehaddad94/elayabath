@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import type { Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
@@ -75,7 +74,6 @@ export function CategoryBlock({
                 <span>{category.name}</span>
                 <span>{category.count} {t.common.products.toLowerCase()}</span>
               </figcaption>
-              <Marks />
             </figure>
           )}
         </div>

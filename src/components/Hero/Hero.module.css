@@ -82,34 +82,6 @@
 /* The marks move inside the frame. At -6px the system places them outside
    the box, which on a full-bleed band is off-screen. Inset, they read as
    crop marks on a plate, which is what a registration mark is. */
-/* Qualified with .blueprint so these beat the system's own
-   `.blueprint > .corner.tl`. At equal specificity source order decides, and
-   the system stylesheet wins that, which left the marks at -6px: off-screen
-   on a full-bleed band. */
-.plate > :global(.corner) {
-  color: color-mix(in srgb, var(--color-neutral-100) 70%, transparent);
-  z-index: 3;
-}
-
-.plate:global(.blueprint) > :global(.corner.tl) {
-  top: var(--space-6);
-  left: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.tr) {
-  top: var(--space-6);
-  right: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.bl) {
-  bottom: var(--space-6);
-  left: var(--space-6);
-}
-
-.plate:global(.blueprint) > :global(.corner.br) {
-  bottom: var(--space-6);
-  right: var(--space-6);
-}
 
 .inner {
   position: relative;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, useMemo, useState, useSyncExternalStore } from "react";
-import { Marks } from "@/components/Blueprint/Blueprint";
 import { format, type Dictionary } from "@/lib/i18n";
 import {
   getSearch,
@@ -184,7 +183,6 @@ export function EnquiryForm({ t }: { t: Dictionary }) {
       <div className={`${styles.span2} ${styles.actions}`}>
         <button className="btn btn-primary blueprint" type="submit" disabled>
           {t.contact.submit}
-          <Marks />
         </button>
       </div>
     </form>
