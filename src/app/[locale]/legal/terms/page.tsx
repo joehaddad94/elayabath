@@ -5,8 +5,10 @@ import doc from "@/content/legal/terms";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.terms()),
   title: "Terms of Use",
   description: "The terms governing use of the Elaya Bath website.",
 };

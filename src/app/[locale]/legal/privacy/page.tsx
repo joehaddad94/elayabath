@@ -5,8 +5,10 @@ import doc from "@/content/legal/privacy";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.privacy()),
   title: "Privacy Policy",
   description: "How Elaya Bath handles the information you provide through this site.",
 };

@@ -11,8 +11,10 @@ import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./catalogue.module.css";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.catalogue()),
   title: "Catalogue",
   description:
     "The full Elaya Bath range as one document, plus per-product technical data sheets.",

@@ -36,6 +36,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
               alt={t.brand.name}
               width={160}
               height={53}
+              sizes="72px"
               className="invert-on-dark"
             />
           </div>

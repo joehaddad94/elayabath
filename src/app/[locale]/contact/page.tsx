@@ -10,8 +10,10 @@ import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./contact.module.css";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.contact()),
   title: "Contact Us",
   description:
     "Regional offices for MEA, Africa, Europe and the US, plus technical, design and general enquiries.",

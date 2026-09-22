@@ -229,6 +229,55 @@ scaffold while the project runs on Node 24. Bumped to `^24`.
 
 ---
 
+## Whole-site audit
+
+Eighteen routes, both palettes, measured in a real browser across dimensions
+the earlier passes never covered: duplicate ids, accessible names, form
+labels, target size, reflow at 320px, reduced motion, image delivery and
+search metadata.
+
+**Clean on the first pass**, and worth recording because each one is a way
+sites usually break: no duplicate ids, every interactive element has an
+accessible name, every form control has a label, no heading-order or landmark
+problems, nothing overflows at 320px, and nothing animates when the visitor
+has asked for reduced motion.
+
+Three areas did have findings, all now fixed.
+
+- **Target size (WCAG 2.2 SC 2.5.8).** Header navigation sat at 23px, product
+  card titles at 22px, the datasheet link at 23px and footer links at 17px.
+  All were whatever height the line box happened to be. The inline exception
+  covers a link inside a sentence; it does not cover a stacked list, which is
+  what a footer is. Every one now states a 24px minimum. Checkboxes went from
+  15px to 18px inside their labels.
+
+- **Search metadata.** No page carried a canonical link, and no page carried
+  structured data of any kind. Both are now in `lib/seo.ts`: a canonical on
+  every route, `Organization` and `WebSite` sitewide, `Product` and
+  `BreadcrumbList` on product pages, `CollectionPage` on categories, and
+  `FAQPage` on the FAQ. Category descriptions ran to 272-296 characters and
+  were truncated mid-sentence in results; they are now clamped to a whole
+  sentence under 160.
+
+  Two claims are deliberately withheld. `Product` carries **no `offers`**,
+  because the only price in the source data is the placeholder `1 QAR`, and
+  the `FAQPage` carries **only the three answers the client published** - the
+  three drafted ones on the same page are marked unapproved, and structured
+  data would strip that caveat.
+
+- **Image delivery.** The logo was served at 256px and painted at 62. Its
+  `sizes` hint described its intrinsic width rather than its rendered one.
+
+Two notes on method. The first run reported the whole site failing, which was
+the audit talking to a server left running from an earlier session and still
+serving the previous build; the results only became meaningful once it was
+restarted. That accident did useful work, though: it is the evidence that the
+new checks are not vacuous, since it produced exactly the failures they exist
+to catch. All of them are now folded into `scripts/audit/browser.ts` and run
+with `npm run audit:browser`.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

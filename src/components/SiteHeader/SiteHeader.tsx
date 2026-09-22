@@ -40,6 +40,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               alt={t.brand.name}
               width={160}
               height={53}
+              sizes="72px"
               priority
               className="invert-on-dark"
             />

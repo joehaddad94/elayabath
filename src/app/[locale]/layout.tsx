@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Barlow, Barlow_Condensed } from "next/font/google";
+import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader/SiteHeader";
 import { LOCALES, directionOf, isLocale } from "@/lib/i18n/config";
 import { SITE_ORIGIN } from "@/lib/site";
+import { getDictionary } from "@/lib/i18n";
+import { organizationSchema, websiteSchema } from "@/lib/seo";
 import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "@/styles/globals.css";
 
@@ -31,6 +34,10 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
+  // The default for every page. Each page overrides it with its own
+  // path; without this the home page would have none, since it has no
+  // metadata export of its own.
+  alternates: { canonical: "/" },
   title: {
     default: "Elaya Bath — Because Bathrooms Matter",
     template: "%s — Elaya Bath",
@@ -83,6 +90,14 @@ export default async function LocaleLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
+        {/* Sitewide, so the publisher is stated once and every other node
+            can point at it by @id rather than repeating itself. */}
+        <JsonLd
+          graph={[
+            organizationSchema(getDictionary(locale).contactAddresses),
+            websiteSchema(),
+          ]}
+        />
         <SiteHeader locale={locale} />
         {children}
         <SiteFooter locale={locale} />

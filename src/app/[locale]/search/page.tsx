@@ -6,8 +6,10 @@ import { SearchBox } from "@/components/SearchBox/SearchBox";
 import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.search()),
   title: "Search",
   description:
     "Find a product by name, item code, type or category across the Elaya Bath range.",

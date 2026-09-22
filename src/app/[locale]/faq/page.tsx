@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
 import { Faq } from "@/components/Faq/Faq";
+import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { Note } from "@/components/Note/Note";
 import { PageHead } from "@/components/PageHead/PageHead";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
@@ -10,8 +11,10 @@ import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./faq.module.css";
+import { canonical, faqSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.faq()),
   title: "FAQ",
   description:
     "Materials, installation and water efficiency: the questions Elaya Bath is asked most.",
@@ -29,6 +32,10 @@ export default async function FaqPage({
 
   return (
     <main id="main">
+      {/* t.faq.real only. The drafted answers below them are marked on the
+          page as unapproved, and structured data would strip that caveat and
+          present a proposal as the company's published position. */}
+      <JsonLd graph={[faqSchema([...t.faq.real])]} />
       <PageHead
         title={t.faq.title}
         lede={t.faq.lede}

@@ -34,6 +34,16 @@
   font-size: 0.9rem;
 }
 
+/* 17px tall before this. A stacked list of links cannot claim the inline
+   exception to WCAG 2.2 target size, and they sit too close together for the
+   spacing one, so each gets a real target. */
+.foot a,
+.mail {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
 .foot a {
   color: inherit;
   text-decoration: none;

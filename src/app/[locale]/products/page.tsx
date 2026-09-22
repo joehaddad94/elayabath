@@ -11,8 +11,10 @@ import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./products.module.css";
+import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  alternates: canonical(routes.products()),
   title: "Products",
   description:
     "Browse washbasins, toilets, tapware, bathtubs, showers and accessories by category, with item codes and finishes.",

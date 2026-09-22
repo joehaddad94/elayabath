@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
 import { Icon } from "@/components/Icon/Icon";
+import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
@@ -18,6 +19,7 @@ import {
 import { format, getDictionary } from "@/lib/i18n";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
 import styles from "./product.module.css";
 
 export function generateStaticParams() {
@@ -44,6 +46,7 @@ export async function generateMetadata({
     ]
       .filter(Boolean)
       .join(", "),
+    alternates: canonical(routes.product(product.slug)),
     openGraph: { images: [product.image.src] },
   };
 }
@@ -78,23 +81,29 @@ export default async function ProductPage({
     spec.push([t.common.features, product.features.join(" · ")]);
   }
 
+  const crumbs = [
+    { label: t.nav.home, href: routes.home(locale) },
+    { label: t.products.title, href: routes.products(locale) },
+    ...(category
+      ? [{ label: category.name, href: routes.category(category.slug, locale) }]
+      : []),
+    { label: product.name },
+  ];
+
   return (
     <main id="main">
+      <JsonLd
+        graph={[
+          productSchema(product, routes.product(product.slug)),
+          breadcrumbSchema(crumbs.map((c) => ({ name: c.label, href: c.href }))),
+        ]}
+      />
       <Section className={styles.crumbBar}>
         <Container>
           <Breadcrumbs
             label={t.common.breadcrumb}
             items={[
-              { label: t.nav.home, href: routes.home(locale) },
-              { label: t.products.title, href: routes.products(locale) },
-              ...(category
-                ? [
-                    {
-                      label: category.name,
-                      href: routes.category(category.slug, locale),
-                    },
-                  ]
-                : []),
+              ...crumbs.slice(0, -1),
               { label: product.name },
             ]}
           />

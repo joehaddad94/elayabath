@@ -16,6 +16,9 @@
 .crumbs a {
   color: var(--accent-text);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 
 .crumbs a:hover {

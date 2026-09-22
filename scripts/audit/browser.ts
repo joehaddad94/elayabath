@@ -17,6 +17,9 @@
  *   - horizontal overflow at desktop and phone width
  *   - images that fail to load, and images with no alt text
  *   - heading order, landmarks, and one h1 per page
+ *   - target size, duplicate ids and unlabelled controls
+ *   - canonical link, structured data and meta description length
+ *   - images served at more pixels than the layout paints
  *
  * Routes come from the catalogue rather than a list, so widening the slice
  * widens the audit with it.
@@ -126,6 +129,13 @@ for (const theme of ["ink", "stone"] as const) {
     });
 
     const page1440 = await page.evaluate<{
+      targets: string[];
+      dupIds: string[];
+      unlabelled: string[];
+      oversized: string[];
+      canonical: string | null;
+      descLength: number;
+      jsonLd: number;
       overflow: number;
       noAlt: number;
       broken: string[];
@@ -249,7 +259,78 @@ for (const theme of ["ink", "stone"] as const) {
         if (edge < 3) controls.push({ key: variant, ratio: Number(edge.toFixed(2)) });
       }
 
+      /* WCAG 2.2 SC 2.5.8: a target is at least 24x24 CSS px. The exception
+         for an inline link inside running text does not cover a stacked list
+         of links, which is what a footer is, so those are measured. A control
+         wrapped in a label inherits the label's target. */
+      const targets: string[] = [];
+      for (const el of document.querySelectorAll(
+        "a[href], button, input[type=checkbox], input[type=radio], summary",
+      )) {
+        const node = el as HTMLElement;
+        if (node.getAttribute("aria-hidden") === "true" || node.tabIndex < 0) continue;
+        const rect = node.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+        if (
+          node.tagName === "A" &&
+          node.closest("p") &&
+          getComputedStyle(node).display === "inline"
+        ) {
+          continue;
+        }
+        if (rect.width >= 24 && rect.height >= 24) continue;
+        const label = node.closest("label")?.getBoundingClientRect();
+        if (label && label.width >= 24 && label.height >= 24) continue;
+        targets.push(
+          `${node.tagName.toLowerCase()} ${Math.round(rect.width)}x${Math.round(rect.height)} ` +
+            `"${(node.textContent ?? "").trim().slice(0, 20)}"`,
+        );
+      }
+
+      /* An id repeated on a page breaks every label[for], aria-labelledby and
+         fragment link that points at it, silently. */
+      const idCount = new Map<string, number>();
+      for (const el of document.querySelectorAll("[id]")) {
+        idCount.set(el.id, (idCount.get(el.id) ?? 0) + 1);
+      }
+      const dupIds = [...idCount].filter(([, n]) => n > 1).map(([id]) => id);
+
+      /* A form control with no label is unusable with a screen reader and
+         loses its click-to-focus target for everyone else. */
+      const unlabelled: string[] = [];
+      for (const el of document.querySelectorAll("input, select, textarea")) {
+        const node = el as HTMLInputElement;
+        if (node.type === "hidden") continue;
+        const byFor = node.id && document.querySelector(`label[for="${CSS.escape(node.id)}"]`);
+        if (byFor || node.closest("label")) continue;
+        if (node.getAttribute("aria-label") ?? node.getAttribute("aria-labelledby")) continue;
+        unlabelled.push(`${node.tagName.toLowerCase()}[${node.type}]`);
+      }
+
+      /* Serving four times the pixels a layout paints is bandwidth spent on
+         nothing. Flags a next/image that needs a `sizes` hint. */
+      const oversized = imgs
+        .filter((i) => {
+          const w = i.getBoundingClientRect().width * devicePixelRatio;
+          return w > 0 && i.naturalWidth > w * 2;
+        })
+        .map((i) => `${i.currentSrc.split("/").pop()?.slice(0, 32)} ` +
+          `${i.naturalWidth}px served for ${Math.round(i.getBoundingClientRect().width)}px painted`);
+
+      const canonicalHref = document
+        .querySelector("link[rel=canonical]")
+        ?.getAttribute("href");
+      const metaDesc =
+        document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content ?? "";
+
       return {
+        targets,
+        dupIds,
+        unlabelled,
+        oversized,
+        canonical: canonicalHref ?? null,
+        descLength: metaDesc.length,
+        jsonLd: document.querySelectorAll('script[type="application/ld+json"]').length,
         controls,
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         noAlt: imgs.filter((i) => !i.hasAttribute("alt")).length,
@@ -278,6 +359,15 @@ for (const theme of ["ink", "stone"] as const) {
     if (page1440.landmarks !== 4) problems.push(`${page1440.landmarks}/4 landmarks`);
     if (!page1440.hasTitle) problems.push("no title");
     if (!page1440.hasDesc) problems.push("no meta description");
+    if (page1440.descLength > 160) {
+      problems.push(`description ${page1440.descLength} chars (truncates at 160)`);
+    }
+    if (!page1440.canonical) problems.push("no canonical link");
+    if (page1440.jsonLd === 0) problems.push("no structured data");
+    if (page1440.dupIds.length > 0) problems.push(`duplicate id: ${page1440.dupIds[0]}`);
+    for (const u of new Set(page1440.unlabelled)) problems.push(`unlabelled ${u}`);
+    for (const t of new Set(page1440.targets)) problems.push(`target under 24px: ${t}`);
+    for (const o of new Set(page1440.oversized)) problems.push(`oversized image: ${o}`);
 
     for (const c of page1440.controls) {
       problems.push(`control boundary ${c.key} ${c.ratio}:1 (needs 3:1)`);

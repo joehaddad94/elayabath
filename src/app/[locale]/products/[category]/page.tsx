@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
+import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PageHead } from "@/components/PageHead/PageHead";
 import { ProductBrowser } from "@/components/ProductBrowser/ProductBrowser";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
@@ -14,6 +15,12 @@ import {
 import { getDictionary } from "@/lib/i18n";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import {
+  breadcrumbSchema,
+  canonical,
+  categorySchema,
+  clampDescription,
+} from "@/lib/seo";
 import type { Finish } from "@/lib/types";
 import styles from "./category.module.css";
 
@@ -33,9 +40,14 @@ export async function generateMetadata({
   if (!category) return {};
   return {
     title: category.name,
-    description:
+    // The client's blurbs run to 270-300 characters, which a result page
+    // truncates mid-sentence. Trimmed to a whole sentence under the limit,
+    // falling back to a generated line where the blurb has no sentence break.
+    description: clampDescription(
       category.blurb?.[0] ??
-      `${category.totalInCatalogue} ${category.name.toLowerCase()} from Elaya Bath, with item codes, dimensions and finishes.`,
+        `${category.totalInCatalogue} ${category.name.toLowerCase()} from Elaya Bath, with item codes, dimensions and finishes.`,
+    ),
+    alternates: canonical(routes.category(category.slug)),
   };
 }
 
@@ -60,8 +72,24 @@ export default async function CategoryPage({
     .map((finishSlug) => getFinish(finishSlug))
     .filter((f): f is Finish => Boolean(f));
 
+  const crumbs = [
+    { name: t.nav.home, href: routes.home(locale) },
+    { name: t.products.title, href: routes.products(locale) },
+    { name: category.name },
+  ];
+
   return (
     <main id="main">
+      <JsonLd
+        graph={[
+          categorySchema(
+            category,
+            routes.category(category.slug),
+            products.map((p) => routes.product(p.slug)),
+          ),
+          breadcrumbSchema(crumbs),
+        ]}
+      />
       <PageHead
         title={category.name}
         lede={
@@ -70,11 +98,7 @@ export default async function CategoryPage({
             : `${category.totalInCatalogue} ${category.name.toLowerCase()} in the full catalogue, ${category.count} of them in this build.`
         }
         crumbLabel={t.common.breadcrumb}
-        crumbs={[
-          { label: t.nav.home, href: routes.home(locale) },
-          { label: t.products.title, href: routes.products(locale) },
-          { label: category.name },
-        ]}
+        crumbs={crumbs.map((c) => ({ label: c.name, href: c.href }))}
       />
 
       <Section tight>

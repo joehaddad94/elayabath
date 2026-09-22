@@ -33,9 +33,15 @@
   flex-wrap: wrap;
 }
 
+/* WCAG 2.2 target size: 24x24 CSS px. These were 23, a single pixel short,
+   because their height was whatever the line box happened to be. Stated
+   rather than inherited. */
 .links a {
   text-decoration: none;
   letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   color: color-mix(in srgb, var(--color-text) 82%, transparent);
 }
 
