@@ -1,0 +1,50 @@
+/* Stone — warm limestone ground, aged-brass accent.
+   Palette only: colours, ramps and shadows. No layout lives here.
+   Every value was contrast-audited in the prototype before this repo existed;
+   changing one means re-running that audit. */
+
+[data-theme="stone"] {
+  --color-bg: #e6e0d5;
+  --color-surface: #ded7c9;
+  --color-text: #221f1a;
+  --color-accent: #7d5c30;
+  --color-accent-2: #8a6a45;
+  --color-divider: color-mix(in srgb, #221f1a 20%, transparent);
+
+  --color-neutral-100: #eae6de;
+  --color-neutral-200: #dbd7d0;
+  --color-neutral-300: #c9c5be;
+  --color-neutral-400: #b4b0a9;
+  --color-neutral-500: #a09c95;
+  --color-neutral-600: #8b8781;
+  --color-neutral-700: #6e6a64;
+  --color-neutral-800: #524f4a;
+  --color-neutral-900: #3a3632;
+
+  --color-accent-100: #e9e2d7;
+  --color-accent-200: #d8cebe;
+  --color-accent-300: #c3b49d;
+  --color-accent-400: #ac9679;
+  --color-accent-500: #947954;
+  --color-accent-600: #7d5c30;
+  --color-accent-700: #634a28;
+  --color-accent-800: #4c3a22;
+  --color-accent-900: #362a1b;
+
+  --color-accent-2-100: #eae3d9;
+  --color-accent-2-200: #dbd1c3;
+  --color-accent-2-300: #c8b9a6;
+  --color-accent-2-400: #b49f85;
+  --color-accent-2-500: #9f8465;
+  --color-accent-2-600: #8a6a45;
+  --color-accent-2-700: #6d5438;
+  --color-accent-2-800: #52402c;
+  --color-accent-2-900: #392e21;
+
+  /* small accent text on this ground — 6.29:1 */
+  --accent-text: #634a28;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #1a1713 22%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #1a1713 26%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #1a1713 34%, transparent);
+}

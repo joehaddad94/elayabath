@@ -42,7 +42,7 @@ Repository, toolchain and the shape everything else drops into.
 
 **Done when:** `npm run build` succeeds on an empty shell and the tree has no create-next-app leftovers.
 
-## M1 — Design system and theming `[ ]`
+## M1 — Design system and theming `[x]`
 
 The visual foundation, ported from the approved prototype rather than reinvented.
 

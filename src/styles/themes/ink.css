@@ -1,0 +1,55 @@
+/* Ink — charcoal ground, polished-brass accent.
+   Palette only: colours, ramps and shadows. No layout lives here.
+   Every value was contrast-audited in the prototype before this repo existed;
+   changing one means re-running that audit. */
+
+[data-theme="ink"] {
+  --color-bg: #17191b;
+  --color-surface: #212427;
+  --color-text: #ece9e3;
+  --color-accent: #c9a063;
+  --color-accent-2: #bf9455;
+  --color-divider: color-mix(in srgb, #ece9e3 22%, transparent);
+
+  --color-neutral-100: #e8e6e1;
+  --color-neutral-200: #dad7d2;
+  --color-neutral-300: #c7c5c0;
+  --color-neutral-400: #b3b0ab;
+  --color-neutral-500: #9e9c97;
+  --color-neutral-600: #8a8782;
+  --color-neutral-700: #6a6865;
+  --color-neutral-800: #4d4c4a;
+  --color-neutral-900: #323232;
+
+  --color-accent-100: #ede8de;
+  --color-accent-200: #e7ddcc;
+  --color-accent-300: #e0cfb3;
+  --color-accent-400: #d9bf99;
+  --color-accent-500: #d1b07e;
+  --color-accent-600: #c9a063;
+  --color-accent-700: #997b4e;
+  --color-accent-800: #6c583b;
+  --color-accent-900: #443929;
+
+  --color-accent-2-100: #ece7dd;
+  --color-accent-2-200: #e5dac8;
+  --color-accent-2-300: #dccaae;
+  --color-accent-2-400: #d3b890;
+  --color-accent-2-500: #c9a673;
+  --color-accent-2-600: #bf9455;
+  --color-accent-2-700: #927244;
+  --color-accent-2-800: #685234;
+  --color-accent-2-900: #413625;
+
+  /* small accent text on this ground — 11.54:1 */
+  --accent-text: #e0cfb3;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #101113 22%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #101113 26%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #101113 34%, transparent);
+}
+
+/* The logo and the four category marks are dark line art on transparency.
+   Inverted here so they read on the charcoal ground. Product photography
+   and the finish swatches are NEVER touched — their colour is the point. */
+[data-theme="ink"] .invert-on-dark { filter: invert(1); }
