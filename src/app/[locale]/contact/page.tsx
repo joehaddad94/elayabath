@@ -119,7 +119,7 @@ export default async function ContactPage({
         </Container>
       </Section>
 
-      <Section id="enquiry">
+      <Section id="enquiry" band>
         <Container>
           <SectionHead
             label={t.contact.formHeading}

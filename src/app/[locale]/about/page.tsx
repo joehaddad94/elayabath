@@ -98,7 +98,7 @@ export default async function AboutPage({
         </Container>
       </Section>
 
-      <Section>
+      <Section band>
         <Container>
           <SectionHead label={t.products.startWithCategory} />
           <div className={styles.chips}>

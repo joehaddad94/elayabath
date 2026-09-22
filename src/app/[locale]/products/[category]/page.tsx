@@ -90,7 +90,7 @@ export default async function CategoryPage({
         </Container>
       </Section>
 
-      <Section>
+      <Section band>
         <Container>
           <SectionHead label={t.product.quoteHeading} />
           <p className={styles.lede}>{t.product.quoteBody}</p>

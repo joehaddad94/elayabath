@@ -14,6 +14,9 @@
 :root[data-theme="ink"] {
   --color-bg: #17191b;
   --color-surface: #212427;
+  /* Between the ground (#17191b) and the surface (#212427) so a card lifts
+     off a banded section as clearly as off the ground. */
+  --color-band: #1c1f21;
   --color-text: #ece9e3;
   --color-accent: #c9a063;
   --color-accent-2: #bf9455;

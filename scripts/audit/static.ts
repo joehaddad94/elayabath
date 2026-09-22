@@ -60,11 +60,15 @@ const codeFiles = () =>
 /* ── checks ─────────────────────────────────────────────────────────── */
 
 /**
- * The prototype measured 62.5% as the point where muted text stops clearing
- * 4.5:1 on these grounds, and moved everything to 65%. Components written
- * later reintroduced 50% and 60% text in five places.
+ * The floor is set by the darkest ground muted text can land on, and that
+ * moves whenever the palette gains a tone.
+ *
+ * 62.5% was the measured threshold against the page ground, so everything
+ * went to 65%. Section banding then introduced a third tone below the ground
+ * on the stone palette, and four styles at 65% fell to 4.42:1 on it. Raised
+ * to 70%, which clears the band as well as the ground.
  */
-const MUTED_FLOOR = 65;
+const MUTED_FLOOR = 70;
 
 const checks: Check[] = [
   {

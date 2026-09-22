@@ -25,7 +25,7 @@
   line-height: 1.2;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
   margin: 0;
 }
 
@@ -33,5 +33,5 @@
   margin-inline-start: auto;
   font-size: 0.75rem;
   letter-spacing: 0.1em;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }

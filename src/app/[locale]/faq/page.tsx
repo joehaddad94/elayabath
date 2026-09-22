@@ -49,7 +49,7 @@ export default async function FaqPage({
 
       {/* Drafted answers sit in their own section behind a warning, so nobody
           can mistake one for the client's own words. */}
-      <Section>
+      <Section band>
         <Container>
           <SectionHead label={t.faq.draftHeading} count={t.faq.draftLabel} />
           <Note label={t.draft.needsApproval}>

@@ -16,6 +16,10 @@
      muted text at 4.42:1 against a 4.5 floor once cards were actually
      filled. Both problems, one value. */
   --color-surface: #f1ece3;
+  /* Below the ground (#e6e0d5) rather than above it, because the surface is
+     above: the band recedes, the card lifts, and the two never meet. This is
+     the value the surface used to be, which is why it read as a recess. */
+  --color-band: #ded7c9;
   --color-text: #221f1a;
   --color-accent: #7d5c30;
   --color-accent-2: #8a6a45;

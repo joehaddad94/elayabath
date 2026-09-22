@@ -20,7 +20,7 @@
 .hint {
   font-size: 0.8rem;
   margin-top: var(--space-2);
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
 
 .count {
@@ -70,5 +70,5 @@
 .meta {
   grid-column: 1 / -1;
   font-size: 0.82rem;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }

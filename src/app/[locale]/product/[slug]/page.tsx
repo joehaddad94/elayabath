@@ -180,7 +180,7 @@ export default async function ProductPage({
       </Section>
 
       {related.length > 0 && (
-        <Section>
+        <Section band>
           <Container>
             <SectionHead
               label={t.product.related}

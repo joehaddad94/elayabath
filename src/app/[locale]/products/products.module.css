@@ -80,7 +80,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
   font-variant-numeric: tabular-nums;
 }
 

@@ -138,7 +138,7 @@ export default async function ProductsPage({
         </Container>
       </Section>
 
-      <Section>
+      <Section band>
         <Container>
           <SectionHead label={t.products.knowTheCode} />
           <p className={styles.intro}>{t.products.knowTheCodeBody}</p>

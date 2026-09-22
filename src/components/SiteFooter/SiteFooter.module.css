@@ -54,7 +54,7 @@
   font-size: 0.74rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
 
 .social {
@@ -68,5 +68,5 @@
   padding-top: var(--space-6);
   border-top: var(--rule);
   font-size: 0.78rem;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }

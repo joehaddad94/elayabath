@@ -124,13 +124,29 @@ a {
 
    Overridden here in the page layer rather than by editing the vendored
    system, so the system stays a clean upstream copy. */
-.card {
+.card,
+figure.blueprint {
   background: var(--color-surface);
 }
 
-/* The image sits on the same panel as its caption, so a card reads as one
-   object rather than a frame with a hole in it. */
-.card .figure,
+/* A figure inside a card is already on the card's panel; filling it again
+   would stack two surfaces. This is also what left the homepage's featured
+   product and every product page's main image transparent when only .card
+   was targeted. */
 .card figure {
   background: transparent;
+}
+
+/* ── section banding ──────────────────────────────────────────────────
+   Filling the containers stopped the page being one tone horizontally, but
+   it still ran top to bottom in a single ground. Alternate bands give it
+   vertical rhythm, so a long page reads as a sequence of rooms rather than
+   one wall.
+
+   --color-band sits between the ground and the surface deliberately, so a
+   container lifts off either one. Getting that ordering wrong is how banding
+   usually makes cards vanish on every other section. */
+.band {
+  background: var(--color-band);
+  border-block: var(--rule);
 }

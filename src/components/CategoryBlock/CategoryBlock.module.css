@@ -81,5 +81,5 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }

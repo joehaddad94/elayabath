@@ -134,7 +134,7 @@
 .note {
   margin-top: var(--space-4);
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
   max-width: 54ch;
 }
 

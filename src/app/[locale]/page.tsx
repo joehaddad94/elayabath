@@ -100,7 +100,7 @@ export default async function HomePage({
         )}
       </Hero>
 
-      <Section>
+      <Section band>
         <Container>
           <PullQuote
             text={t.home.quote}
@@ -133,7 +133,7 @@ export default async function HomePage({
         </Container>
       </Section>
 
-      <Section id="detail">
+      <Section id="detail" band>
         <Container>
           <SectionHead
             index="02"
@@ -159,7 +159,7 @@ export default async function HomePage({
         </Container>
       </Section>
 
-      <Section id="quote">
+      <Section id="quote" band>
         <Container>
           <SectionHead index="04" label={t.product.quoteHeading} />
           <div className={styles.close}>

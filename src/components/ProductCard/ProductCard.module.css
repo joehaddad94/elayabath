@@ -54,7 +54,7 @@
 .dim {
   margin: 0;
   font-size: 0.82rem;
-  color: color-mix(in srgb, var(--color-text) 68%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
 
 .meta {
@@ -65,7 +65,7 @@
   gap: var(--space-3);
   font-size: 0.75rem;
   letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
   font-variant-numeric: tabular-nums;
 }
 

@@ -26,15 +26,19 @@ export function Container({
 export function Section({
   className,
   tight = false,
+  band = false,
   children,
   id,
 }: {
   className?: string;
   tight?: boolean;
+  /** Sit this band on the alternate ground, for vertical rhythm down a long
+   *  page. The tone is ordered so containers still lift off it. */
+  band?: boolean;
   children: ReactNode;
   id?: string;
 }) {
-  const cls = [styles.section, tight ? styles.tight : "", className ?? ""]
+  const cls = [styles.section, tight ? styles.tight : "", band ? "band" : "", className ?? ""]
     .filter(Boolean)
     .join(" ");
   return (

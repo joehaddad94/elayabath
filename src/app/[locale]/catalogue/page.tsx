@@ -95,7 +95,7 @@ export default async function CataloguePage({
         </Container>
       </Section>
 
-      <Section>
+      <Section band>
         <Container>
           <SectionHead label={t.catalogue.sheetsHeading} />
           <p className={styles.body}>{t.catalogue.sheetsBody}</p>
