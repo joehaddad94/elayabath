@@ -98,7 +98,7 @@ Everything that wraps a page.
 
 **Done when:** filters work, are linkable, and the counts come from the data rather than being written by hand.
 
-## M6 — Product detail `[ ]`
+## M6 — Product detail `[x]`
 
 - `/product/[sku]` generated for all 50
 - Image that actually renders, unlike the live site

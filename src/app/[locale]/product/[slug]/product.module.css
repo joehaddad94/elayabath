@@ -1,0 +1,123 @@
+.crumbBar {
+  padding-block: var(--space-4);
+}
+
+.pdp {
+  display: grid;
+  gap: calc(var(--space-8) * 1.6);
+  align-items: start;
+}
+
+@media (min-width: 62rem) {
+  .pdp {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: calc(var(--space-8) * 2.4);
+  }
+
+  .media {
+    position: sticky;
+    top: calc(var(--space-8) * 2.6);
+  }
+}
+
+/* Product photography keeps true colour: no duotone. The finish is the one
+   attribute the buyer is choosing. */
+.figure img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  padding: calc(var(--space-8) * 1.4);
+  display: block;
+}
+
+.kicker {
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.title {
+  font-size: clamp(2.1rem, 4.4vw, 3.2rem);
+  text-transform: uppercase;
+  margin: var(--space-3) 0;
+}
+
+.sku {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  margin-bottom: var(--space-8);
+}
+
+.sku b {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+
+.desc {
+  font-size: 1.02rem;
+  line-height: 1.66;
+  max-width: 54ch;
+}
+
+.spec {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: calc(var(--space-8) * 1.4);
+  font-size: 0.92rem;
+}
+
+.spec th,
+.spec td {
+  text-align: start;
+  padding: var(--space-3) 0;
+  border-bottom: var(--rule);
+  vertical-align: top;
+}
+
+.spec th {
+  width: 12rem;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+
+.doc {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--accent-text);
+}
+
+.missing {
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  font-size: 0.85rem;
+}
+
+.quote {
+  position: relative;
+  margin-top: calc(var(--space-8) * 1.6);
+  padding: calc(var(--space-8) * 1.2);
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.quote h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+}
+
+.quote p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+  max-width: 46ch;
+}
