@@ -15,8 +15,7 @@ Build progress is tracked in [MILESTONES.md](./MILESTONES.md).
 npm install
 npm run dev        # http://localhost:3000
 npm run build      # production build, prerenders every route
-npm run lint
-npm run typecheck
+npm run check      # typecheck, lint, test, audit, build. The gate before pushing
 npm run ingest     # regenerate data/ from the source archive
 ```
 
@@ -80,6 +79,45 @@ Three rules keep this from rotting:
    (`lib/finishes.ts`, `lib/search.ts`) instead. This is not hypothetical: routing the search
    index through `catalogue.ts` put a 45 KB chunk of product records in front of every visitor
    who opened the search page, and the only symptom was the bundle size.
+
+## Checking the work
+
+`npm run check` runs everything: types, lint, tests, the static audit, and a
+production build.
+
+**Tests** (`npm test`, Vitest) cover pure logic only: parsing, ranking,
+grouping, formatting. Every case is a real record from the client's catalogue
+rather than an invented one, because the parsing exists precisely because
+their data is inconsistent, and testing it against tidy input would prove
+nothing.
+
+**The static audit** (`npm run audit`) needs no dependencies and no browser.
+Each check is there because that rule was broken once, silently:
+
+| Check | The failure it catches |
+| --- | --- |
+| muted text meets the contrast floor | five styles drifted to 50-60% after 65% had already been established by measurement |
+| no hard-coded colours in the page layer | a hex that ignores the theme and only shows up in one palette |
+| client components never reach the catalogue | `lib/catalogue.ts` imports every JSON at module scope, so one import from a `"use client"` file ships 45 KB of product records to the browser |
+| no unused dictionary keys | a string nothing renders, that a translator would still be paid for |
+| no unused exports | usually a helper that was duplicated inline somewhere instead |
+| no font weight loaded but never painted | three of five weights were downloading for nothing |
+| data files in step with the code | a product referencing an image or data sheet that is not on disk |
+
+**The browser audit** (`npm run audit:browser`) measures what the static one
+cannot: contrast against the pixels actually painted behind each text node,
+horizontal overflow at 1440 and 390, broken images, alt text, heading order
+and landmarks. Its routes come from the catalogue, so widening the slice
+widens the audit with it.
+
+Playwright is deliberately not a dependency: it pulls a few hundred megabytes
+of browser binaries for a tool run occasionally. Install it when you want it:
+
+```bash
+npm i -D playwright && npx playwright install chromium
+npm run build && npm start          # one terminal
+npm run audit:browser               # another
+```
 
 ## Search
 

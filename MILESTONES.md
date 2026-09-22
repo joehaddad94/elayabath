@@ -193,6 +193,42 @@ the same defect the 404 had before M9. Added.
 
 ---
 
+## Closing the audit's own gaps
+
+The audit above found seven defects and fixed them, but left three things it
+had relied on and not kept.
+
+**Tests.** Vitest, 38 tests over the pure logic: SKU slugging including the
+two-codes-in-one-field pair, finish parsing including the resin slugs that
+double-encode their own code and the typos preserved rather than corrected,
+dimension extraction including the unicode multiplication sign, search
+ranking, finish grouping and string formatting. No component tests: nothing
+here has render behaviour the types and the browser audit do not already
+cover, and a jsdom harness would be more machinery than the coverage is worth.
+
+**The audit scripts are in the repo.** They were in a scratch directory,
+having caught five contrast failures and a bundle leak, which is exactly the
+kind of tool that should not live somewhere disposable. Split in two, on the
+principle that the always-on check should cost nothing:
+
+- `npm run audit` is static, needs no dependencies, and is part of
+  `npm run check`. Seven checks, each one encoding a rule that was broken
+  silently at least once. Verified by deliberately reintroducing four of those
+  violations and confirming each is caught and the exit code gates.
+- `npm run audit:browser` measures rendered pixels and needs Playwright, which
+  is deliberately not a dependency. Its routes are derived from the catalogue
+  rather than listed, so the audit widens when the slice does.
+
+**Data sheet weight.** Left in the repo as agreed, with the ingest and the
+audit now reporting the number and projecting it to the full catalogue
+(10 MB today, about 121 MB at 596), so the decision arrives with evidence
+rather than as a surprise.
+
+One thing changed along the way: `@types/node` was pinned at `^20` by the
+scaffold while the project runs on Node 24. Bumped to `^24`.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

@@ -9,7 +9,11 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "ingest": "node scripts/ingest/index.ts",
-    "check": "npm run typecheck && npm run lint && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run audit && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "audit": "node scripts/audit/static.ts",
+    "audit:browser": "node scripts/audit/browser.ts"
   },
   "dependencies": {
     "next": "16.3.5",
@@ -17,12 +21,13 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^24.13.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.1"
   },
   "engines": {
     "node": ">=20.9.0"
