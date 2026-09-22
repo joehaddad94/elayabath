@@ -1,9 +1,15 @@
 /* Stone — warm limestone ground, aged-brass accent.
+
+   Qualified with :root so it beats the default palette on specificity rather
+   than on import order. Ink is declared on bare :root so an un-themed
+   document still renders; at equal specificity whichever file imported last
+   would win, which is exactly how selecting Stone silently stopped working
+   the first time this was tried.
    Palette only: colours, ramps and shadows. No layout lives here.
    Every value was contrast-audited in the prototype before this repo existed;
    changing one means re-running that audit. */
 
-[data-theme="stone"] {
+:root[data-theme="stone"] {
   --color-bg: #e6e0d5;
   --color-surface: #ded7c9;
   --color-text: #221f1a;

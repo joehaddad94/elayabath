@@ -1,9 +1,17 @@
-/* Ink — charcoal ground, polished-brass accent.
+/* Ink — charcoal ground, polished-brass accent. The default palette.
+
+   Selected on :root as well as [data-theme="ink"] so that a document which
+   never gets the attribute still renders correctly. That is not theoretical:
+   Next serves a 404 inside its own error document, <html id="__next_error__">,
+   which replaces the root layout's <html> and so carries no data-theme. Without
+   this the 404 fell back to the design system's own steel defaults and rendered
+   in a palette that appears nowhere else on the site.
    Palette only: colours, ramps and shadows. No layout lives here.
    Every value was contrast-audited in the prototype before this repo existed;
    changing one means re-running that audit. */
 
-[data-theme="ink"] {
+:root,
+:root[data-theme="ink"] {
   --color-bg: #17191b;
   --color-surface: #212427;
   --color-text: #ece9e3;

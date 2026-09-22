@@ -119,7 +119,10 @@ export function ProductBrowser({
 
   return (
     <div className={styles.shelf}>
-      <form className={styles.facets} aria-label={t.category.filters}>
+      <form className={styles.facets} aria-labelledby="facets-heading">
+        <h2 className="sr-only" id="facets-heading">
+          {t.category.filters}
+        </h2>
         <Facet
           title={t.common.productType}
           name="type"
@@ -195,6 +198,7 @@ export function ProductBrowser({
       </form>
 
       <div>
+        <h2 className="sr-only">{t.common.products}</h2>
         <div className={styles.toolbar}>
           <p className={styles.count} role="status">
             {format(t.category.showing, {

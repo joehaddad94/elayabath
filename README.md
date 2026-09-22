@@ -75,6 +75,28 @@ Two rules keep this from rotting:
 2. **`scripts/ingest/` is the only code that knows the source archive exists.** Everything
    downstream sees clean typed records.
 
+## Search
+
+The search index is emitted by the ingest alongside the catalogue and loaded
+with a dynamic import, so it becomes its own chunk fetched the first time
+someone opens search rather than weight every other visitor carries. Matching
+is deliberately exact rather than fuzzy: the people it has to serve most are
+specifiers arriving with an item code from a drawing, and fuzzy matching a
+code turns a precise query into a list of near misses.
+
+## One route is not static
+
+Everything is prerendered except `[locale]/[...rest]`, which exists only to
+catch unmatched URLs and call `notFound()`. Without it an unmatched path falls
+through to Next's built-in 404, which has no layout at all: no header, no
+footer, no fonts, no theme.
+
+Even with it, Next serves a 404 inside its own error document
+(`<html id="__next_error__">`), which replaces the root layout's `<html>` and
+therefore carries no `data-theme` or `lang`. That is why the Ink palette is
+declared on bare `:root` as well as on its attribute selector: an un-themed
+document still has to render in a palette the site actually uses.
+
 ## Data
 
 The catalogue comes from a full crawl of the live site held outside this repo. `npm run ingest`

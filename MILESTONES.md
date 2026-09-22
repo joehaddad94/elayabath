@@ -125,7 +125,7 @@ Everything that wraps a page.
 
 **Done when:** all three render and every page states it needs legal review.
 
-## M9 — Search and quality pass `[ ]`
+## M9 — Search and quality pass `[x]`
 
 - Client-side search over the prebuilt index, by name, item code, type and category
 - Accessibility pass: landmarks, headings, focus states, contrast
@@ -134,6 +134,22 @@ Everything that wraps a page.
 - Final type, lint and build gate
 
 **Done when:** the build is clean, search works, and the accessibility checks that were run on the prototype pass here.
+
+**Result:** 71 routes build, 65 prerendered as HTML. Audited at 1440px and
+390px in both palettes across 19 routes: zero horizontal overflow, zero broken
+images, every image with alt text, one h1 per page, no heading level skips,
+all four landmarks present, a title and meta description everywhere.
+
+Three defects found by that audit and fixed:
+
+- every category page skipped from h1 to h3, because the filter panel and the
+  product cards both used h3 with no h2 between them
+- an unmatched URL fell through to Next's built-in 404 with no site shell
+- that 404 then rendered in the design system's steel defaults, a palette used
+  nowhere else on the site, because Next's error document carries no
+  `data-theme`. Declaring Ink on bare `:root` fixed it, and qualifying Stone
+  with `:root` keeps it winning on specificity rather than import order, which
+  is what silently broke the Stone palette on the first attempt.
 
 ---
 
