@@ -14,3 +14,4 @@ export function getDictionary(locale: Locale = DEFAULT_LOCALE): Dictionary {
 
 export type { Dictionary };
 export * from "./config";
+export { format } from "./format";

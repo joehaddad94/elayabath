@@ -16,7 +16,7 @@ import {
   getFinishes,
   getProducts,
 } from "@/lib/catalogue";
-import { getDictionary } from "@/lib/i18n";
+import { format, getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./page.module.css";
@@ -115,7 +115,10 @@ export default async function HomePage({
           <SectionHead
             index="01"
             label={t.home.productsLabel}
-            count={t.home.productsMeta(featured.length, meta.categoriesInCatalogue)}
+            count={format(t.home.productsMeta, {
+              shown: featured.length,
+              total: meta.categoriesInCatalogue,
+            })}
           />
           {featured.map((category, index) => (
             <CategoryBlock

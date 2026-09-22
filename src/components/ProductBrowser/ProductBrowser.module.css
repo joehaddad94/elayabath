@@ -1,0 +1,224 @@
+.shelf {
+  display: grid;
+  gap: calc(var(--space-8) * 1.5);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .shelf {
+    grid-template-columns: 17rem 1fr;
+    gap: calc(var(--space-8) * 2);
+  }
+
+  .facets {
+    position: sticky;
+    top: calc(var(--space-8) * 2.6);
+    max-height: calc(100vh - var(--space-8) * 4);
+    overflow-y: auto;
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-6);
+  margin-bottom: calc(var(--space-8) * 1.2);
+  border-bottom: var(--rule);
+}
+
+.count {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  margin: 0;
+}
+
+.count b {
+  color: var(--color-text);
+  font-weight: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.facet + .facet {
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+  border-top: var(--rule);
+}
+
+.facet > h3 {
+  margin: 0 0 var(--space-4);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.facet ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+
+.opt input {
+  accent-color: var(--color-accent);
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.optLabel {
+  font-size: 0.92rem;
+}
+
+.optCount {
+  margin-inline-start: auto;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.opt:hover .optLabel {
+  color: var(--accent-text);
+}
+
+/* Colour, grouped by the material it belongs to. The live site lists about
+   sixty swatches in one flat unlabelled column, above a Materials list built
+   from radio buttons, which silently means one choice only and no way to
+   unpick it. The product data already encodes the grouping in the colour
+   code prefix, so the filter simply follows the data. */
+.group + .group {
+  margin-top: var(--space-6);
+}
+
+.group > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.group > summary::after {
+  content: "";
+  margin-inline-start: auto;
+  width: 7px;
+  height: 7px;
+  border-inline-end: 1px solid currentColor;
+  border-block-end: 1px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.18s;
+}
+
+.group[open] > summary::after {
+  transform: rotate(-135deg) translate(-3px, -3px);
+}
+
+.group > summary:hover {
+  color: var(--accent-text);
+}
+
+.groupCount {
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.4rem, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.swatch {
+  display: grid;
+  gap: var(--space-2);
+  cursor: pointer;
+  justify-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.swatch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.swatch img,
+.swatchMissing {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--color-divider);
+}
+
+.swatchMissing {
+  display: grid;
+  place-content: center;
+  border-style: dashed;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+
+.swatchName {
+  font-size: 0.66rem;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.swatch:hover img {
+  border-color: var(--color-accent);
+}
+
+.swatch input:focus-visible ~ img,
+.swatch input:focus-visible ~ .swatchMissing {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.swatch input:checked ~ img,
+.swatch input:checked ~ .swatchMissing {
+  border-color: var(--color-accent);
+  border-width: 2px;
+}
+
+.swatch input:checked ~ .swatchName {
+  color: var(--accent-text);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+.empty {
+  padding-block: calc(var(--space-8) * 2);
+  font-size: 1rem;
+  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}

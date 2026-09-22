@@ -1,6 +1,12 @@
 /**
  * Every string the interface says, in one place.
  *
+ * Values are strings, never functions. A dictionary crosses into client
+ * components, and a function cannot be serialised across that boundary; it
+ * also has to survive becoming a JSON file when a second language arrives.
+ * Anything with a variable in it uses a {named} placeholder and goes through
+ * `format()`.
+ *
  * Two kinds of text live here and they are not the same thing:
  *
  *   - Interface labels, written for this build. "Request a quote" does not
@@ -65,7 +71,7 @@ const en = {
   common: {
     breadcrumb: "Breadcrumb",
     requestQuote: "Request a quote",
-    requestQuoteFor: (sku: string) => `Request a quote for ${sku}`,
+    requestQuoteFor: "Request a quote for {sku}",
     browseProducts: "Browse the products",
     shopTheSelection: "Shop the selection",
     downloadCatalogue: "Download the catalogue",
@@ -103,8 +109,7 @@ const en = {
     quote: "‘All toilets look the same’, is a widely believed Myth.",
     quoteAttribution: "Elaya Bath",
     productsLabel: "Products",
-    productsMeta: (shown: number, total: number) =>
-      `${shown} of ${total} categories`,
+    productsMeta: "{shown} of {total} categories",
   },
 
   products: {
@@ -122,7 +127,7 @@ const en = {
   category: {
     filters: "Filter products",
     clearAll: "Clear all",
-    showing: (shown: number, total: number) => `Showing ${shown} of ${total}`,
+    showing: "Showing {shown} of {total}",
     noResults:
       "Nothing matches that combination. Clear a filter to widen the results.",
     swatchNote:
@@ -131,7 +136,7 @@ const en = {
   },
 
   product: {
-    finishCount: (n: number) => `Finish — ${n} available`,
+    finishCount: "Finish — {n} available",
     noFinishes:
       "Supplied in one finish only. No finish options are recorded for this item.",
     selected: "Selected",
@@ -147,7 +152,7 @@ const en = {
     title: "Search",
     placeholder: "Product name or item code",
     label: "Search products",
-    resultsFor: (q: string) => `Results for “${q}”`,
+    resultsFor: "Results for “{q}”",
     noResults: "Nothing found. Try an item code, or browse by category.",
     hint: "Search by product name, item code, type or category.",
   },

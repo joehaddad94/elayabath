@@ -88,7 +88,7 @@ Everything that wraps a page.
 
 **Done when:** it matches the approved prototype in both palettes.
 
-## M5 — Catalogue browsing `[ ]`
+## M5 — Catalogue browsing `[x]`
 
 - `/products` category directory with real counts
 - `/products/[category]` listing

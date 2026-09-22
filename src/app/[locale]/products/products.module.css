@@ -1,0 +1,113 @@
+.intro {
+  max-width: 62ch;
+  font-size: 1.02rem;
+  color: color-mix(in srgb, var(--color-text) 80%, transparent);
+  margin-bottom: calc(var(--space-8) * 1.5);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+}
+
+.card {
+  padding: 0;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.media {
+  display: block;
+  text-decoration: none;
+}
+
+.photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+/* Category marks are line art, not photographs, so the frame does not need a
+   photograph's height. height:auto or aspect-ratio never applies: the
+   intrinsic height attribute makes both dimensions definite. */
+.icon {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 11;
+  object-fit: contain;
+  padding: calc(var(--space-8) * 1.4);
+  display: block;
+}
+
+.body {
+  padding: var(--space-4);
+  border-top: var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.title {
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.title a {
+  text-decoration: none;
+}
+
+.title a:hover {
+  color: var(--accent-text);
+}
+
+.meta {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.cta {
+  margin-top: var(--space-3);
+}
+
+.note {
+  position: relative;
+  border: 1px solid var(--color-accent);
+  padding: var(--space-6);
+  margin-top: calc(var(--space-8) * 2);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.note b {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.note p {
+  margin: 0;
+  font-size: 0.92rem;
+  max-width: 70ch;
+}
