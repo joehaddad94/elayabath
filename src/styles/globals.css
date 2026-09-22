@@ -107,3 +107,30 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── containers have a surface ────────────────────────────────────────
+   A deliberate departure from the design system.
+
+   Industry treats every card and figure as a wireframe object: square,
+   hairline-bordered and transparent, so the page reads as a drawing sheet.
+   `system.css` enforces that by overriding its own `.card` fill back to
+   transparent. Across a whole catalogue it flattens: ground, card and figure
+   are one tone, and nothing separates a product from the page behind it.
+
+   So containers take `--color-surface`, the token both palettes already
+   define for exactly this and which nothing else used. The square corners,
+   the hairline border and the registration marks all stay, so the system's
+   grammar is intact; only the fill changes.
+
+   Overridden here in the page layer rather than by editing the vendored
+   system, so the system stays a clean upstream copy. */
+.card {
+  background: var(--color-surface);
+}
+
+/* The image sits on the same panel as its caption, so a card reads as one
+   object rather than a frame with a hole in it. */
+.card .figure,
+.card figure {
+  background: transparent;
+}

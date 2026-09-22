@@ -9,7 +9,6 @@
   display: block;
   text-decoration: none;
   position: relative;
-  background: transparent; /* figures are line drawings, never filled */
 }
 
 .media img {

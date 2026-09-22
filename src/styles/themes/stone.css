@@ -11,7 +11,11 @@
 
 :root[data-theme="stone"] {
   --color-bg: #e6e0d5;
-  --color-surface: #ded7c9;
+  /* Lighter than the ground, not darker. Containers should lift off a light
+     palette rather than recess into it, and the original value put small
+     muted text at 4.42:1 against a 4.5 floor once cards were actually
+     filled. Both problems, one value. */
+  --color-surface: #f1ece3;
   --color-text: #221f1a;
   --color-accent: #7d5c30;
   --color-accent-2: #8a6a45;
