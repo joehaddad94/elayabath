@@ -135,6 +135,7 @@ for (const theme of ["ink", "stone"] as const) {
       hasTitle: boolean;
       hasDesc: boolean;
       contrast: Array<{ key: string; ratio: number; floor: number; size: number; text: string }>;
+      controls: Array<{ key: string; ratio: number }>;
     }>(() => {
       const imgs = [...document.querySelectorAll("img")];
       const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map((h) =>
@@ -217,7 +218,33 @@ for (const theme of ["ink", "stone"] as const) {
         }
       }
 
+      /* WCAG 1.4.11: a control's boundary needs 3:1 against what surrounds
+         it, or its shape is not perceivable. The design system borders every
+         button with --color-divider, a hairline meant for rules between
+         sections, which measured 1.48:1 on stone. */
+      const controls: Array<{ key: string; ratio: number }> = [];
+      const seenVariants = new Set<string>();
+      for (const el of document.querySelectorAll(".btn")) {
+        if (el.closest("[data-over-photo]")) continue;
+        const cs = getComputedStyle(el);
+        const variant = [...el.classList].filter((c) => c.startsWith("btn")).sort().join(".");
+        if (seenVariants.has(variant)) continue;
+        seenVariants.add(variant);
+        const under = bgOf(el.parentElement ?? el);
+        const fill = paint(cs.backgroundColor, under);
+        const isFilled = opacity(cs.backgroundColor) > 0.95;
+        const l = (c: number[]) => lum(c);
+        const r = (a: number[], bq: number[]) =>
+          (Math.max(l(a), l(bq)) + 0.05) / (Math.min(l(a), l(bq)) + 0.05);
+        const border = paint(cs.borderTopColor, fill);
+        const edge = isFilled
+          ? r(fill, under)
+          : Math.min(r(border, under), r(border, fill));
+        if (edge < 3) controls.push({ key: variant, ratio: Number(edge.toFixed(2)) });
+      }
+
       return {
+        controls,
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         noAlt: imgs.filter((i) => !i.hasAttribute("alt")).length,
         broken: imgs.filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src),
@@ -245,6 +272,10 @@ for (const theme of ["ink", "stone"] as const) {
     if (page1440.landmarks !== 4) problems.push(`${page1440.landmarks}/4 landmarks`);
     if (!page1440.hasTitle) problems.push("no title");
     if (!page1440.hasDesc) problems.push("no meta description");
+
+    for (const c of page1440.controls) {
+      problems.push(`control boundary ${c.key} ${c.ratio}:1 (needs 3:1)`);
+    }
 
     for (const c of page1440.contrast) {
       contrast.push(

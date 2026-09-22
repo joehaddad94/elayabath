@@ -23,6 +23,12 @@
   --color-text: #221f1a;
   --color-accent: #7d5c30;
   --color-accent-2: #8a6a45;
+  /* The boundary of an interactive control, which WCAG asks to clear 3:1
+     against what surrounds it. --color-divider is a hairline rule between
+     sections and is far too faint for this: measured at 1.48:1 on stone, so
+     a button's shape was effectively invisible.
+     stone needs more than ink: its text is dark on light grounds, so a tint of it lifts more slowly (3.6:1 worst case) */
+  --color-control: color-mix(in srgb, var(--color-text) 58%, transparent);
   --color-divider: color-mix(in srgb, #221f1a 20%, transparent);
 
   --color-neutral-100: #eae6de;

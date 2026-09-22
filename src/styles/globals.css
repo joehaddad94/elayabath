@@ -150,3 +150,55 @@ figure.blueprint {
   background: var(--color-band);
   border-block: var(--rule);
 }
+
+/* ── buttons ──────────────────────────────────────────────────────────
+   Three levels, because the site previously had one.
+
+   Every button was a hairline outline in --color-divider, a token meant for
+   rules between sections. Measured against what surrounds it that came to
+   1.48:1 on stone and 1.86:1 on ink, against the 3:1 WCAG asks of a control
+   boundary. The shape of a button was barely perceivable, which is both a
+   failure and the reason the interface read as flat.
+
+   Now:
+     solid accent   the one main action on a view
+     accent outline the commercial action, repeated per product
+     neutral        everything else
+
+   The middle level is the important one. "Request a quote" appears on every
+   card and is the only thing on this site that leads anywhere commercial, so
+   it should not look like a back link. Outlined rather than filled, because
+   the system allows one solid object per view and twelve filled buttons in a
+   product grid would shout. */
+/* Every control, not just the outlined ones. The icon buttons in the header
+   and footer take only the base .btn rule, so fixing .btn-secondary alone
+   left them at 1.48:1. --color-primary and --color-ghost still override this
+   with their own border, so nothing else is disturbed. */
+.btn {
+  border-color: var(--color-control);
+}
+
+.btn-primary {
+  border-color: var(--color-accent);
+}
+
+.btn-secondary:hover {
+  border-color: color-mix(in srgb, var(--color-text) 75%, transparent);
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+/* The commercial action. Accent border and accent text, so it reads as the
+   thing to press without becoming a second solid object. */
+.btn-quote {
+  border-color: var(--color-accent);
+  color: var(--accent-text);
+}
+
+.btn-quote:hover {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  border-color: var(--color-accent);
+}
+
+.btn-quote:active {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}

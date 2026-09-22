@@ -56,7 +56,7 @@ export function ProductCard({
           )}
         </div>
         <Link
-          className={`btn btn-secondary btn-block ${styles.cta}`}
+          className={`btn btn-quote btn-block ${styles.cta}`}
           href={routes.quote(product.sku, locale)}
         >
           {t.common.requestQuote}

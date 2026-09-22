@@ -20,6 +20,12 @@
   --color-text: #ece9e3;
   --color-accent: #c9a063;
   --color-accent-2: #bf9455;
+  /* The boundary of an interactive control, which WCAG asks to clear 3:1
+     against what surrounds it. --color-divider is a hairline rule between
+     sections and is far too faint for this: measured at 1.48:1 on stone, so
+     a button's shape was effectively invisible.
+     clears 3:1 on all three grounds with margin (4.33:1 worst case) */
+  --color-control: color-mix(in srgb, var(--color-text) 50%, transparent);
   --color-divider: color-mix(in srgb, #ece9e3 22%, transparent);
 
   --color-neutral-100: #e8e6e1;

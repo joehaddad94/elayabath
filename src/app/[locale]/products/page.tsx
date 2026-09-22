@@ -111,7 +111,7 @@ export default async function ProductsPage({
                     </span>
                   </div>
                   <Link
-                    className={`btn btn-secondary btn-block ${styles.cta}`}
+                    className={`btn btn-quote btn-block ${styles.cta}`}
                     href={routes.category(category.slug, locale)}
                   >
                     {t.common.viewAll}
