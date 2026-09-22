@@ -7,6 +7,7 @@ import { Container, Section } from "@/components/Container/Container";
 import { FinishRail } from "@/components/FinishRail/FinishRail";
 import { Hero } from "@/components/Hero/Hero";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
+import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { PullQuote } from "@/components/PullQuote/PullQuote";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
@@ -132,6 +133,32 @@ export default async function HomePage({
           ))}
         </Container>
       </Section>
+
+      {/* A photograph between the categories and the grid. Reused from the
+          Products page banner: there are four wide images in the recovered
+          set and four other placements, so a distinct one has to come from
+          the client. Noted rather than quietly duplicated. */}
+      <PhotoBand
+        image={{
+          src: "/rooms/shop-banner.webp",
+          alt: "A dark timber bathroom with a free-standing bath and a stone vessel basin on a timber counter, forest visible through full-height glass",
+          width: 2048,
+          height: 797,
+        }}
+        label={t.home.bandLabel}
+        heading={t.home.bandHeading}
+        actions={
+          <>
+            <Link className="btn btn-primary blueprint" href={routes.products(locale)}>
+              {t.common.browseProducts}
+              <Marks />
+            </Link>
+            <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
+              {t.common.downloadCatalogue}
+            </Link>
+          </>
+        }
+      />
 
       <Section id="detail" band>
         <Container>

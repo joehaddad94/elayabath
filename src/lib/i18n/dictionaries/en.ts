@@ -109,6 +109,8 @@ const en = {
     quote: "‘All toilets look the same’, is a widely believed Myth.",
     quoteAttribution: "Elaya Bath",
     productsLabel: "Products",
+    bandLabel: "The whole range",
+    bandHeading: "596 products, 50 categories, 87 finishes",
     productsMeta: "{shown} of {total} categories",
   },
 
