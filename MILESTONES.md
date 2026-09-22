@@ -54,7 +54,7 @@ The visual foundation, ported from the approved prototype rather than reinvented
 
 **Done when:** a page renders in both palettes, the toggle persists across a reload, and there is no flash.
 
-## M2 — Data layer `[ ]`
+## M2 — Data layer `[x]`
 
 The pipeline that turns the 1.1 GB scrape into a small typed dataset.
 

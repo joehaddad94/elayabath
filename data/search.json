@@ -1,0 +1,352 @@
+[
+  {
+    "s": "e02-sw30008",
+    "n": "ALCO",
+    "k": "E02-SW30008",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e02-sw30007",
+    "n": "ALCOVE",
+    "k": "E02-SW30007",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e01-sw10114",
+    "n": "ARCO",
+    "k": "E01-SW10114",
+    "t": "Above Counter Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e02-sw30055",
+    "n": "ARIA",
+    "k": "E02-SW30055",
+    "t": "Free Standing Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e05-sf10270",
+    "n": "ARIA",
+    "k": "E05-SF10270",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf20073",
+    "n": "ARIA",
+    "k": "E05-SF20073",
+    "t": "Basin mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e06-sw10413",
+    "n": "AXE C",
+    "k": "E06-SW10413",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e06-sw10412",
+    "n": "AXE S",
+    "k": "E06-SW10412",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e05-ac40161",
+    "n": "BASKET",
+    "k": "E05-AC40161",
+    "t": "Accessories",
+    "c": "Accessories"
+  },
+  {
+    "s": "e02-sw30035",
+    "n": "BELLA",
+    "k": "E02-SW30035",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e02-sw30024",
+    "n": "BIZA",
+    "k": "E02-SW30024",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e02-sw30060",
+    "n": "BRISA",
+    "k": "E02-SW30060",
+    "t": "Free Standing Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e02-sw30014",
+    "n": "CARNATION",
+    "k": "E02-SW30014",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e06-sw10225",
+    "n": "CINTRA",
+    "k": "E06-SW10225",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e02-sw40005",
+    "n": "CRYSTALCAST",
+    "k": "E02-SW40005",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e02-sw30063",
+    "n": "DIAMOND",
+    "k": "E02-SW30063",
+    "t": "Free Standing Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e06-sw10230",
+    "n": "DIVA",
+    "k": "E06-SW10230",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e03-sf10087",
+    "n": "DOT",
+    "k": "E03-SF10087",
+    "t": "Basin mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e02-sw30080",
+    "n": "DROPO",
+    "k": "E02-SW30080",
+    "t": "Free Standing Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e02-sw30059",
+    "n": "FIORE",
+    "k": "E02-SW30059",
+    "t": "Free Standing Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e03-sf10088",
+    "n": "FLUX",
+    "k": "E03-SF10088",
+    "t": "Basin mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e03-sf10089",
+    "n": "FLUX",
+    "k": "E03-SF10089",
+    "t": "Basin mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e03-sf30209",
+    "n": "FLUX",
+    "k": "E03-SF30209",
+    "t": "Shower mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e05-ac40029",
+    "n": "FLUX",
+    "k": "E05-AC40029",
+    "t": "Towel bar",
+    "c": "Accessories"
+  },
+  {
+    "s": "e05-ac40030",
+    "n": "FLUX",
+    "k": "E05-AC40030",
+    "t": "Towel ring",
+    "c": "Accessories"
+  },
+  {
+    "s": "e05-ac40031",
+    "n": "FLUX",
+    "k": "E05-AC40031",
+    "t": "Paper holder",
+    "c": "Accessories"
+  },
+  {
+    "s": "e05-ac40033",
+    "n": "FLUX",
+    "k": "E05-AC40033",
+    "t": "Tumbler holder",
+    "c": "Accessories"
+  },
+  {
+    "s": "e05-sf10062",
+    "n": "FLUX",
+    "k": "E05-SF10062",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf10066",
+    "n": "FLUX",
+    "k": "E05-SF10066",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf10046",
+    "n": "FUSIO",
+    "k": "E05-SF10046",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf10052",
+    "n": "FUSIO",
+    "k": "E05-SF10052",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf10307",
+    "n": "LIWAN",
+    "k": "E05-SF10307",
+    "t": "Bath shower column",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf10309",
+    "n": "LIWAN",
+    "k": "E05-SF10309",
+    "t": "Shower mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e05-sf10310",
+    "n": "LIWAN",
+    "k": "E05-SF10310",
+    "t": "Shower mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e05-sf10314",
+    "n": "LIWAN",
+    "k": "E05-SF10314",
+    "t": "Hand shower",
+    "c": "Showers"
+  },
+  {
+    "s": "e05-sf20104",
+    "n": "LIWAN",
+    "k": "E05-SF20104",
+    "t": "Bath mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e05-ms50007",
+    "n": "MISC",
+    "k": "E05-MS50007",
+    "t": "Bidet mixer",
+    "c": "Tapware"
+  },
+  {
+    "s": "e02-sw20046",
+    "n": "MOJO",
+    "k": "E02-SW20046",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e01-sw10007",
+    "n": "RECTO",
+    "k": "E01-SW10007",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e05-ac40172",
+    "n": "RECTO",
+    "k": "E05-AC40172",
+    "t": "Accessories",
+    "c": "Accessories"
+  },
+  {
+    "s": "e06-sw10417",
+    "n": "RECTO S",
+    "k": "E06-SW10417",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e01-sw10017",
+    "n": "ROUNDA",
+    "k": "E01-SW10017",
+    "t": "Above Counter Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e01-sw10018",
+    "n": "ROVARA",
+    "k": "E01-SW10018",
+    "t": "Semi-Recessed Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e05-ac40272",
+    "n": "SOAP DISPENSER",
+    "k": "E05-AC40272",
+    "t": "Soap Dispenser",
+    "c": "Accessories"
+  },
+  {
+    "s": "e06-sw10409",
+    "n": "SOLIS",
+    "k": "E06-SW10409",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e06-sw10352",
+    "n": "SPHERE",
+    "k": "E06-SW10352",
+    "t": "Above Counter Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e06-sw10358",
+    "n": "TREGA",
+    "k": "E06-SW10358",
+    "t": "Above Counter Washbasin",
+    "c": "Washbasins"
+  },
+  {
+    "s": "e06-sw10232",
+    "n": "TUSCANY",
+    "k": "E06-SW10232",
+    "t": "Wall Hung Wc",
+    "c": "Toilets"
+  },
+  {
+    "s": "e02-sw20057",
+    "n": "WHIP",
+    "k": "E02-SW20057",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  },
+  {
+    "s": "e02-sw20058",
+    "n": "WHIP",
+    "k": "E02-SW20058",
+    "t": "Free Standing Bathtub",
+    "c": "Bathtubs"
+  }
+]

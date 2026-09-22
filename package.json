@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "ingest": "node --experimental-strip-types scripts/ingest/index.ts",
+    "ingest": "node scripts/ingest/index.ts",
     "check": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
@@ -26,5 +26,6 @@
   },
   "engines": {
     "node": ">=20.9.0"
-  }
+  },
+  "type": "module"
 }

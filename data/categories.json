@@ -1,0 +1,309 @@
+[
+  {
+    "slug": "washbasins",
+    "name": "Washbasins",
+    "blurb": [
+      "A washbasin is more than just a functional element in your bathroom, it’s a centerpiece that defines style and utility. Whether sleek and minimalist or bold and artistic, the right washbasin can elevate the entire aesthetic of your space while offering the practicality you need for everyday use.",
+      "At ELAYA BATH , we craft washbasins that blend form and function seamlessly, ensuring they not only meet your design expectations but also enhance your daily rituals with effortless sophistication."
+    ],
+    "count": 10,
+    "totalInCatalogue": 131,
+    "image": "/rooms/room-washbasins.webp",
+    "icon": "/icons/icon-washbasins.png",
+    "productTypes": [
+      {
+        "value": "free-standing-washbasin",
+        "label": "Free Standing Washbasin",
+        "count": 5
+      },
+      {
+        "value": "above-counter-washbasin",
+        "label": "Above Counter Washbasin",
+        "count": 4
+      },
+      {
+        "value": "semi-recessed-washbasin",
+        "label": "Semi-Recessed Washbasin",
+        "count": 1
+      }
+    ],
+    "materials": [
+      {
+        "value": "solid-surface",
+        "label": "Solid surface",
+        "count": 5
+      },
+      {
+        "value": "ceramic",
+        "label": "Ceramic",
+        "count": 4
+      }
+    ],
+    "finishes": [
+      "c00-white",
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ]
+  },
+  {
+    "slug": "bathtubs",
+    "name": "Bathtubs",
+    "blurb": null,
+    "count": 9,
+    "totalInCatalogue": 203,
+    "image": null,
+    "icon": "/icons/icon-furniture.png",
+    "productTypes": [
+      {
+        "value": "free-standing-bathtub",
+        "label": "Free Standing Bathtub",
+        "count": 9
+      }
+    ],
+    "materials": [
+      {
+        "value": "solid-surface",
+        "label": "Solid surface",
+        "count": 5
+      },
+      {
+        "value": "acrylic",
+        "label": "Acrylic",
+        "count": 2
+      }
+    ],
+    "finishes": [
+      "a00-white",
+      "a01-black",
+      "a02-white-and-black",
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ]
+  },
+  {
+    "slug": "tapware",
+    "name": "Tapware",
+    "blurb": [
+      "Tapware is underrated. You’ll see it from every time you wash your hands to every time you get ready, they’re essential for everyday use. Making sure that your faucet reflects and meets your dream ambience is key, and ELAYA BATH is here to help deliver looks and function."
+    ],
+    "count": 9,
+    "totalInCatalogue": 77,
+    "image": "/rooms/room-tapware.webp",
+    "icon": "/icons/icon-tapware.png",
+    "productTypes": [
+      {
+        "value": "basin-mixer",
+        "label": "Basin mixer",
+        "count": 4
+      },
+      {
+        "value": "shower-mixer",
+        "label": "Shower mixer",
+        "count": 3
+      },
+      {
+        "value": "bath-mixer",
+        "label": "Bath mixer",
+        "count": 1
+      },
+      {
+        "value": "bidet-mixer",
+        "label": "Bidet mixer",
+        "count": 1
+      }
+    ],
+    "materials": [
+      {
+        "value": "plating",
+        "label": "Metal finish",
+        "count": 8
+      }
+    ],
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p02-matt-white",
+      "p04-burshed-nickel",
+      "p05-polished-black-chrome",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p09-brushed-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p15-brushed-dark-gold",
+      "p16-polished-brass",
+      "p17-brushed-brass",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ]
+  },
+  {
+    "slug": "toilets",
+    "name": "Toilets",
+    "blurb": [
+      "‘All toilets look the same’, is a widely believed Myth.",
+      "ELAYA BATH is here to change that for you. When designing and curating an aesthetically pleasing bathroom, the toilet is a fundamental factor that may enhance your bathroom.",
+      "From vintage to sleek, to modern, to earthy… ELAYA BATH can assure you that not only will we meet your stylistic standards, but we will bring forward impeccable functionality."
+    ],
+    "count": 8,
+    "totalInCatalogue": 26,
+    "image": "/rooms/room-toilets.webp",
+    "icon": "/icons/icon-toilets.png",
+    "productTypes": [
+      {
+        "value": "wall-hung-wc",
+        "label": "Wall Hung Wc",
+        "count": 8
+      }
+    ],
+    "materials": [
+      {
+        "value": "ceramic",
+        "label": "Ceramic",
+        "count": 8
+      }
+    ],
+    "finishes": [
+      "c00-white",
+      "c01-black",
+      "c02-matt-white",
+      "c03-matt-black",
+      "c04-matt-brown",
+      "c05-matt-dark-grey",
+      "c06-matt-light-grey",
+      "c07-matt-blue",
+      "c08-matt-khaki",
+      "c09-grey-2",
+      "c10-khaki",
+      "c11-brown"
+    ]
+  },
+  {
+    "slug": "accessories",
+    "name": "Accessories",
+    "blurb": null,
+    "count": 7,
+    "totalInCatalogue": 90,
+    "image": null,
+    "icon": null,
+    "productTypes": [
+      {
+        "value": "accessories",
+        "label": "Accessories",
+        "count": 2
+      },
+      {
+        "value": "paper-holder",
+        "label": "Paper holder",
+        "count": 1
+      },
+      {
+        "value": "soap-dispenser",
+        "label": "Soap Dispenser",
+        "count": 1
+      },
+      {
+        "value": "towel-bar",
+        "label": "Towel bar",
+        "count": 1
+      },
+      {
+        "value": "towel-ring",
+        "label": "Towel ring",
+        "count": 1
+      },
+      {
+        "value": "tumbler-holder",
+        "label": "Tumbler holder",
+        "count": 1
+      }
+    ],
+    "materials": [
+      {
+        "value": "plating",
+        "label": "Metal finish",
+        "count": 7
+      }
+    ],
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ]
+  },
+  {
+    "slug": "showers",
+    "name": "Showers",
+    "blurb": null,
+    "count": 7,
+    "totalInCatalogue": 13,
+    "image": null,
+    "icon": null,
+    "productTypes": [
+      {
+        "value": "bath-shower-column",
+        "label": "Bath shower column",
+        "count": 6
+      },
+      {
+        "value": "hand-shower",
+        "label": "Hand shower",
+        "count": 1
+      }
+    ],
+    "materials": [
+      {
+        "value": "plating",
+        "label": "Metal finish",
+        "count": 7
+      }
+    ],
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ]
+  }
+]

@@ -1,0 +1,386 @@
+[
+  {
+    "slug": "a00-white",
+    "code": "A00",
+    "name": "White",
+    "family": "acrylic",
+    "familyName": "Acrylic",
+    "image": null
+  },
+  {
+    "slug": "a01-black",
+    "code": "A01",
+    "name": "Black",
+    "family": "acrylic",
+    "familyName": "Acrylic",
+    "image": null
+  },
+  {
+    "slug": "a02-white-and-black",
+    "code": "A02",
+    "name": "White And Black",
+    "family": "acrylic",
+    "familyName": "Acrylic",
+    "image": null
+  },
+  {
+    "slug": "c00-white",
+    "code": "C00",
+    "name": "White",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c00-white.webp"
+  },
+  {
+    "slug": "c01-black",
+    "code": "C01",
+    "name": "Black",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c01-black.webp"
+  },
+  {
+    "slug": "c02-matt-white",
+    "code": "C02",
+    "name": "Matt White",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c02-matt-white.webp"
+  },
+  {
+    "slug": "c03-matt-black",
+    "code": "C03",
+    "name": "Matt Black",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c03-matt-black.webp"
+  },
+  {
+    "slug": "c04-matt-brown",
+    "code": "C04",
+    "name": "Matt Brown",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c04-matt-brown.webp"
+  },
+  {
+    "slug": "c05-matt-dark-grey",
+    "code": "C05",
+    "name": "Matt Dark Grey",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c05-matt-dark-grey.webp"
+  },
+  {
+    "slug": "c06-matt-light-grey",
+    "code": "C06",
+    "name": "Matt Light Grey",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c06-matt-light-grey.webp"
+  },
+  {
+    "slug": "c07-matt-blue",
+    "code": "C07",
+    "name": "Matt Blue",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c07-matt-blue.webp"
+  },
+  {
+    "slug": "c08-matt-khaki",
+    "code": "C08",
+    "name": "Matt Khaki",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c08-matt-khaki.webp"
+  },
+  {
+    "slug": "c09-grey-2",
+    "code": "C09",
+    "name": "Grey",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c09-grey-2.webp"
+  },
+  {
+    "slug": "c10-khaki",
+    "code": "C10",
+    "name": "Khaki",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c10-khaki.webp"
+  },
+  {
+    "slug": "c11-brown",
+    "code": "C11",
+    "name": "Brown",
+    "family": "ceramic",
+    "familyName": "Ceramic",
+    "image": "/swatches/c11-brown.webp"
+  },
+  {
+    "slug": "p00-chrome",
+    "code": "P00",
+    "name": "Chrome",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p00-chrome.webp"
+  },
+  {
+    "slug": "p01-matt-black",
+    "code": "P01",
+    "name": "Matt Black",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p01-matt-black.webp"
+  },
+  {
+    "slug": "p02-matt-white",
+    "code": "P02",
+    "name": "Matt White",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p04-burshed-nickel",
+    "code": "P04",
+    "name": "Burshed Nickel",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p04-burshed-nickel.webp"
+  },
+  {
+    "slug": "p05-polished-black-chrome",
+    "code": "P05",
+    "name": "Polished Black Chrome",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p06-light-gunmetal",
+    "code": "P06",
+    "name": "Light Gunmetal",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p06-light-gunmetal.webp"
+  },
+  {
+    "slug": "p08-polished-copper",
+    "code": "P08",
+    "name": "Polished Copper",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p08-polished-copper.webp"
+  },
+  {
+    "slug": "p08-polished-rose-gold",
+    "code": "P08",
+    "name": "Polished Rose Gold",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p08-polished-rose-gold.webp"
+  },
+  {
+    "slug": "p09-brushed-rose-gold",
+    "code": "P09",
+    "name": "Brushed Rose Gold",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p10-brushed-copper",
+    "code": "P10",
+    "name": "Brushed Copper",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p10-brushed-copper.webp"
+  },
+  {
+    "slug": "p14-polished-dark-gold",
+    "code": "P14",
+    "name": "Polished Dark Gold",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p14-polished-dark-gold.webp"
+  },
+  {
+    "slug": "p15-brushed-dark-gold",
+    "code": "P15",
+    "name": "Brushed Dark Gold",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p16-polished-brass",
+    "code": "P16",
+    "name": "Polished Brass",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p17-brushed-brass",
+    "code": "P17",
+    "name": "Brushed Brass",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": null
+  },
+  {
+    "slug": "p18-polished-champagne",
+    "code": "P18",
+    "name": "Polished Champagne",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p18-polished-champagne.webp"
+  },
+  {
+    "slug": "p19-brushed-champagne",
+    "code": "P19",
+    "name": "Brushed Champagne",
+    "family": "plating",
+    "familyName": "Metal finish",
+    "image": "/swatches/p19-brushed-champagne.webp"
+  },
+  {
+    "slug": "ss00-matt-white",
+    "code": "SS00",
+    "name": "Matt White",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss00-matt-white.webp"
+  },
+  {
+    "slug": "ss01-pearl-white",
+    "code": "SS01",
+    "name": "Pearl White",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss01-pearl-white.webp"
+  },
+  {
+    "slug": "ss02-ivory",
+    "code": "SS02",
+    "name": "Ivory",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss02-ivory.webp"
+  },
+  {
+    "slug": "ss03-smoke",
+    "code": "SS03",
+    "name": "Smoke",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss03-smoke.webp"
+  },
+  {
+    "slug": "ss04-thunder",
+    "code": "SS04",
+    "name": "Thunder",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss04-thunder.webp"
+  },
+  {
+    "slug": "ss05-yellow-peach",
+    "code": "SS05",
+    "name": "Yellow Peach",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss05-yellow-peach.webp"
+  },
+  {
+    "slug": "ss06-pale-yellow-sand",
+    "code": "SS06",
+    "name": "Pale Yellow Sand",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss06-pale-yellow-sand.webp"
+  },
+  {
+    "slug": "ss07-brown-gold",
+    "code": "SS07",
+    "name": "Brown Gold",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss07-brown-gold.webp"
+  },
+  {
+    "slug": "ss08-rouge-pink",
+    "code": "SS08",
+    "name": "Rouge Pink",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss08-rouge-pink.webp"
+  },
+  {
+    "slug": "ss09-blackish-green",
+    "code": "SS09",
+    "name": "Blackish Green",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss09-blackish-green.webp"
+  },
+  {
+    "slug": "ss10-royale-blue",
+    "code": "SS10",
+    "name": "Royale Blue",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss10-royale-blue.webp"
+  },
+  {
+    "slug": "ss11-chili",
+    "code": "SS11",
+    "name": "Chili",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss11-chili.webp"
+  },
+  {
+    "slug": "ss12-dark-cement-grey",
+    "code": "SS12",
+    "name": "Dark Cement Grey",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss12-dark-cement-grey.webp"
+  },
+  {
+    "slug": "ss13-gypsophila",
+    "code": "SS13",
+    "name": "Gypsophila",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss13-gypsophila.webp"
+  },
+  {
+    "slug": "ss14-dark-black",
+    "code": "SS14",
+    "name": "Dark Black",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss14-dark-black.webp"
+  },
+  {
+    "slug": "ss15-black-and-white",
+    "code": "SS15",
+    "name": "Black And White",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss15-black-and-white.webp"
+  },
+  {
+    "slug": "ss99-customization",
+    "code": "SS99",
+    "name": "Customization",
+    "family": "solid-surface",
+    "familyName": "Solid surface",
+    "image": "/swatches/ss99-customization.webp"
+  }
+]

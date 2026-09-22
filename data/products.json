@@ -1,0 +1,1699 @@
+[
+  {
+    "sku": "E02-SW30008",
+    "slug": "e02-sw30008",
+    "name": "ALCO",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1600 x 780 x 525 mm",
+    "description": "SOLID SURFACE FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1600X780X525 MM",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30008.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ALCO, free standing bathtub, 1600 x 780 x 525 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30008.pdf"
+  },
+  {
+    "sku": "E02-SW30007",
+    "slug": "e02-sw30007",
+    "name": "ALCOVE",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1800 x 860 x 540 mm",
+    "description": "SOLID SURFACE FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1800X860X540 MM",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30007.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ALCOVE, free standing bathtub, 1800 x 860 x 540 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30007.pdf"
+  },
+  {
+    "sku": "E01-SW10114",
+    "slug": "e01-sw10114",
+    "name": "ARCO",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "above-counter-washbasin",
+      "name": "Above Counter Washbasin"
+    },
+    "dimensions": "500 x 400 x 140 mm",
+    "description": "ABOVE COUNTER WASHBASIN WITHOUT TAP HOLE WITHOUT OVERFLOW DIMENSION: 500X400X140 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow"
+    ],
+    "image": {
+      "src": "/products/e01-sw10114.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ARCO, above counter washbasin, 500 x 400 x 140 mm"
+    },
+    "finishes": [],
+    "materials": [],
+    "datasheet": "/docs/e01-sw10114.pdf"
+  },
+  {
+    "sku": "E02-SW30055",
+    "slug": "e02-sw30055",
+    "name": "ARIA",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "free-standing-washbasin",
+      "name": "Free Standing Washbasin"
+    },
+    "dimensions": "495 x 850 mm",
+    "description": "FREE STANDING WASHBASIN WITHOUT TAP HOLE WITHOUT OVERFLOW CENTER OUTLET DIMENSION:495X850 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30055.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ARIA, free standing washbasin, 495 x 850 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30055.pdf"
+  },
+  {
+    "sku": "E05-SF10270",
+    "slug": "e05-sf10270",
+    "name": "ARIA",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10270",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10270.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ARIA, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10270.pdf"
+  },
+  {
+    "sku": "E05-SF20073",
+    "slug": "e05-sf20073",
+    "name": "ARIA",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "basin-mixer",
+      "name": "Basin mixer"
+    },
+    "dimensions": null,
+    "description": "SINGLE-LEVER BASIN MIXER WITHOUT WASTE DIMENSIONS : 144 X 171 MM PROJECTION: 120 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf20073.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ARIA, basin mixer"
+    },
+    "finishes": [
+      "p00-chrome"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf20073.pdf"
+  },
+  {
+    "sku": "E06-SW10413",
+    "slug": "e06-sw10413",
+    "name": "AXE C",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "535 x 365 x 360 mm",
+    "description": "WALL HUNG WC TORNADO WITH P-TRAP 180MM WITH SEAT AND COVER INCLUDED DIMENSION: 535 X 365 X 360 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10413.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "AXE C, wall hung wc, 535 x 365 x 360 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10413.pdf"
+  },
+  {
+    "sku": "E06-SW10412",
+    "slug": "e06-sw10412",
+    "name": "AXE S",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "535 x 365 x 360 mm",
+    "description": "WALL HUNG WC TORNADO WITH P-TRAP 180MM WITH SEAT AND COVER INCLUDED DIMENSION:535 X 365 X 360 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10412.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "AXE S, wall hung wc, 535 x 365 x 360 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10412.pdf"
+  },
+  {
+    "sku": "E05-AC40161",
+    "slug": "e05-ac40161",
+    "name": "BASKET",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "accessories",
+      "name": "Accessories"
+    },
+    "dimensions": null,
+    "description": "SOAP BASKET",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40161.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "BASKET, accessories"
+    },
+    "finishes": [
+      "p00-chrome"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40161.pdf"
+  },
+  {
+    "sku": "E02-SW30035",
+    "slug": "e02-sw30035",
+    "name": "BELLA",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1720 x 745 x 710 mm",
+    "description": "SOLID SURFACE FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW LEFT SIDE OUTLET DIMENSION:1720X745X710-870 MM",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow"
+    ],
+    "image": {
+      "src": "/products/e02-sw30035.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "BELLA, free standing bathtub, 1720 x 745 x 710 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30035.pdf"
+  },
+  {
+    "sku": "E02-SW30024",
+    "slug": "e02-sw30024",
+    "name": "BIZA",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1840 x 760 x 580 mm",
+    "description": "SOLID SURFACE FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW LEFT SIDE OUTLET DIMENSION:1840X760X580 MM",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow"
+    ],
+    "image": {
+      "src": "/products/e02-sw30024.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "BIZA, free standing bathtub, 1840 x 760 x 580 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30024.pdf"
+  },
+  {
+    "sku": "E02-SW30060",
+    "slug": "e02-sw30060",
+    "name": "BRISA",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "free-standing-washbasin",
+      "name": "Free Standing Washbasin"
+    },
+    "dimensions": "550 x 440 x 830 mm",
+    "description": "FREE STANDING WASHBASIN WITH ONE TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:550X440X830 MM",
+    "features": [
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30060.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "BRISA, free standing washbasin, 550 x 440 x 830 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30060.pdf"
+  },
+  {
+    "sku": "E02-SW30014",
+    "slug": "e02-sw30014",
+    "name": "CARNATION",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1600 x 700 x 560 mm",
+    "description": "SOLID SURFACE FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1600X700X560 MM",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30014.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "CARNATION, free standing bathtub, 1600 x 700 x 560 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30014.pdf"
+  },
+  {
+    "sku": "E06-SW10225",
+    "slug": "e06-sw10225",
+    "name": "CINTRA",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "535 x 360 x 350 mm",
+    "description": "WALL HUNG WC RIMLESS P-TRAP:180MM UF SEAT COVER DIMENSION:535 X 360 X 350 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10225.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "CINTRA, wall hung wc, 535 x 360 x 350 mm"
+    },
+    "finishes": [
+      "c11-brown",
+      "c00-white",
+      "c01-black",
+      "c02-matt-white",
+      "c03-matt-black",
+      "c04-matt-brown",
+      "c05-matt-dark-grey",
+      "c06-matt-light-grey",
+      "c07-matt-blue",
+      "c08-matt-khaki",
+      "c09-grey-2",
+      "c10-khaki"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10225.pdf"
+  },
+  {
+    "sku": "E02-SW40005",
+    "slug": "e02-sw40005",
+    "name": "CRYSTALCAST",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1600 x 800 x 520 mm",
+    "description": "RESIN FREE STANDING BATHTUB WITHOUT TAP HOLE WITHOUT OVERFLOW CENTER OUTLET DIMENSION:1600X800X520 MM RT: RESIN TRANSPARENT RF: RESIN FROSTED",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw40005.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "CRYSTALCAST, free standing bathtub, 1600 x 800 x 520 mm"
+    },
+    "finishes": [],
+    "materials": [],
+    "datasheet": "/docs/e02-sw40005.pdf"
+  },
+  {
+    "sku": "E02-SW30063",
+    "slug": "e02-sw30063",
+    "name": "DIAMOND",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "free-standing-washbasin",
+      "name": "Free Standing Washbasin"
+    },
+    "dimensions": "533 x 533 x 850 mm",
+    "description": "FREE STANDING WASHBASIN WITHOUT TAP HOLE WITHOUT OVERFLOW RIGHT SIDE OUTLET DIMENSION:533X533X850 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow"
+    ],
+    "image": {
+      "src": "/products/e02-sw30063.webp",
+      "width": 600,
+      "height": 462,
+      "alt": "DIAMOND, free standing washbasin, 533 x 533 x 850 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30063.pdf"
+  },
+  {
+    "sku": "E06-SW10230",
+    "slug": "e06-sw10230",
+    "name": "DIVA",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "530 x 380 x 335 mm",
+    "description": "WALL HUNG WC TORNADO- JET FLUSH TECHNOLOGY P-TRAP:180MM UF SEAT COVER DIMENSION:530 X 380 X 335 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10230.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "DIVA, wall hung wc, 530 x 380 x 335 mm"
+    },
+    "finishes": [
+      "c00-white",
+      "c01-black",
+      "c02-matt-white",
+      "c03-matt-black",
+      "c04-matt-brown",
+      "c05-matt-dark-grey",
+      "c06-matt-light-grey",
+      "c07-matt-blue",
+      "c08-matt-khaki",
+      "c09-grey-2",
+      "c10-khaki"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10230.pdf"
+  },
+  {
+    "sku": "E03-SF10087",
+    "slug": "e03-sf10087",
+    "name": "DOT",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "basin-mixer",
+      "name": "Basin mixer"
+    },
+    "dimensions": null,
+    "description": "SINGLE-LEVER BASIN MIXER WITHOUT WASTE DIMENSIONS : 207 X 167 MM PROJECTION : 167 MM FLOW RATE: 12.7 L/MIN AT 0.3 MPA",
+    "features": [],
+    "image": {
+      "src": "/products/e03-sf10087.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "DOT, basin mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p02-matt-white",
+      "p04-burshed-nickel",
+      "p05-polished-black-chrome",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p09-brushed-rose-gold",
+      "p15-brushed-dark-gold",
+      "p16-polished-brass",
+      "p17-brushed-brass"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e03-sf10087.pdf"
+  },
+  {
+    "sku": "E02-SW30080",
+    "slug": "e02-sw30080",
+    "name": "DROPO",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "free-standing-washbasin",
+      "name": "Free Standing Washbasin"
+    },
+    "dimensions": "500 x 850 mm",
+    "description": "FREE STANDING WASHBASIN WITH ONE TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:500X850 MM",
+    "features": [
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30080.webp",
+      "width": 600,
+      "height": 462,
+      "alt": "DROPO, free standing washbasin, 500 x 850 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30080.pdf"
+  },
+  {
+    "sku": "E02-SW30059",
+    "slug": "e02-sw30059",
+    "name": "FIORE",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "free-standing-washbasin",
+      "name": "Free Standing Washbasin"
+    },
+    "dimensions": "640 x 430 x 825 mm",
+    "description": "FREE STANDING WASHBASIN WITH ONE TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:640X430X825 MM",
+    "features": [
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw30059.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FIORE, free standing washbasin, 640 x 430 x 825 mm"
+    },
+    "finishes": [
+      "ss00-matt-white",
+      "ss01-pearl-white",
+      "ss02-ivory",
+      "ss03-smoke",
+      "ss04-thunder",
+      "ss05-yellow-peach",
+      "ss06-pale-yellow-sand",
+      "ss07-brown-gold",
+      "ss08-rouge-pink",
+      "ss09-blackish-green",
+      "ss10-royale-blue",
+      "ss11-chili",
+      "ss12-dark-cement-grey",
+      "ss13-gypsophila",
+      "ss14-dark-black",
+      "ss15-black-and-white",
+      "ss99-customization"
+    ],
+    "materials": [
+      "solid-surface"
+    ],
+    "datasheet": "/docs/e02-sw30059.pdf"
+  },
+  {
+    "sku": "E03-SF10088",
+    "slug": "e03-sf10088",
+    "name": "FLUX",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "basin-mixer",
+      "name": "Basin mixer"
+    },
+    "dimensions": null,
+    "description": "CEILING MOUNTED BASIN MIXER WITHOUT WASTE DIMENSIONS : 1000-2000 MM FLOW RATE: 12.7 L/MIN AT 0.3 MPA",
+    "features": [],
+    "image": {
+      "src": "/products/e03-sf10088.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, basin mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p02-matt-white",
+      "p04-burshed-nickel",
+      "p05-polished-black-chrome",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p09-brushed-rose-gold",
+      "p15-brushed-dark-gold",
+      "p16-polished-brass",
+      "p17-brushed-brass"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e03-sf10088.pdf"
+  },
+  {
+    "sku": "E03-SF10089",
+    "slug": "e03-sf10089",
+    "name": "FLUX",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "basin-mixer",
+      "name": "Basin mixer"
+    },
+    "dimensions": null,
+    "description": "SINGLE-LEVER BASIN MIXER WITHOUT WASTE PROJECTION : 170 MM FLOW RATE: 12.7 L/MIN AT 0.3 MPA",
+    "features": [],
+    "image": {
+      "src": "/products/e03-sf10089.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, basin mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p02-matt-white",
+      "p04-burshed-nickel",
+      "p05-polished-black-chrome",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p09-brushed-rose-gold",
+      "p15-brushed-dark-gold",
+      "p16-polished-brass",
+      "p17-brushed-brass"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e03-sf10089.pdf"
+  },
+  {
+    "sku": "E03-SF30209",
+    "slug": "e03-sf30209",
+    "name": "FLUX",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "shower-mixer",
+      "name": "Shower mixer"
+    },
+    "dimensions": null,
+    "description": "CONCEALED SHOWER MIXER 2 WAY THERMOSTASTIC SHOWER MIXER INLCUDING CONCEALED PART DIVERTER 75 MM SHOWER MIXER 140 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e03-sf30209.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, shower mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p02-matt-white",
+      "p04-burshed-nickel",
+      "p05-polished-black-chrome",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p09-brushed-rose-gold",
+      "p15-brushed-dark-gold",
+      "p16-polished-brass",
+      "p17-brushed-brass"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e03-sf30209.pdf"
+  },
+  {
+    "sku": "E05-AC40029",
+    "slug": "e05-ac40029",
+    "name": "FLUX",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "towel-bar",
+      "name": "Towel bar"
+    },
+    "dimensions": null,
+    "description": "SINGLE TOWEL BAR 600 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40029.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, towel bar"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40029.pdf"
+  },
+  {
+    "sku": "E05-AC40030",
+    "slug": "e05-ac40030",
+    "name": "FLUX",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "towel-ring",
+      "name": "Towel ring"
+    },
+    "dimensions": null,
+    "description": "TOWEL RING Ø210 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40030.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, towel ring"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40030.pdf"
+  },
+  {
+    "sku": "E05-AC40031",
+    "slug": "e05-ac40031",
+    "name": "FLUX",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "paper-holder",
+      "name": "Paper holder"
+    },
+    "dimensions": null,
+    "description": "PAPER HOLDER",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40031.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, paper holder"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40031.pdf"
+  },
+  {
+    "sku": "E05-AC40033",
+    "slug": "e05-ac40033",
+    "name": "FLUX",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "tumbler-holder",
+      "name": "Tumbler holder"
+    },
+    "dimensions": null,
+    "description": "TUMBLER HOLDER",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40033.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, tumbler holder"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-rose-gold",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40033.pdf"
+  },
+  {
+    "sku": "E05-SF10062",
+    "slug": "e05-sf10062",
+    "name": "FLUX",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10062",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10062.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10062.pdf"
+  },
+  {
+    "sku": "E05-SF10066",
+    "slug": "e05-sf10066",
+    "name": "FLUX",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10066",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10066.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FLUX, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10066.pdf"
+  },
+  {
+    "sku": "E05-SF10046",
+    "slug": "e05-sf10046",
+    "name": "FUSIO",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10046",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10046.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FUSIO, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10046.pdf"
+  },
+  {
+    "sku": "E05-SF10052",
+    "slug": "e05-sf10052",
+    "name": "FUSIO",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10052",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10052.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "FUSIO, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10052.pdf"
+  },
+  {
+    "sku": "E05-SF10307",
+    "slug": "e05-sf10307",
+    "name": "LIWAN",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "bath-shower-column",
+      "name": "Bath shower column"
+    },
+    "dimensions": null,
+    "description": "EXPOSED SHOWER SYSTEM E05-SF10307",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10307.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "LIWAN, bath shower column"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p18-polished-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10307.pdf"
+  },
+  {
+    "sku": "E05-SF10309",
+    "slug": "e05-sf10309",
+    "name": "LIWAN",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "shower-mixer",
+      "name": "Shower mixer"
+    },
+    "dimensions": null,
+    "description": "CONCEALED BATH/SHOWER MIXER E05-SF10309",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10309.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "LIWAN, shower mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p18-polished-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10309.pdf"
+  },
+  {
+    "sku": "E05-SF10310",
+    "slug": "e05-sf10310",
+    "name": "LIWAN",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "shower-mixer",
+      "name": "Shower mixer"
+    },
+    "dimensions": null,
+    "description": "CONCEALED SHOWER SET E05-SF10310",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10310.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "LIWAN, shower mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p18-polished-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10310.pdf"
+  },
+  {
+    "sku": "E05-SF10314",
+    "slug": "e05-sf10314",
+    "name": "LIWAN",
+    "categorySlug": "showers",
+    "categoryName": "Showers",
+    "type": {
+      "slug": "hand-shower",
+      "name": "Hand shower"
+    },
+    "dimensions": null,
+    "description": "HAND SHOWER DIMENSIONS : 220 MM FLOW RATE: AT 0.3 MPA 9 L/MIN – HEAD SHOWER",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf10314.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "LIWAN, hand shower"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p18-polished-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-sf10314.pdf"
+  },
+  {
+    "sku": "E05-SF20104",
+    "slug": "e05-sf20104",
+    "name": "LIWAN",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "bath-mixer",
+      "name": "Bath mixer"
+    },
+    "dimensions": null,
+    "description": "FLOOR-STANDING SHOWER/BATH COMBINATION",
+    "features": [],
+    "image": {
+      "src": "/products/e05-sf20104.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "LIWAN, bath mixer"
+    },
+    "finishes": [],
+    "materials": [],
+    "datasheet": "/docs/e05-sf20104.pdf"
+  },
+  {
+    "sku": "E05-MS50007",
+    "slug": "e05-ms50007",
+    "name": "MISC",
+    "categorySlug": "tapware",
+    "categoryName": "Tapware",
+    "type": {
+      "slug": "bidet-mixer",
+      "name": "Bidet mixer"
+    },
+    "dimensions": null,
+    "description": "TRIGGER SPRAY E05-MS50007",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ms50007.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "MISC, bidet mixer"
+    },
+    "finishes": [
+      "p00-chrome",
+      "p01-matt-black",
+      "p04-burshed-nickel",
+      "p06-light-gunmetal",
+      "p08-polished-copper",
+      "p10-brushed-copper",
+      "p14-polished-dark-gold",
+      "p18-polished-champagne",
+      "p19-brushed-champagne"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": null
+  },
+  {
+    "sku": "E02-SW20046",
+    "slug": "e02-sw20046",
+    "name": "MOJO",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1500 x 800 x 580 mm",
+    "description": "ACRYLIC FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1500X800X580",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw20046.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "MOJO, free standing bathtub, 1500 x 800 x 580 mm"
+    },
+    "finishes": [],
+    "materials": [],
+    "datasheet": "/docs/e02-sw20046.pdf"
+  },
+  {
+    "sku": "E01-SW10007",
+    "slug": "e01-sw10007",
+    "name": "RECTO",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "520 x 360 x 360 mm",
+    "description": "WALL HUNG WC RIMLESS WITH P-TRAP 180MM WITH SEAT AND COVER INCLUDED DIMENSION: 520 X 360 X 360 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e01-sw10007.webp",
+      "width": 600,
+      "height": 518,
+      "alt": "RECTO, wall hung wc, 520 x 360 x 360 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e01-sw10007.pdf"
+  },
+  {
+    "sku": "E05-AC40172",
+    "slug": "e05-ac40172",
+    "name": "RECTO",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "accessories",
+      "name": "Accessories"
+    },
+    "dimensions": null,
+    "description": "SOAP BASKET",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40172.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "RECTO, accessories"
+    },
+    "finishes": [
+      "p00-chrome"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40172.pdf"
+  },
+  {
+    "sku": "E06-SW10417",
+    "slug": "e06-sw10417",
+    "name": "RECTO S",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "520 x 345 x 300 mm",
+    "description": "WALL HUNG WC TORNADO WITH P-TRAP 180MM WITH SEAT AND COVER INCLUDED DIMENSION: 520 X 345 X 300 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10417.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "RECTO S, wall hung wc, 520 x 345 x 300 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10417.pdf"
+  },
+  {
+    "sku": "E01-SW10017",
+    "slug": "e01-sw10017",
+    "name": "ROUNDA",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "above-counter-washbasin",
+      "name": "Above Counter Washbasin"
+    },
+    "dimensions": "405 x 405 x 130 mm",
+    "description": "ABOVE COUNTER WASHBASIN WITHOUT OVERFLOW WITHOUT TAP HOLE CENTER OUTLET WASTE COVER NOT INCLUDED DIMENSION: 405X405X130 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e01-sw10017.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "ROUNDA, above counter washbasin, 405 x 405 x 130 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e01-sw10017.pdf"
+  },
+  {
+    "sku": "E01-SW10018",
+    "slug": "e01-sw10018",
+    "name": "ROVARA",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "semi-recessed-washbasin",
+      "name": "Semi-Recessed Washbasin"
+    },
+    "dimensions": "415 x 415 x 150 mm",
+    "description": "SEMI-RECESSED WASHBASIN WITH OVERFLOW WITHOUT TAPHOLE CENTER OUTLET DIMENSION: 415x415x150 MM",
+    "features": [
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e01-sw10018.webp",
+      "width": 600,
+      "height": 462,
+      "alt": "ROVARA, semi-recessed washbasin, 415 x 415 x 150 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e01-sw10018.pdf"
+  },
+  {
+    "sku": "E05-AC40272",
+    "slug": "e05-ac40272",
+    "name": "SOAP DISPENSER",
+    "categorySlug": "accessories",
+    "categoryName": "Accessories",
+    "type": {
+      "slug": "soap-dispenser",
+      "name": "Soap Dispenser"
+    },
+    "dimensions": null,
+    "description": "SOAP DISPENSER",
+    "features": [],
+    "image": {
+      "src": "/products/e05-ac40272.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "SOAP DISPENSER, soap dispenser"
+    },
+    "finishes": [
+      "p00-chrome"
+    ],
+    "materials": [
+      "plating"
+    ],
+    "datasheet": "/docs/e05-ac40272.pdf"
+  },
+  {
+    "sku": "E06-SW10409",
+    "slug": "e06-sw10409",
+    "name": "SOLIS",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "535 x 360 x 360 mm",
+    "description": "WALL HUNG WC TORNADO WITH P-TRAP 180MM WITH SEAT AND COVER INCLUDED DIMENSION: 535 X 360 X 360 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10409.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "SOLIS, wall hung wc, 535 x 360 x 360 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10409.pdf"
+  },
+  {
+    "sku": "E06-SW10352",
+    "slug": "e06-sw10352",
+    "name": "SPHERE",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "above-counter-washbasin",
+      "name": "Above Counter Washbasin"
+    },
+    "dimensions": "760 x 425 x 120 mm",
+    "description": "ABOVE COUNTER WASHBASIN WITHOUT TAP HOLE WITHOUT OVERFLOW DIMENSION:760 X 425 X 120 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow"
+    ],
+    "image": {
+      "src": "/products/e06-sw10352.webp",
+      "width": 600,
+      "height": 462,
+      "alt": "SPHERE, above counter washbasin, 760 x 425 x 120 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10352.pdf"
+  },
+  {
+    "sku": "E06-SW10358",
+    "slug": "e06-sw10358",
+    "name": "TREGA",
+    "categorySlug": "washbasins",
+    "categoryName": "Washbasins",
+    "type": {
+      "slug": "above-counter-washbasin",
+      "name": "Above Counter Washbasin"
+    },
+    "dimensions": null,
+    "description": "ABOVE COUNTER WASHBASIN WITHOUT TAP HOLE WITHOUT OVERFLOW DIMENSIONS: 505 X 410 X 120 MM",
+    "features": [
+      "Without Tap Hole",
+      "Without Overflow"
+    ],
+    "image": {
+      "src": "/products/e06-sw10358.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "TREGA, above counter washbasin"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10358.pdf"
+  },
+  {
+    "sku": "E06-SW10232",
+    "slug": "e06-sw10232",
+    "name": "TUSCANY",
+    "categorySlug": "toilets",
+    "categoryName": "Toilets",
+    "type": {
+      "slug": "wall-hung-wc",
+      "name": "Wall Hung Wc"
+    },
+    "dimensions": "520 x 390 x 345 mm",
+    "description": "WALL HUNG WC TORNADO-JET FLUSH TECHNOLOGY P-TRAP:180MM UF SEAT COVER DIMENSION:520 X 390 X 345 MM",
+    "features": [],
+    "image": {
+      "src": "/products/e06-sw10232.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "TUSCANY, wall hung wc, 520 x 390 x 345 mm"
+    },
+    "finishes": [
+      "c00-white"
+    ],
+    "materials": [
+      "ceramic"
+    ],
+    "datasheet": "/docs/e06-sw10232.pdf"
+  },
+  {
+    "sku": "E02-SW20057",
+    "slug": "e02-sw20057",
+    "name": "WHIP",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1670 x 790 x 660 mm",
+    "description": "ACRYLIC FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1670X790X660",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw20057.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "WHIP, free standing bathtub, 1670 x 790 x 660 mm"
+    },
+    "finishes": [
+      "a00-white",
+      "a01-black",
+      "a02-white-and-black"
+    ],
+    "materials": [
+      "acrylic"
+    ],
+    "datasheet": "/docs/e02-sw20057.pdf"
+  },
+  {
+    "sku": "E02-SW20058",
+    "slug": "e02-sw20058",
+    "name": "WHIP",
+    "categorySlug": "bathtubs",
+    "categoryName": "Bathtubs",
+    "type": {
+      "slug": "free-standing-bathtub",
+      "name": "Free Standing Bathtub"
+    },
+    "dimensions": "1800 x 800 x 665 mm",
+    "description": "ACRYLIC FREE STANDING BATHTUB WITHOUT TAP HOLE WITH OVERFLOW CENTER OUTLET DIMENSION:1800X800X665",
+    "features": [
+      "Without Tap Hole",
+      "With Overflow",
+      "Center Outlet"
+    ],
+    "image": {
+      "src": "/products/e02-sw20058.webp",
+      "width": 600,
+      "height": 600,
+      "alt": "WHIP, free standing bathtub, 1800 x 800 x 665 mm"
+    },
+    "finishes": [
+      "a00-white",
+      "a01-black",
+      "a02-white-and-black"
+    ],
+    "materials": [
+      "acrylic"
+    ],
+    "datasheet": "/docs/e02-sw20058.pdf"
+  }
+]
