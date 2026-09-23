@@ -34,9 +34,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
             <Image
               src="/logo.png"
               alt={t.brand.name}
-              width={1140}
-              height={557}
-              sizes="72px"
+              width={95}
+              height={46}
               className="invert-on-dark"
             />
           </div>

@@ -54,12 +54,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             <Image
               src="/logo.png"
               alt={t.brand.name}
-              // The file is 1140x557. The previous 160x53 claimed a 3.02
-              // aspect against the real 2.05, so next/image reserved a box
-              // of the wrong shape until the image loaded.
-              width={1140}
-              height={557}
-              sizes="72px"
+              // The painted size, at the file's real 2.05 aspect. Stating
+              // it rather than the intrinsic 1140x557 is what gets a 1x/2x
+              // srcset instead of one candidate that is soft on retina.
+              width={92}
+              height={45}
               priority
               className="invert-on-dark"
             />

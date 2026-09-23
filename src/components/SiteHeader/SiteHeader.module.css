@@ -22,9 +22,13 @@
   flex: none;
 }
 
+/* The lockup is a wordmark with "BATH" set small at its foot: measured, that
+   word is 23% of the mark's height, so at the old 1.9rem it rendered about
+   7px tall and simply could not be read. This puts it near 10px. The mark is
+   hairline line art, which also thins out badly at small sizes. */
 .brand img {
   width: auto;
-  height: 1.9rem;
+  height: 2.8rem;
 }
 
 .links {
@@ -246,7 +250,7 @@
   }
 
   .brand img {
-    height: 1.6rem;
+    height: 2.2rem;
   }
 
   .tools {
