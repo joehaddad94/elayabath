@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Container, Section } from "@/components/Container/Container";
 import { PageHead } from "@/components/PageHead/PageHead";
 import { SearchBox } from "@/components/SearchBox/SearchBox";
@@ -41,7 +42,12 @@ export default async function SearchPage({
 
       <Section tight>
         <Container>
-          <SearchBox locale={locale} t={t} />
+          {/* SearchBox reads ?q= to seed itself. Without a boundary that
+              would opt this route out of prerendering; with one it stays
+              static and the field fills in on the client. */}
+          <Suspense fallback={null}>
+            <SearchBox locale={locale} t={t} />
+          </Suspense>
         </Container>
       </Section>
     </main>

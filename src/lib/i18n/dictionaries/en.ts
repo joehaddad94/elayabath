@@ -37,7 +37,15 @@ const en = {
     catalogue: "Catalogue",
     contact: "Contact Us",
     search: "Search products",
-    palette: "Palette",
+    /** Names the palette being moved to, not the one in use: the control is
+     *  one button now, so its label has to say what pressing it does. */
+    switchTo: "Switch to the {theme} palette",
+    allProducts: "All products",
+    categories: "Categories",
+    searchSubmit: "Search",
+    /** Shorter than the search page's own placeholder, which is clipped by
+     *  the header field's width. The page has room; the header does not. */
+    searchPlaceholder: "Name or item code",
     skipToContent: "Skip to content",
   },
 

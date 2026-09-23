@@ -29,28 +29,132 @@
 
 .links {
   display: flex;
+  align-items: center;
   gap: var(--space-6);
-  flex-wrap: wrap;
+}
+
+.section {
+  position: relative;
 }
 
 /* WCAG 2.2 target size: 24x24 CSS px. These were 23, a single pixel short,
    because their height was whatever the line box happened to be. Stated
    rather than inherited. */
-.links a {
+.link {
+  position: relative;
   text-decoration: none;
   letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
+  gap: var(--space-1);
   min-height: 24px;
   color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  transition: color 0.15s ease;
 }
 
-.links a:hover {
+.link:hover {
   color: var(--color-text);
 }
 
-.links a[aria-current="page"] {
-  color: var(--accent-text);
+/* The current page was marked by the accent colour alone, which measured
+   6.29:1 on stone against 12.50:1 for the inactive links beside it: the page
+   you were on read quieter than the ones you were not. Full-strength text
+   makes it the brightest item, and the rule underneath carries the state
+   without depending on hue at all. */
+.link[aria-current="page"] {
+  color: var(--color-text);
+}
+
+.link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+.chevron {
+  flex: none;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+/* ── the category menu ─────────────────────────────────────────────────
+   CSS only: no state, no JavaScript, works before hydration and with
+   scripting off. Hover for pointers, focus-within for keyboards. */
+.panel {
+  position: absolute;
+  inset-inline-start: calc(var(--space-4) * -1);
+  top: calc(100% + var(--space-3));
+  z-index: 50;
+  min-width: 15rem;
+  padding: var(--space-2) 0;
+  background: var(--color-surface);
+  border: var(--rule);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  /* `visibility` is what makes the links focusable, so it must flip the
+     instant the section takes focus: if it rides the transition, a keyboard
+     visitor tabs past the menu before it exists. Opening is therefore
+     immediate and only the close is delayed, which is what lets the fade out
+     still be seen. */
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s 0.14s;
+}
+
+.section:hover .panel,
+.section:focus-within .panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s;
+}
+
+.section:hover .chevron,
+.section:focus-within .chevron {
+  transform: rotate(180deg);
+}
+
+.panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 24px;
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  font-size: 0.92rem;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.panel a:hover {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-text);
+}
+
+.panelAll {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem !important;
+  border-bottom: var(--rule);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-3) !important;
+}
+
+.panelCount {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  font-variant-numeric: tabular-nums;
 }
 
 .tools {
@@ -60,13 +164,89 @@
   margin-inline-start: var(--space-4);
 }
 
-/* Narrow screens: the links wrap onto their own row rather than collapsing
-   into a hamburger. No JS, nothing hidden, and it survives the longer strings
-   Arabic will bring. At five items it does not need a menu; past that it will. */
+/* ── search ───────────────────────────────────────────────────────────── */
+.search {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.searchInput {
+  width: 13rem;
+  min-height: 36px;
+  padding: 0 2.4rem 0 var(--space-3);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-control);
+  border-radius: 0;
+  transition: border-color 0.15s ease, width 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.searchInput:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+  width: 16rem;
+}
+
+/* Sits inside the field's trailing padding. */
+.searchGo {
+  position: absolute;
+  inset-inline-end: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  cursor: pointer;
+}
+
+.searchGo:hover {
+  color: var(--color-text);
+}
+
+/* Only ever shown where the field itself is not. */
+.searchIcon {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  border: 1px solid var(--color-control);
+}
+
+.searchIcon:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+
+/* ── narrow screens ────────────────────────────────────────────────────
+   The links take their own row rather than collapsing into a hamburger. No
+   JS, nothing hidden, and it survives the longer strings Arabic will bring.
+
+   That row used to wrap, which at 320px put the header at 140px: a sticky
+   bar eating 17% of the viewport for the whole session. It is one line now,
+   scrolling sideways if it has to, and the type and padding come down with
+   it. The menu is off here: there is no hover on a phone, and the products
+   index it leads to already lists the categories. */
 @media (max-width: 62rem) {
   .nav {
     flex-wrap: wrap;
-    row-gap: var(--space-3);
+    row-gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+
+  .brand img {
+    height: 1.6rem;
   }
 
   .tools {
@@ -77,9 +257,50 @@
     order: 3;
     width: 100%;
     gap: var(--space-4);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
     justify-content: space-between;
-    padding-top: var(--space-3);
+    padding-top: var(--space-2);
     border-top: var(--rule);
+  }
+
+  .links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .link {
+    white-space: nowrap;
+    font-size: 0.92rem;
+  }
+
+  /* Four items stop fitting a 320px viewport at the wider gap. */
+  @media (max-width: 24rem) {
+    .links {
+      gap: var(--space-3);
+    }
+
+    .link {
+      font-size: 0.86rem;
+    }
+  }
+
+  .panel {
+    display: none;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  /* The field would add a third row. The icon keeps the destination. */
+  .searchInput,
+  .searchGo {
+    display: none;
+  }
+
+  .searchIcon {
+    display: inline-flex;
   }
 }
 

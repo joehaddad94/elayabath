@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Icon } from "@/components/Icon/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
+import { getCategories } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { HeaderSearch } from "./HeaderSearch";
 import { NavLinks } from "./NavLinks";
 import styles from "./SiteHeader.module.css";
 
@@ -19,12 +20,22 @@ import styles from "./SiteHeader.module.css";
 export function SiteHeader({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
 
+  // Read here, in a server component, and handed down as plain data. NavLinks
+  // is a client component and must never import the catalogue itself.
+  const categories = getCategories();
+
   const items = [
     { href: routes.about(locale), label: t.nav.about },
     {
       href: routes.products(locale),
       label: t.nav.products,
       match: [routes.productSection(locale)],
+      panelAllLabel: t.nav.allProducts,
+      panel: categories.map((category) => ({
+        href: routes.category(category.slug, locale),
+        label: category.name,
+        count: category.count,
+      })),
     },
     { href: routes.catalogue(locale), label: t.nav.catalogue },
     { href: routes.contact(locale), label: t.nav.contact },
@@ -56,14 +67,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <NavLinks items={items} />
 
           <div className={styles.tools}>
-            <Link
-              className="btn btn-icon"
-              href={routes.search(locale)}
-              aria-label={t.nav.search}
-            >
-              <Icon name="search" />
-            </Link>
-            <ThemeToggle label={t.nav.palette} />
+            <HeaderSearch locale={locale} t={t} />
+            <ThemeToggle label={t.nav.switchTo} />
           </div>
         </nav>
       </header>

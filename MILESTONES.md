@@ -341,6 +341,54 @@ the ones `next/font` generates rather than writing into CSS.
 
 ---
 
+## Navbar
+
+Audited against the rendered site rather than the component, which turned up
+three bugs and four costs.
+
+The bugs: the current-page state had never applied on any route, because
+`usePathname()` keeps the `/en` segment that the rewrite hides while every
+href omits it; a product detail page would not have lit up Products even once
+that was fixed, because `/product/<slug>` is singular and sits under neither
+`/products` nor `/products/`; and the logo declared a 3.02 aspect for a file
+that is 2.05. The comparison now lives in `lib/nav.ts` as a pure function with
+tests, since a conditional buried in JSX was wrong for months without failing
+anything.
+
+Then the improvements.
+
+- **A category menu under Products.** CSS only, on hover and focus-within, so
+  it works before hydration and with scripting off. Six categories with their
+  counts, plus "All products". Off below the wrap breakpoint, where there is
+  no hover and the index already lists them. `visibility` is switched
+  instantly on open and only delayed on close: riding the transition meant a
+  keyboard visitor tabbed straight past the menu before it existed.
+- **A real search field.** The catalogue is item-code driven and the FAQ tells
+  people to skip browsing if they have the code, but the header was making
+  them load a page before they could type. A plain GET form, so it submits
+  without JavaScript and lands on a URL worth sharing; the search page now
+  seeds itself from `?q=` behind a Suspense boundary, which keeps the route
+  prerendered.
+- **A slimmer header on phones.** The link row wrapped, putting a sticky bar
+  at 140px on a 320px viewport, 17% of the screen for the whole session. One
+  line now, 89px, with no overflow.
+- **The palette switch demoted** from two labelled buttons with the active one
+  filled in the accent, which made it the loudest object in the header, to a
+  single icon that advances through the palettes and names its destination in
+  its label.
+- **The current page no longer signalled by hue alone.** The accent measured
+  6.29:1 on stone against 12.50:1 for the inactive links beside it, so the
+  page you were on read quieter than the ones you were not. Full-strength
+  text plus a rule underneath.
+
+Measured after: menu links 238x36 with 12.85–13.96:1 contrast, panel border
+12.58–14.49:1 against the page, header 89px at both 320 and 390, zero
+elements transitioning under reduced motion, and the keyboard path runs
+skip link, brand, About, Products, the whole menu, Catalogue, Contact,
+search field, submit, palette.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

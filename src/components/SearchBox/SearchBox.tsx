@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import { format, type Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
@@ -25,7 +26,11 @@ export function SearchBox({
   t: Dictionary;
 }) {
   const id = useId();
-  const [query, setQuery] = useState("");
+  // Seeded from the URL so the header's form, which is a plain GET, arrives
+  // here with its query already run. It also makes a result page a link
+  // somebody can send to a colleague.
+  const initial = useSearchParams().get("q") ?? "";
+  const [query, setQuery] = useState(initial);
   const [index, setIndex] = useState<SearchEntry[] | null>(null);
 
   useEffect(() => {
