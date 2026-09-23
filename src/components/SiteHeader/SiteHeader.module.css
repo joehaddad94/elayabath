@@ -28,7 +28,7 @@
    hairline line art, which also thins out badly at small sizes. */
 .brand img {
   width: auto;
-  height: 2.8rem;
+  height: 3.3rem;
 }
 
 .links {
@@ -250,7 +250,7 @@
   }
 
   .brand img {
-    height: 2.2rem;
+    height: 2.5rem;
   }
 
   .tools {

@@ -57,8 +57,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               // The painted size, at the file's real 2.05 aspect. Stating
               // it rather than the intrinsic 1140x557 is what gets a 1x/2x
               // srcset instead of one candidate that is soft on retina.
-              width={92}
-              height={45}
+              width={108}
+              height={53}
               priority
               className="invert-on-dark"
             />
