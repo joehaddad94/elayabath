@@ -52,7 +52,7 @@ export default async function FaqPage({
 
       <Section tight>
         <Container>
-          <SectionHead label={t.faq.realHeading} count={t.faq.realNote} />
+          <SectionHead label={t.faq.realHeading} />
           <Faq items={t.faq.real} permalinkLabel={t.faq.permalink} />
         </Container>
       </Section>

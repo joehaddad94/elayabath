@@ -212,7 +212,6 @@ const en = {
       "Materials, installation and water efficiency. If the answer is not here, the enquiry form reaches a person.",
     permalink: "Link to this answer",
     realHeading: "Answered by Elaya Bath",
-    realNote: "These three are reproduced word for word from the live site.",
     draftHeading: "Questions the site raises",
     draftLabel: "Drafted, not yet approved",
     draftNote:
