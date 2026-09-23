@@ -76,6 +76,16 @@ const en = {
     europe: "info@elayabath.com",
   },
 
+  shortlist: {
+    add: "Add to enquiry",
+    added: "In your enquiry",
+    heading: "Your enquiry: {n} item(s)",
+    clear: "Clear",
+    remove: "Remove {name}",
+    note: "The item codes below are filled in from this list. Add or remove items and the form follows.",
+    headerLabel: "Your enquiry, {n} item(s)",
+  },
+
   common: {
     breadcrumb: "Breadcrumb",
     requestQuote: "Request a quote",
@@ -137,6 +147,16 @@ const en = {
   category: {
     filters: "Filter products",
     clearAll: "Clear all",
+    sortBy: "Sort",
+    applied: "Applied filters",
+    remove: "Remove this filter",
+    sortLabels: {
+      default: "Catalogue order",
+      name: "Name A–Z",
+      "name-desc": "Name Z–A",
+      finishes: "Most finishes",
+      code: "Item code",
+    },
     showing: "Showing {shown} of {total}",
     noResults:
       "Nothing matches that combination. Clear a filter to widen the results.",
@@ -290,6 +310,9 @@ const en = {
     fCountryHint: "So the enquiry reaches the right regional office.",
     fSku: "Item code",
     fSkuHint: "Shown on every product page. Separate several with commas.",
+    fFinish: "Finish",
+    fFinishHint: "The finish code from the product page, for example SS13.",
+    carriedFinish: "Carried over from the product page.",
     fCompany: "Company or project",
     fQty: "Approximate quantity",
     fMessage: "Message",

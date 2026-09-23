@@ -3,6 +3,14 @@
 import { useId, useMemo, useState, useSyncExternalStore } from "react";
 import { format, type Dictionary } from "@/lib/i18n";
 import {
+  getShortlistServerSnapshot,
+  getShortlistSnapshot,
+  parseShortlist,
+  shortlistCodes,
+  shortlistFinishes,
+  subscribeToShortlist,
+} from "@/lib/shortlist";
+import {
   getSearch,
   getServerSearch,
   subscribeToSearch,
@@ -41,10 +49,33 @@ export function EnquiryForm({ t }: { t: Dictionary }) {
     [search],
   );
 
+  const finishFromUrl = useMemo(
+    () => new URLSearchParams(search).get("finish") ?? "",
+    [search],
+  );
+
+  // A shortlist, where the visitor built one, outranks the single code in
+  // the URL: it is the more complete statement of what they are asking about.
+  const rawShortlist = useSyncExternalStore(
+    subscribeToShortlist,
+    getShortlistSnapshot,
+    getShortlistServerSnapshot,
+  );
+  const shortlist = useMemo(() => parseShortlist(rawShortlist), [rawShortlist]);
+
   const [skuOverride, setSkuOverride] = useState<string | null>(null);
+  const [finishOverride, setFinishOverride] = useState<string | null>(null);
   const [type, setType] = useState<string>("quote");
 
-  const sku = skuOverride ?? skuFromUrl;
+  const fromList = shortlist.length > 0;
+  const sku = skuOverride ?? (fromList ? shortlistCodes(shortlist) : skuFromUrl);
+  const finish =
+    finishOverride ??
+    (fromList
+      ? shortlist.length === 1
+        ? (shortlist[0]?.finish ?? "")
+        : shortlistFinishes(shortlist)
+      : finishFromUrl);
   const isTrade = type === "trade";
 
   return (
@@ -129,9 +160,34 @@ export function EnquiryForm({ t }: { t: Dictionary }) {
           onChange={(event) => setSkuOverride(event.target.value)}
         />
         <p className={styles.hint}>
-          {skuFromUrl && !skuOverride
-            ? format(t.contact.carried, { sku: skuFromUrl })
-            : t.contact.fSkuHint}
+          {fromList && !skuOverride
+            ? format(t.shortlist.heading, { n: shortlist.length })
+            : skuFromUrl && !skuOverride
+              ? format(t.contact.carried, { sku: skuFromUrl })
+              : t.contact.fSkuHint}
+        </p>
+      </div>
+
+      {/* The product page asks the buyer to choose among as many as
+          seventeen finishes and then used to drop the answer on the way
+          here, while its own copy promised to pass it on. */}
+      <div>
+        <label className={styles.label} htmlFor={`${id}-finish`}>
+          {t.contact.fFinish}
+        </label>
+        <input
+          className="input"
+          type="text"
+          id={`${id}-finish`}
+          name="finish"
+          placeholder="SS13"
+          value={finish}
+          onChange={(event) => setFinishOverride(event.target.value)}
+        />
+        <p className={styles.hint}>
+          {(finishFromUrl || fromList) && !finishOverride
+            ? t.contact.carriedFinish
+            : t.contact.fFinishHint}
         </p>
       </div>
 

@@ -5,6 +5,7 @@ import { getCategories } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
+import { ShortlistLink } from "@/components/Shortlist/ShortlistLink";
 import { HeaderSearch } from "./HeaderSearch";
 import { NavLinks } from "./NavLinks";
 import styles from "./SiteHeader.module.css";
@@ -68,6 +69,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
 
           <div className={styles.tools}>
             <HeaderSearch locale={locale} t={t} />
+            <ShortlistLink locale={locale} label={t.shortlist.headerLabel} />
             <ThemeToggle label={t.nav.switchTo} />
           </div>
         </nav>

@@ -124,3 +124,9 @@
   color: color-mix(in srgb, var(--color-text) 75%, transparent);
   max-width: 46ch;
 }
+
+.quoteActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

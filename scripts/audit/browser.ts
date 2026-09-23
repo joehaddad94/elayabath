@@ -72,11 +72,15 @@ try {
 const json = <T,>(f: string): T =>
   JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8")) as T;
 
-const categories = json<Array<{ slug: string }>>("categories.json");
+const categories = json<
+  Array<{ slug: string; productTypes: Array<{ value: string }> }>
+>("categories.json");
 const products = json<Array<{ slug: string; finishes: string[] }>>("products.json");
 
 // A product with many finishes and one with none: the two ends of the picker.
 const richest = [...products].sort((a, b) => b.finishes.length - a.finishes.length)[0];
+const firstCategory = categories.find((c) => c.productTypes.length > 0);
+const firstType = firstCategory?.productTypes[0]?.value ?? "";
 const barest = products.find((p) => p.finishes.length === 0) ?? products[0];
 
 const ROUTES = [
@@ -93,6 +97,12 @@ const ROUTES = [
   "/legal/privacy",
   "/legal/terms",
   "/legal/returns",
+  // Stateful pages. Everything above renders in its resting state, so the
+  // filtered shelf and the enquiry shortlist were never measured at all,
+  // which is where the last contrast failure was hiding.
+  ...(firstCategory
+    ? [`/products/${firstCategory.slug}?type=${firstType}`]
+    : []),
 ];
 
 const browser = await chromium.launch();
@@ -114,6 +124,15 @@ for (const theme of ["ink", "stone"] as const) {
     await page.addInitScript((t: string) => {
       try {
         localStorage.setItem("elaya-theme", t);
+        // A shortlist in progress, so the contact page renders its panel and
+        // the header its badge. Neither existed in a resting page.
+        localStorage.setItem(
+          "elaya-shortlist",
+          JSON.stringify([
+            { sku: "E02-SW30008", slug: "e02-sw30008", name: "ALCO", finish: "SS04" },
+            { sku: "E06-SW10413", slug: "e06-sw10413", name: "AXE C" },
+          ]),
+        );
       } catch {
         /* private window */
       }
@@ -218,7 +237,17 @@ for (const theme of ["ink", "stone"] as const) {
         if (el.closest("[data-over-photo]")) continue;
 
         const bg = bgOf(el);
-        const fg = paint(cs.color, bg);
+        // `opacity` on an ancestor composites the text toward its backdrop
+        // just as surely as a translucent colour does, and reading only the
+        // colour's own alpha missed it entirely. A facet dimmed to 45% to
+        // mark it empty measured a perfectly healthy ratio here while
+        // actually rendering at 2.64:1.
+        let alpha = 1;
+        for (let a: HTMLElement | null = el; a && a !== document.body; a = a.parentElement) {
+          alpha *= Number(getComputedStyle(a).opacity) || 1;
+        }
+        const own = paint(cs.color, bg);
+        const fg = alpha >= 0.999 ? own : own.map((c, i) => c * alpha + bg[i]! * (1 - alpha));
         const size = parseFloat(cs.fontSize);
         const large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
         const floor = large ? 3 : 4.5;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
 import { EnquiryForm } from "@/components/EnquiryForm/EnquiryForm";
+import { ShortlistPanel } from "@/components/Shortlist/ShortlistPanel";
 import { Hero } from "@/components/Hero/Hero";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { Note } from "@/components/Note/Note";
@@ -133,6 +134,7 @@ export default async function ContactPage({
             <p>{t.contact.prototypeBody}</p>
           </Note>
 
+          <ShortlistPanel locale={locale} t={t} />
           <EnquiryForm t={t} />
         </Container>
       </Section>

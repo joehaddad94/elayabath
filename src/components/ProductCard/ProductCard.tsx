@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
+import { ShortlistButton } from "@/components/Shortlist/ShortlistButton";
 import { routes } from "@/lib/routes";
 import type { Product } from "@/lib/types";
 import styles from "./ProductCard.module.css";
@@ -54,12 +55,22 @@ export function ProductCard({
             </span>
           )}
         </div>
-        <Link
-          className={`btn btn-quote btn-block ${styles.cta}`}
-          href={routes.quote(product.sku, locale)}
-        >
-          {t.common.requestQuote}
-        </Link>
+        <div className={styles.actions}>
+          <Link
+            className={`btn btn-quote btn-block ${styles.cta}`}
+            href={routes.quote(product.sku, locale)}
+          >
+            {t.common.requestQuote}
+          </Link>
+          <ShortlistButton
+            sku={product.sku}
+            slug={product.slug}
+            name={product.name}
+            addLabel={t.shortlist.add}
+            addedLabel={t.shortlist.added}
+            className={`btn-block ${styles.cta}`}
+          />
+        </div>
       </div>
     </article>
   );

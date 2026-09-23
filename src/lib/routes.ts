@@ -26,9 +26,14 @@ export const routes = {
   privacy: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/legal/privacy"),
   terms: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/legal/terms"),
   returns: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/legal/returns"),
-  /** A quote enquiry for one item, with the code carried across. The live
-   *  site's form has no field for this, so an enquiry arrives with no way to
-   *  tell what it is about. */
-  quote: (sku: string, l: Locale = DEFAULT_LOCALE) =>
-    `${localePath(l, "/contact")}?product=${encodeURIComponent(sku)}#enquiry`,
+  /** A quote enquiry for one item, with the code carried across, and the
+   *  finish too where the buyer has chosen one. The live site's form has no
+   *  field for either, so an enquiry arrives with no way to tell what it is
+   *  about; ours asked for the code and then dropped the finish, which the
+   *  page's own copy was busy promising to pass on. */
+  quote: (sku: string, l: Locale = DEFAULT_LOCALE, finish?: string) => {
+    const params = new URLSearchParams({ product: sku });
+    if (finish) params.set("finish", finish);
+    return `${localePath(l, "/contact")}?${params.toString()}#enquiry`;
+  },
 } as const;

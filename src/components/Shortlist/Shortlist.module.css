@@ -1,0 +1,134 @@
+/* ── the header's indicator ───────────────────────────────────────────── */
+.headerLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  border: 1px solid var(--color-control);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.headerLink:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+
+.badge {
+  position: absolute;
+  top: -7px;
+  inset-inline-end: -7px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-heading);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── the panel above the enquiry form ─────────────────────────────────── */
+.panel {
+  background: var(--color-surface);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.panelHead h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.clear,
+.remove {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  transition: color 0.15s ease;
+}
+
+.clear {
+  font-size: 0.8rem;
+  text-decoration: underline;
+  min-height: 24px;
+}
+
+.clear:hover,
+.remove:hover {
+  color: var(--color-text);
+}
+
+.list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-2);
+  border-top: var(--rule);
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.itemText a {
+  color: var(--color-text);
+  text-decoration: none;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.itemText a:hover {
+  text-decoration: underline;
+}
+
+.itemMeta {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+.note {
+  margin: var(--space-4) 0 0;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}

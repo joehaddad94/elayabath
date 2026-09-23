@@ -222,3 +222,120 @@
   font-size: 1rem;
   color: color-mix(in srgb, var(--color-text) 75%, transparent);
 }
+
+/* ── the filter drawer ─────────────────────────────────────────────────
+   Below the point where the column becomes a sidebar it was a 1184px block
+   sitting on top of the grid, so the first product on a phone was 1725px
+   down: two screens of checkboxes before a single basin. Filtering already
+   required JavaScript, since every checkbox drives the URL, so collapsing it
+   behind a button costs nothing that was not already conditional on it. */
+.drawerToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.drawerCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 63.999rem) {
+  .facets {
+    display: none;
+  }
+
+  .facets[data-open] {
+    display: block;
+    margin-bottom: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .drawerToggle {
+    display: none;
+  }
+}
+
+/* ── toolbar, sort and chips ───────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.sort select {
+  min-height: 36px;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-control);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+
+/* A facet that would return nothing is marked rather than removed: one that
+   disappears as you filter is harder to reason about than one reading zero.
+   It stays operable, so it can never become a dead end.
+
+   It was marked by dimming the whole label to 45% opacity, which measured
+   2.64:1 on stone against a 4.5 floor. Opacity on text is the wrong tool
+   here: an operable control is not exempt from the text minimum the way a
+   disabled one is, so dimming it to signal "empty" simply made it
+   unreadable. The count already carries the message, so it is struck through
+   instead and the text keeps its contrast. Only the swatch image, which is
+   decorative and carries alt="", is dimmed. */
+.opt[data-empty] .optCount,
+.swatch[data-empty] .swatchName {
+  text-decoration: line-through;
+}
+
+.swatch[data-empty] img {
+  opacity: 0.5;
+}

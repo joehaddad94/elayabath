@@ -9,6 +9,8 @@ import { Icon } from "@/components/Icon/Icon";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
+import { QuoteAction } from "@/components/QuoteAction/QuoteAction";
+import { ShortlistButton } from "@/components/Shortlist/ShortlistButton";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
   getCategory,
@@ -82,6 +84,10 @@ export default async function ProductPage({
   if (product.features.length > 0) {
     spec.push([t.common.features, product.features.join(" · ")]);
   }
+
+  // Slug to the code the client quotes against, handed to the client
+  // component so it never has to reach the catalogue itself.
+  const codeFor = Object.fromEntries(finishes.map((f) => [f.slug, f.code]));
 
   const crumbs = [
     { label: t.nav.home, href: routes.home(locale) },
@@ -175,12 +181,25 @@ export default async function ProductPage({
             <div className={`${styles.quote} blueprint`}>
               <h2>{t.product.quoteHeading}</h2>
               <p>{t.product.quoteBody}</p>
-              <Link
-                className="btn btn-primary blueprint"
-                href={routes.quote(product.sku, locale)}
-              >
-                {format(t.common.requestQuoteFor, { sku: product.sku })}
-              </Link>
+              <div className={styles.quoteActions}>
+                <QuoteAction
+                  sku={product.sku}
+                  locale={locale}
+                  codeFor={codeFor}
+                  className="btn btn-primary blueprint"
+                  label={format(t.common.requestQuoteFor, { sku: product.sku })}
+                />
+                {/* Specifying a bathroom means a basin, a tap and a WC, and
+                    every quote button on the site carried exactly one code. */}
+                <ShortlistButton
+                  sku={product.sku}
+                  slug={product.slug}
+                  name={product.name}
+                  codeFor={codeFor}
+                  addLabel={t.shortlist.add}
+                  addedLabel={t.shortlist.added}
+                />
+              </div>
             </div>
           </div>
         </Container>
@@ -195,12 +214,13 @@ export default async function ProductPage({
         heading={t.category.bandHeading}
         actions={
           <>
-            <Link
+            <QuoteAction
+              sku={product.sku}
+              locale={locale}
+              codeFor={codeFor}
               className="btn btn-primary blueprint"
-              href={routes.quote(product.sku, locale)}
-            >
-              {t.common.requestQuote}
-            </Link>
+              label={t.common.requestQuote}
+            />
             <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
               {t.common.downloadCatalogue}
             </Link>

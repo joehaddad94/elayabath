@@ -1,10 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { groupFinishesByFamily } from "@/lib/finishes";
 import { format, type Dictionary } from "@/lib/i18n";
+import { readFinish, withFinish } from "@/lib/product-finish";
 import type { Finish } from "@/lib/types";
+import {
+  getSearch,
+  getServerSearch,
+  setSearch,
+  subscribeToSearch,
+} from "@/lib/url-filters";
 import styles from "./FinishPicker.module.css";
 
 /**
@@ -15,6 +22,13 @@ import styles from "./FinishPicker.module.css";
  *
  * Grouped by material, the same way the category filter groups them, because
  * that is the structure the client's own colour codes already encode.
+ *
+ * The choice lives in the URL rather than in component state. It was state,
+ * and the consequence was that picking one of seventeen finishes updated a
+ * label and nothing else: the quote link carried only the item code, a
+ * refresh lost the choice, and nobody could send a colleague a link to the
+ * basin in Thunder. The URL fixes all three at once, and the quote button
+ * subscribes to the same value.
  */
 export function FinishPicker({
   finishes,
@@ -23,9 +37,12 @@ export function FinishPicker({
   finishes: Finish[];
   t: Dictionary;
 }) {
-  const [selected, setSelected] = useState<string | undefined>(
-    finishes[0]?.slug,
+  const search = useSyncExternalStore(
+    subscribeToSearch,
+    getSearch,
+    getServerSearch,
   );
+  const selected = readFinish(search) ?? finishes[0]?.slug;
 
   const groups = useMemo(() => groupFinishesByFamily(finishes), [finishes]);
 
@@ -66,7 +83,7 @@ export function FinishPicker({
                 className={styles.swatch}
                 aria-pressed={finish.slug === current?.slug}
                 title={`${finish.code} ${finish.name}`}
-                onClick={() => setSelected(finish.slug)}
+                onClick={() => setSearch(withFinish(window.location.search, finish.slug))}
               >
                 {finish.image ? (
                   <Image

@@ -389,6 +389,55 @@ search field, submit, palette.
 
 ---
 
+## Products pages
+
+Audited the shelf, the category pages and the product pages for usability and
+for what was missing.
+
+- **The chosen finish was thrown away.** Seventeen swatches, and picking one
+  updated a label and nothing else: the quote link still carried only the item
+  code, the URL never changed, a refresh lost it, and the enquiry form had no
+  finish field at all. The page's own copy meanwhile read "send the item code
+  and the finish you want". The finish now lives in the URL, travels through
+  the quote link and arrives in a field on the form.
+- **Two screens of filters before a product on a phone.** The sidebar only
+  became a sidebar at 1024px; below that it was a 1184px block above the grid
+  and the first product sat 1725px down. It is behind a "Filters (n)" toggle
+  now, and the first product is at 603px.
+- **No sorting.** Catalogue order, name either way, most finishes, item code.
+  The item-code sort compares numerically, so E2 precedes E10.
+- **Facet counts never moved.** They were catalogue-wide totals from the
+  category record, so a shelf could read "Showing 0 of 10" while every facet
+  beside it still advertised products. They are recomputed against the other
+  axes, and an option that would return nothing is struck through rather than
+  hidden, so it never becomes a dead end.
+- **Applied-filter chips**, because "Clear all" alone meant scrolling back up
+  the column to find the one checkbox you wanted to undo.
+- **A multi-item enquiry shortlist**, which is the one that matters
+  commercially. Every quote button on the site carried exactly one code, and
+  specifying a bathroom means a basin, a tap and a WC. Items are added from a
+  card or a product page, carry the finish where one was chosen, persist in
+  localStorage, show a count in the header and fill the form's item-code field
+  the moment the contact page opens.
+
+Filtering and sorting moved into `lib/product-filters.ts` and the shortlist
+into `lib/shortlist.ts`, both pure and both tested; the logic had been inline
+where none of it could be.
+
+### What the audit could not see
+
+Every route the browser audit visits renders in its resting state, so the
+filtered shelf and the shortlist were never measured. Worse, the contrast
+check read only a colour's own alpha and ignored the `opacity` property, so
+marking an empty facet by dimming it to 45% measured a healthy ratio while
+actually rendering at **2.64:1** against a 4.5 floor. An operable control is
+not exempt from the text minimum the way a disabled one is, so that was a
+real failure on a real control. The audit now walks a filtered URL and a
+seeded shortlist, and composites ancestor opacity before measuring. Verified
+by reintroducing the dim and watching four failures come back.
+
+---
+
 ## Deliberately not in v1
 
 Listed so they read as decisions rather than oversights.

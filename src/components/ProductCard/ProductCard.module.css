@@ -75,3 +75,11 @@
 .cta {
   margin-top: var(--space-3);
 }
+
+/* Quote and shortlist sit together: one sends a single item now, the other
+   keeps it for an enquiry covering several. */
+.actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: auto;
+}
