@@ -51,10 +51,21 @@
   transform: translateY(-50%);
 }
 
+/* Centred on the horizontal bar, not hung off its end.
+   Both strokes are anchored by their inline-end edge, so giving the upright
+   the same inset put it at the right-hand tip of the crossbar rather than
+   its middle, and a `translate(6px)` then pushed it 6px further out again:
+   the marker rendered as a dash followed by a separate vertical line. The
+   crossbar is 13px, so its centre sits 6px inboard of that shared edge.
+
+   Expressed as a logical inset rather than a translateX, because a physical
+   X offset would push it the wrong way once the site is served in Arabic,
+   which is the whole reason the rest of this file uses logical properties. */
 .faq summary::after {
   width: 1px;
   height: 13px;
-  transform: translate(6px, -50%);
+  inset-inline-end: calc(var(--space-4) + 6px);
+  transform: translateY(-50%);
 }
 
 .faq details[open] summary::after {
@@ -74,4 +85,28 @@
   font-size: 1rem;
   line-height: 1.66;
   max-width: 62ch;
+}
+
+/* Sits under the answer, so an answer can be linked to directly. Quiet, but
+   a real target: support sends these. */
+.permalink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-top: var(--space-4);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  text-decoration: none;
+}
+
+.permalink:hover {
+  text-decoration: underline;
+}
+
+/* A question arrived at by link is worth marking, so it is obvious which of
+   six rows the link meant. */
+.faq details:target {
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
 }

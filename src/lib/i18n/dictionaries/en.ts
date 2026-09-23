@@ -210,6 +210,7 @@ const en = {
     title: "Questions",
     lede:
       "Materials, installation and water efficiency. If the answer is not here, the enquiry form reaches a person.",
+    permalink: "Link to this answer",
     realHeading: "Answered by Elaya Bath",
     realNote: "These three are reproduced word for word from the live site.",
     draftHeading: "Questions the site raises",
@@ -242,6 +243,10 @@ const en = {
       {
         q: "Can I get a physical sample of a finish?",
         a: "Yes. The finish swatches shown on each product page are photographs of the real material and will vary slightly from the finished product. Ask for a sample when you send your enquiry and mention the finish code, for example SS13.",
+      },
+      {
+        q: "Can I ask about more than one product at once?",
+        a: "Yes. Add items to your enquiry from any product page or from a grid, and the enquiry form fills in every item code for you. The finish you picked is carried across with each one. Nothing is ordered or reserved by doing this: it only saves retyping the codes.",
       },
       {
         q: "Where do I find technical drawings?",

@@ -264,3 +264,13 @@ figure.blueprint {
 .btn {
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
+
+/* The header is sticky, so anything scrolled to by a fragment link lands
+   underneath it: a deep-linked FAQ answer arrived with its own question
+   hidden behind the bar, and the same was true of #enquiry and of the skip
+   link's #main. Reserving the header's height above every target fixes all
+   of them at once. 6rem clears the tallest state of the header, which is the
+   two-row phone layout at 93px, and leaves a little air above it. */
+[id] {
+  scroll-margin-block-start: 7rem;
+}

@@ -53,7 +53,7 @@ export default async function FaqPage({
       <Section tight>
         <Container>
           <SectionHead label={t.faq.realHeading} count={t.faq.realNote} />
-          <Faq items={t.faq.real} />
+          <Faq items={t.faq.real} permalinkLabel={t.faq.permalink} />
         </Container>
       </Section>
 
@@ -82,7 +82,7 @@ export default async function FaqPage({
           <Note label={t.draft.needsApproval}>
             <p>{t.faq.draftNote}</p>
           </Note>
-          <Faq items={t.faq.drafted} />
+          <Faq items={t.faq.drafted} permalinkLabel={t.faq.permalink} />
 
           <div className={styles.actions}>
             <Link
