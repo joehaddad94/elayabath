@@ -37,3 +37,20 @@ export function localePath(locale: Locale, path: string): string {
   if (LOCALES.length === 1) return clean;
   return `/${locale}${clean === "/" ? "" : clean}`;
 }
+
+/**
+ * Remove a leading locale segment from a pathname.
+ *
+ * `usePathname()` reports the internal route, which keeps the `/en` that
+ * `next.config.ts` rewrites out of the address bar. Every href on the site
+ * comes from `localePath`, which omits that segment while there is one
+ * locale. So the two are never in the same shape, and anything comparing
+ * them directly silently never matches. That is exactly how the header's
+ * current-page highlight was dead on every route without anyone noticing.
+ */
+export function stripLocale(pathname: string): string {
+  const [, first = "", ...rest] = pathname.split("/");
+  if (!isLocale(first)) return pathname;
+  const remainder = `/${rest.join("/")}`;
+  return remainder === "/" ? "/" : remainder.replace(/\/$/, "");
+}

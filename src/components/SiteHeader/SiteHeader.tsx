@@ -21,7 +21,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
 
   const items = [
     { href: routes.about(locale), label: t.nav.about },
-    { href: routes.products(locale), label: t.nav.products },
+    {
+      href: routes.products(locale),
+      label: t.nav.products,
+      match: [routes.productSection(locale)],
+    },
     { href: routes.catalogue(locale), label: t.nav.catalogue },
     { href: routes.contact(locale), label: t.nav.contact },
   ];
@@ -38,8 +42,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             <Image
               src="/logo.png"
               alt={t.brand.name}
-              width={160}
-              height={53}
+              // The file is 1140x557. The previous 160x53 claimed a 3.02
+              // aspect against the real 2.05, so next/image reserved a box
+              // of the wrong shape until the image loaded.
+              width={1140}
+              height={557}
               sizes="72px"
               priority
               className="invert-on-dark"

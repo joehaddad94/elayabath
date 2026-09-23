@@ -18,6 +18,10 @@ export const routes = {
     localePath(l, `/products/${slug}`),
   product: (slug: string, l: Locale = DEFAULT_LOCALE) =>
     localePath(l, `/product/${slug}`),
+  /** The root of the product detail section. A detail page is `/product/x`,
+   *  singular, so it does not sit under `/products` and the navigation needs
+   *  this as a second root to highlight the section from a product page. */
+  productSection: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/product"),
   search: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/search"),
   privacy: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/legal/privacy"),
   terms: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/legal/terms"),
