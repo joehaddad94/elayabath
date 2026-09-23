@@ -10,11 +10,20 @@
     gap: calc(var(--space-8) * 2);
   }
 
+  /* This column scrolls on its own once it is taller than the viewport, and
+     it had no inset on the scrolling edge: the option counts and the right
+     column of swatches ran straight into the scrollbar, and the last row sat
+     flush against the bottom. `scrollbar-gutter` reserves the track whether
+     or not the bar is showing, so the facets do not shift sideways when the
+     colour group is collapsed and the overflow disappears. */
   .facets {
     position: sticky;
     top: calc(var(--space-8) * 2.6);
     max-height: calc(100vh - var(--space-8) * 4);
     overflow-y: auto;
+    scrollbar-gutter: stable;
+    padding-inline-end: var(--space-4);
+    padding-bottom: var(--space-6);
   }
 }
 
