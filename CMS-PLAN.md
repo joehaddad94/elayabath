@@ -26,10 +26,11 @@ so the reason is kept next to it.
 | Seed | All 596 products from the scrape | Gaps are imported as gaps and flagged, never invented. |
 | Bulk | Excel import and export | Import always shows a preview of what will change before writing anything. |
 | Finishes | Options now, room for variants later | See "How the old site modelled finishes". |
-| Sign-in | Email magic link, invitation only | No passwords to leak or reset. |
+| Sign-in | Direct sign-in by email while no email provider is configured; a magic link once one is | The dashboard is usable everywhere before the email provider conversation happens. The trade-off is spelled out under Access. |
 | Arabic | Product data stays English only | Arabic, when it comes, covers site copy, which already lives in the dictionaries. |
 | Prices | None | Quote-only stays the model. The `1 QAR` placeholders are not imported. |
 | History | Every published version kept, with author and time, restorable | Several people with equal rights need an undo. |
+| First user | Joe, on both the development account and Elaya's account | Set by the seed, not a migration. See Access. |
 | Location | `/admin` on the same Next.js app | One deploy, shared types, and publishing can invalidate pages directly. |
 | Images | An ordered gallery per product | The first image is the card image. |
 | Discontinued | Hidden from grids, menus and search; the page stays with a notice and similar products | Old links and search rankings survive. |
@@ -38,7 +39,7 @@ so the reason is kept next to it.
 | Ordering | Manual order within a category, plus a featured flag for the homepage | |
 | Phone | Desktop first, usable on a phone for viewing and small edits | Bulk import and gallery work expect a laptop. |
 | Data grid | AG Grid Community (MIT), Infinite Row Model | Flexibility: inline editing, column control, saved views. The free edition covers everything the plan uses; no Enterprise licence is assumed (see Products grid). |
-| Email | Local only, for now | Every email the system sends (sign-in links, staff invitations) lands in the mail catcher that ships with the local Supabase stack. No third-party provider until we decide on one together. |
+| Email | None sent, for now | Direct sign-in needs no email. Locally, anything Supabase does send lands in the mail catcher that ships with the local stack. No third-party provider until we decide on one together. |
 | Import and export | Flexible | Any sheet layout through column mapping, several entities and formats, partial updates, templates, staged and reversible. See Import and export. |
 | Scale | Designed for tens of thousands of products and many staff | Server-side paging, sorting, filtering and search everywhere, so growth never means a rewrite. See Scalability. |
 
@@ -77,7 +78,7 @@ committing and redeploying.
 ```
   Staff browser                     Supabase                    Public visitor
   ─────────────                     ────────                    ──────────────
-  /admin  ── magic link ──────────▶ Auth
+  /admin  ── sign-in ─────────────▶ Auth
     │
     │ Server Actions (staff session,
     │ row-level security enforced)
@@ -98,10 +99,14 @@ Three rules carry over from the README and one is added:
 2. Client components never import `lib/catalogue.ts`.
 3. The ingest script is the only code that knows the scrape exists. After the
    seed it is retired: removed from the build, kept in git history.
-4. **New:** the Supabase service-role key never reaches the running app. The
-   app uses the visitor's or the staff member's own session, so row-level
-   security is what enforces access. The service key exists only in the seed
-   script and the nightly job.
+4. **New:** the Supabase service-role key does not reach the running app,
+   with one narrow exception. The app uses the visitor's or the staff
+   member's own session, so row-level security is what enforces access. The
+   exception is direct sign-in (see Access), which needs the key to open a
+   session without sending an email. It lives in a single server-only
+   module, is used by that one Server Action, and only after the staff list
+   has been checked. Otherwise the key exists only in the seed script and
+   the nightly job.
 
 ### Drafts, publishing and history
 
@@ -194,8 +199,62 @@ mapping_presets   id, name, entity, mapping jsonb, created_by
 
 ### Access
 
+**The `staff` table decides.** An email on it can use the dashboard; an email
+that is not cannot, whichever way it tries to get in. Public sign-up is off.
+
+Three layers check it, and any one of them stops a request on its own:
+
+| Layer | Role |
+|---|---|
+| `proxy.ts` | Turns away anyone not signed in before an `/admin` page renders |
+| Every Server Action | Checks the session and staff membership again before any change |
+| Row-level security | Postgres checks `staff` on every read and write of working data. This is the layer that actually enforces access |
+
 | who | can |
 |---|---|
+| anyone | read the published read model; read the three public buckets |
+| a staff member, signed in | read and write working tables; publish; upload; add and remove staff |
+
+**Signing in** depends on whether an email provider is configured, and
+switches by itself when one is:
+
+- **No provider (now): direct sign-in.** Enter an email. If it is on the list,
+  a session opens immediately. No email, no password, no code. Under the hood
+  the server asks Supabase for a sign-in token without sending it, and
+  redeems it on the spot, which is the one use of the service key in the app.
+- **Provider configured: a magic link** to the same address, as originally
+  planned. Nothing else changes.
+
+**The trade-off of direct sign-in.** The email address is the only credential,
+so anyone who knows a listed address can sign in as that person. Two guards
+come with it:
+
+- The list refuses any address published on the site. `Info@`, `Design@` and
+  `Salessupport@elayabath.com` all appear on the Contact page, and a shared
+  mailbox on the list would let anyone who read that page in.
+- Every direct sign-in is recorded, with the time and the address, and shown
+  in the Activity feed, so a sign-in nobody recognises is visible.
+
+Moving to magic links, once a provider is chosen, removes the trade-off.
+
+**The first user** is created by the seed, never by a migration. A migration
+runs identically on every database it is applied to, so an email in one would
+be baked into Elaya's production schema history for good. The seed reads the
+address from a setting, `BOOTSTRAP_STAFF_EMAIL`, and adds that single row. It
+is Joe on the development account and, as decided, Joe on Elaya's account at
+handover too. The address is kept in configuration, not written into the repo.
+
+**Adding staff** is adding a row to `staff`, which any staff member can do.
+A sign-up hook (a database function Supabase runs before creating any
+account) rejects every address not on the list, so invitations need neither
+email nor the service key.
+
+**Removing staff** is deleting the row. Row-level security reads the list on
+every query, so access to data ends on the next request, even if the removed
+person's session has not expired. The database refuses to remove the last
+remaining staff member, so the team cannot lock itself out.
+
+---|---|
 | anyone | read the published read model; read the three public buckets |
 | an invited staff member, signed in | read and write working tables; publish; upload |
 | nobody through the app | use the service-role key |
@@ -442,20 +501,19 @@ Two things outside Supabase to settle before launch:
 
 ## Email
 
-Everything that sends email stays local until we choose a provider together.
-Today that means two things, both sent by Supabase Auth: sign-in links and
-staff invitations.
+Nothing is sent until we choose a provider together. Sign-in is direct while
+there is none (see Access), and adding staff is a row in a table, so neither
+needs email today.
 
-- In development they are delivered to the **mail catcher bundled with the
-  local Supabase stack**, a web inbox on the developer's machine. Nothing
-  leaves it.
+- Anything Supabase does send in development is delivered to the **mail
+  catcher bundled with the local stack**, a web inbox on the developer's
+  machine. Nothing leaves it.
 - There is **one switch** for later: Supabase Auth's SMTP settings. Any email
   the app itself sends in future goes through a single `lib/email` module with
   one interface, so changing provider touches configuration and one file.
-- **The consequence to be aware of**: until a provider is chosen, staff can
-  sign in only on a machine running the local stack. A deployed dashboard, a
-  preview deployment, or a demo to Elaya on their own devices all wait for
-  that conversation. The public site is unaffected, since it sends no email.
+- **When a provider is chosen**, sign-in switches to magic links on its own
+  and the direct sign-in trade-off goes away. Until then the dashboard works
+  everywhere, deployed or local.
 
 ## Moving to Elaya's account
 
@@ -469,7 +527,8 @@ Everything the database needs lives in the repo:
   Actions.
 
 The handover runbook (written in C11 and rehearsed once before launch):
-create the project, link it, push the migrations, restore the latest backup,
+create the project, link it, push the migrations, run the seed with
+`BOOTSTRAP_STAFF_EMAIL` set to Joe's address, restore the latest backup,
 set the auth redirect URLs and the email provider (once one is chosen), set
 the Vercel environment variables, redeploy, invite the staff.
 
@@ -548,7 +607,10 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       list what breaks on the public site; choose tags or paths. Theme AG Grid
       from the site's tokens in both palettes and confirm the browser audit can
       read it. Confirm that cell editing and CSV export are in the Community
-      edition. Confirm the Vercel plan. Record the outcomes here.
+      edition. On the local stack, confirm that a sign-in token can be
+      issued and redeemed without sending an email, and that the sign-up
+      hook rejects unlisted addresses. Confirm the Vercel plan. Record the
+      outcomes here.
 - [ ] **C1 · Async seam (S).** Make every `lib/catalogue.ts` function `async`,
       still reading the JSON, and update its eight call sites and the sitemap.
       Serve the search index from a route instead of a JSON import. The site
@@ -569,11 +631,13 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       page kept. Search as a server query. Category filtering, facets and sort
       in SQL, passing the existing tests. Bounded prerendering. Parity check
       against the JSON, then remove the JSON read path.
-- [ ] **C5 · Sign-in and the admin shell (S).** Magic links and staff
-      invitations delivered to the local mail catcher, the staff list with its
-      role column, the `proxy.ts` gate plus a session check inside every
-      Server Action (the proxy alone is not trusted), the `/admin` layout,
-      `noindex`.
+- [ ] **C5 · Sign-in and the admin shell (M).** Direct sign-in while no
+      provider is configured, magic links once one is, switching on its own.
+      The staff list with its role column, the bootstrap row from
+      `BOOTSTRAP_STAFF_EMAIL`, the sign-up hook, the last-staff guard, the
+      refusal of addresses published on the site, and a record of every direct
+      sign-in. The `proxy.ts` gate plus a session check inside every Server
+      Action (the proxy alone is not trusted), the `/admin` layout, `noindex`.
 - [ ] **C6 · Products grid (M).** AG Grid on the Infinite Row Model over a
       paged, sorted, filtered server query. Search, column chooser, saved and
       shared views, bulk actions by selection or by filter, inline editing of
