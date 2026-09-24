@@ -338,6 +338,57 @@ variables, redeploy, invite the staff.
 
 ---
 
+## Stack and dependencies
+
+The site runs on three runtime dependencies (`next`, `react`, `react-dom`).
+The dashboard adds as few as it can, and everything except the Supabase
+clients loads only under `/admin`. The public site reads the database on the
+server only, so visitors download no more JavaScript than they do now.
+
+**Staying as is:** Next.js 16.3.5 (App Router), React 19.2.8, TypeScript 5,
+CSS Modules on the site's own tokens, Vitest, ESLint, the two audit scripts,
+Playwright for the browser audit.
+
+**New runtime dependencies**
+
+| Package | Purpose |
+|---|---|
+| `@supabase/supabase-js` | Database, storage and auth client |
+| `@supabase/ssr` | Cookie-based sessions shared by server components, Server Actions and `proxy.ts` |
+| `zod` | Validates Server Action input and every imported Excel row before it reaches the database |
+| `radix-ui` | Dialogs, menus and toasts with correct focus handling. Admin only |
+| `@dnd-kit/core`, `@dnd-kit/sortable` | Drag ordering for categories and galleries. Admin only |
+| `exceljs` | Excel import and export, server side |
+
+**New tooling:** the `supabase` CLI as a dev dependency (migrations, generated
+TypeScript types, `supabase test db` for row-level security tests). Docker
+Desktop only if C0 chooses a local Supabase over a cloud dev project.
+
+**Services:** Supabase free tier; Vercel (plan to confirm in C0); GitHub
+Actions for the nightly keep-alive and backup; an email sender for magic
+links (Resend or Elaya's own mail server, to confirm in C0).
+
+**No dependency needed**
+
+- Downscaling photos before upload uses the browser's canvas. Safari cannot
+  encode WebP from a canvas and silently returns PNG, so the uploader checks
+  the output type and falls back to JPEG.
+- Version diffs compare known fields directly.
+- Drafts, preview and invalidation are Next built-ins: `draftMode`,
+  `revalidatePath` or `cacheTag` with `updateTag`, and `proxy.ts`.
+
+**Deliberately not used**
+
+- An ORM such as Prisma or Drizzle. They connect with a database role that
+  bypasses row-level security unless configured with care, which works against
+  the rule that the app always acts as the signed-in user. supabase-js with
+  generated types covers the need.
+- A form library or a client data cache such as react-hook-form or React
+  Query. Native forms with Server Actions and `useActionState` are enough.
+- An image service such as Cloudinary. `next/image` already resizes.
+
+---
+
 ## What stays out of scope
 
 - The enquiries inbox. The contact form and shortlist still submit nowhere.
