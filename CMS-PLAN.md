@@ -37,6 +37,10 @@ so the reason is kept next to it.
 | Completeness | Warn, never block | The catalogue can go live with its gaps and improve over time. |
 | Ordering | Manual order within a category, plus a featured flag for the homepage | |
 | Phone | Desktop first, usable on a phone for viewing and small edits | Bulk import and gallery work expect a laptop. |
+| Data grid | AG Grid Community (MIT), Infinite Row Model | Flexibility: inline editing, column control, saved views. The free edition covers everything the plan uses; no Enterprise licence is assumed (see Products grid). |
+| Email | Local only, for now | Every email the system sends (sign-in links, staff invitations) lands in the mail catcher that ships with the local Supabase stack. No third-party provider until we decide on one together. |
+| Import and export | Flexible | Any sheet layout through column mapping, several entities and formats, partial updates, templates, staged and reversible. See Import and export. |
+| Scale | Designed for tens of thousands of products and many staff | Server-side paging, sorting, filtering and search everywhere, so growth never means a rewrite. See Scalability. |
 
 ### How the old site modelled finishes
 
@@ -109,6 +113,11 @@ The working tables are the drafts. Publishing a product:
 4. invalidates the pages that show it: its own page, its category, the
    products index, the homepage if featured, the search index and the sitemap.
 
+Every write goes through the same path, whatever screen it starts from: the
+product editor, an inline edit in the grid, a bulk action or an import. Each
+one is validated by the same schema, version-checked, and saved as a draft.
+Nothing reaches the public site except through Publish.
+
 Restoring a version copies that snapshot back into the working tables as a
 draft. It goes live only when published again, so a restore can be checked
 first. Categories and finishes follow the same pattern, through the same
@@ -164,12 +173,22 @@ revisions         id, entity_type, entity_id, snapshot jsonb,
 published_*       the read model the public site reads (one row per entity,
                   a snapshot of its last published revision)
 redirects         from_slug (unique), product_id, created_at
-staff             email, invited_by, created_at
+staff             email, role (default 'editor'), invited_by, created_at
+grid_views        id, owner, name, shared, column_state jsonb,
+                  filter_model jsonb, sort_model jsonb
+import_jobs       id, entity, file_path, mapping jsonb, options jsonb,
+                  status, counts jsonb, created_by, created_at, applied_at
+import_rows       job_id, row_number, raw jsonb, parsed jsonb,
+                  outcome (new | changed | unchanged | error), diff jsonb,
+                  errors text[]
+mapping_presets   id, name, entity, mapping jsonb, created_by
 ```
 
 - `family` is a check constraint mirroring `FinishFamily` in `src/lib/types.ts`,
   so the site and the database cannot disagree about what a family is.
 - Material facets stay derived from finish families, as now.
+- `staff.role` exists from day one, although everyone is an editor with
+  equal rights. Roles can then be introduced later as policy, not migration.
 - `status = draft` means never published. Only drafts can be deleted; anything
   that has been live is discontinued instead, so its URL keeps working.
 
@@ -213,8 +232,7 @@ variable so that moving to Elaya's account is a configuration change.
 Desktop first. Every screen works on a phone for reading, small edits and
 hiding a product.
 
-- **Products**: search by name or code; filter by category, status and
-  completeness; bulk publish and bulk hide.
+- **Products**: the grid, described below.
 - **Product editor**: all fields, finishes picked from the library, the
   gallery (upload, reorder, caption, alt text), data sheet upload, status,
   featured flag, completeness panel, Preview, Publish, and a History tab
@@ -234,6 +252,47 @@ same product. Radix primitives for dialogs, menus and toasts, where getting
 focus handling right by hand is not worth it, and dnd-kit for drag ordering.
 Both load only under `/admin`, never on public pages.
 
+### Products grid
+
+Built on **AG Grid Community**, using the **Infinite Row Model**: the grid asks
+the server for one block of rows at a time as the user scrolls, passing its
+sort and filter state, and the server answers from an indexed Postgres query.
+The same grid therefore behaves identically at 596 products or 60,000.
+
+- **Columns**: item code, image, name, category, type, status, finishes
+  count, completeness, featured, last edited by and when. Resizable,
+  reorderable and pinnable.
+- **Filtering and search**: per-column filters, plus one search box across
+  name and code that uses the database's trigram index.
+- **Inline editing** for simple fields (name, type, status, dimensions,
+  featured). An edit is validated, version-checked and saved as a draft,
+  exactly as in the editor. Fields with structure (gallery, finishes,
+  description) open the product editor instead.
+- **Bulk actions** (publish, hide, set category, set featured) apply either to
+  the ticked rows or to **everything matching the current filter**. The second
+  is sent to the server as the filter itself, not a list of ids, because the
+  Infinite Row Model cannot select rows it has not loaded, and because a list
+  of 20,000 ids is the wrong thing to send anyway.
+- **Saved views**: a named combination of columns, filters and sort, private
+  or shared with the team, e.g. "Washbasins needing dimensions". Stored in
+  `grid_views`, and also mirrored in the URL so a view can be sent as a link.
+- **Theme**: AG Grid's theming API mapped onto the site's tokens, so the grid
+  follows Ink and Stone like everything else. It renders real DOM, so the
+  browser audit can measure its contrast and target sizes.
+
+**Enterprise features the plan does not use**, and what stands in for each:
+
+| Enterprise feature | Instead |
+|---|---|
+| Excel export | `exceljs` on the server, which also gives full control over the file |
+| Server-Side Row Model | Infinite Row Model with server-side sort and filter |
+| Tool panels (column chooser) | Our own menu driving the grid's column API |
+| Clipboard and range selection | Not needed; bulk edits go through import |
+| Row grouping, pivoting, master/detail | Not needed |
+
+If one of these becomes worth paying for, the grid is already AG Grid, so it
+is a licence key rather than a rewrite.
+
 ### Completeness score
 
 Image, product type, dimensions, description, data sheet, at least one
@@ -244,19 +303,83 @@ never blocks publishing.
 
 ## Import and export
 
-- **Export**: the working copy or the published catalogue to `.xlsx`, one row
-  per product, finishes as a comma-separated list of codes. Library: `exceljs`
-  (the `xlsx` package on npm is years out of date; the maintained SheetJS build
-  is not published there).
-- **Import**: upload a sheet, and the server matches rows by item code and
-  shows a preview: new, changed (field by field), unchanged, and rows with
-  errors (unknown category, unknown finish code, duplicate code). Nothing is
-  written until someone confirms. Imported changes land as drafts, so they go
-  live only when published.
-- Images are not imported from Excel. That can come later as a URL column if
-  it turns out to be needed.
+Designed to take whatever shape of spreadsheet Elaya already has, rather than
+insisting on ours.
 
----
+**What can be imported or exported**: products, categories, finishes, and the
+product-to-finish links. Each is its own entity with its own columns.
+
+**Formats**: `.xlsx`, `.csv` and `.tsv` in; `.xlsx` and `.csv` out.
+
+**Import**
+
+1. **Upload** to a private `imports` bucket. An `import_jobs` row records who,
+   what, and when.
+2. **Map columns.** Headers are matched to fields automatically where the
+   names agree, and anything unmatched is mapped by hand or ignored. A mapping
+   can be saved as a preset, so a recurring sheet maps itself next time.
+3. **Choose the rules**: which column identifies a row (item code by default,
+   or the internal id when codes themselves are being changed); whether a
+   blank cell means "leave unchanged" (the default) or "clear this field";
+   whether unknown rows are created or skipped.
+4. **Stage.** The file is processed in chunks into `import_rows`, each row
+   parsed, validated by the same schema the editor uses, and compared with the
+   database: new, changed field by field, unchanged, or an error with the
+   reason. Chunking keeps every request inside the hosting platform's time
+   limit, whatever the file size, and progress is shown as it runs.
+5. **Preview** in the same AG Grid, filterable by outcome, so a 5,000-row
+   import with 12 errors can be reviewed by looking at the 12.
+6. **Apply.** Only mapped columns are touched: a sheet of item codes and
+   dimensions changes dimensions and nothing else. Changes land as drafts,
+   tagged with the job, applied in batches, each batch in a transaction.
+7. **Publish or discard as a unit.** "Publish everything from this import" and
+   "discard this import's drafts" both act on the job, so a bad import is one
+   click to undo before it ever goes live.
+
+**Export**
+
+- The current grid view (its filters, sort and visible columns), the ticked
+  rows, or the whole entity; working copy or published.
+- Column choice and order, saved with the view.
+- Written as a stream on the server, so a large catalogue never has to fit in
+  memory, and delivered as a download.
+- **Round-trip safe**: an export can be edited and imported back unchanged,
+  and a blank template can be downloaded for any entity.
+
+Images are not carried in spreadsheets. An image URL column can be added
+later if it is ever needed; it is left out now because fetching arbitrary
+URLs from a server needs its own safeguards.
+
+## Scalability
+
+The catalogue is 596 products today. Everything is built so that ten times or
+a hundred times that changes configuration or plan tier, not code.
+
+- **No screen loads a whole table.** The grid pages from the server; imports
+  and exports stream in chunks; bulk actions run as server-side queries.
+- **Indexes from the first migration**: item code, slug, status, category,
+  position, last edited; a trigram index on name and code for search.
+- **Public search moves to the database.** Today every visitor who opens
+  search downloads the whole index, about 45 KB at 596 products and far too
+  much at tens of thousands. It becomes a server-side query with results
+  cached per term.
+- **Category shelves move to the database.** Filtering, facet counts and
+  sorting are pure functions in `lib/product-filters.ts` today, run in the
+  browser over every product in the category. They are reimplemented in SQL
+  with the same meaning, and the existing tests become the specification both
+  versions must pass. Shelves then page like the grid does.
+- **Prerendering is bounded.** Building every product page at deploy time
+  gets slower as the catalogue grows. Only the featured and most-visited pages
+  are built ahead; the rest render on first request and are cached, which the
+  plan already relies on for new products.
+- **The sitemap splits** into an index of sitemaps once it nears the 50,000
+  URL limit, which Next supports directly.
+- **Storage stores paths, not URLs.** The host comes from configuration, so a
+  move to a larger plan or another store is a copy and a setting.
+- **Invalidation is batched.** A bulk publish of 500 products refreshes each
+  list page once, not 500 times.
+- **Roles are ready**, through `staff.role`, when the team outgrows equal
+  rights.
 
 ## Seeding
 
@@ -313,12 +436,26 @@ Two things outside Supabase to settle before launch:
 
 - **Vercel**: the free Hobby plan is for non-commercial use, and this is a
   client's commercial site. Pro is about $20 a month. To confirm in C0.
-- **Email for magic links**: Supabase's built-in sender is for testing, with a
-  very low hourly limit, and may only send to members of the Supabase project
-  team rather than to Elaya staff. Production needs a real sender: Elaya's own
-  mail server, or a service with a free tier such as Resend. To confirm in C0.
+- **Email**: deferred by decision. See Email below.
 
 ---
+
+## Email
+
+Everything that sends email stays local until we choose a provider together.
+Today that means two things, both sent by Supabase Auth: sign-in links and
+staff invitations.
+
+- In development they are delivered to the **mail catcher bundled with the
+  local Supabase stack**, a web inbox on the developer's machine. Nothing
+  leaves it.
+- There is **one switch** for later: Supabase Auth's SMTP settings. Any email
+  the app itself sends in future goes through a single `lib/email` module with
+  one interface, so changing provider touches configuration and one file.
+- **The consequence to be aware of**: until a provider is chosen, staff can
+  sign in only on a machine running the local stack. A deployed dashboard, a
+  preview deployment, or a demo to Elaya on their own devices all wait for
+  that conversation. The public site is unaffected, since it sends no email.
 
 ## Moving to Elaya's account
 
@@ -333,8 +470,8 @@ Everything the database needs lives in the repo:
 
 The handover runbook (written in C11 and rehearsed once before launch):
 create the project, link it, push the migrations, restore the latest backup,
-set the auth redirect URLs and the email sender, set the Vercel environment
-variables, redeploy, invite the staff.
+set the auth redirect URLs and the email provider (once one is chosen), set
+the Vercel environment variables, redeploy, invite the staff.
 
 ---
 
@@ -358,15 +495,18 @@ Playwright for the browser audit.
 | `zod` | Validates Server Action input and every imported Excel row before it reaches the database |
 | `radix-ui` | Dialogs, menus and toasts with correct focus handling. Admin only |
 | `@dnd-kit/core`, `@dnd-kit/sortable` | Drag ordering for categories and galleries. Admin only |
-| `exceljs` | Excel import and export, server side |
+| `ag-grid-community`, `ag-grid-react` | The products grid and the import preview. Community edition, MIT. Only the modules used are registered, to keep the bundle down. Admin only |
+| `exceljs` | Excel reading and streamed writing, server side |
 
-**New tooling:** the `supabase` CLI as a dev dependency (migrations, generated
-TypeScript types, `supabase test db` for row-level security tests). Docker
-Desktop only if C0 chooses a local Supabase over a cloud dev project.
+**New tooling:** the `supabase` CLI as a dev dependency: the local stack
+(Postgres, Auth, Storage and the mail catcher), migrations, generated
+TypeScript types, and `supabase test db` for row-level security tests. It
+runs on Docker Desktop, which is already installed on the development
+machine (28.0.4 on WSL2) and only needs starting.
 
 **Services:** Supabase free tier; Vercel (plan to confirm in C0); GitHub
-Actions for the nightly keep-alive and backup; an email sender for magic
-links (Resend or Elaya's own mail server, to confirm in C0).
+Actions for the nightly keep-alive and backup. No email provider yet: see
+Email.
 
 **No dependency needed**
 
@@ -405,43 +545,59 @@ links (Resend or Elaya's own mail server, to confirm in C0).
 Sizes are relative: S is a day or less, M a few days, L about a week.
 
 - [ ] **C0 · Spike and confirm (S).** Enable `cacheComponents` on a branch and
-      list what breaks on the public site; choose tags or paths. Confirm the
-      Supabase built-in email restriction. Confirm the Vercel plan. Confirm
-      local Supabase needs Docker on Windows, or use a cloud dev project
-      instead. Record the outcomes here.
+      list what breaks on the public site; choose tags or paths. Theme AG Grid
+      from the site's tokens in both palettes and confirm the browser audit can
+      read it. Confirm that cell editing and CSV export are in the Community
+      edition. Confirm the Vercel plan. Record the outcomes here.
 - [ ] **C1 · Async seam (S).** Make every `lib/catalogue.ts` function `async`,
       still reading the JSON, and update its eight call sites and the sitemap.
       Serve the search index from a route instead of a JSON import. The site
       must behave identically: every audit green, no visible change. Shippable
       on its own.
-- [ ] **C2 · Supabase foundation (M).** Migrations for the schema, row-level
-      security, buckets and policies. Environment wiring, `remotePatterns`,
-      exclude `/admin` and `/api` from the locale rewrite. A test that proves
-      an anonymous visitor cannot read drafts or write anything.
+- [ ] **C2 · Supabase foundation (M).** The local stack through the CLI,
+      including the mail catcher. Migrations for the schema, indexes,
+      row-level security, buckets and policies. Environment wiring,
+      `remotePatterns`, exclude `/admin` and `/api` from the locale rewrite. A
+      test that proves an anonymous visitor cannot read drafts or write
+      anything.
 - [ ] **C3 · Seed and backups (M).** Full-catalogue ingest, the seed script,
-      media upload, counts checked against the scrape. The nightly
-      keep-alive and backup job.
-- [ ] **C4 · Public site on the database (M).** `lib/catalogue.ts` reads the
+      media upload, counts checked against the scrape. The nightly keep-alive
+      and backup job.
+- [ ] **C4 · Public site on the database (L).** `lib/catalogue.ts` reads the
       published read model. Caching and invalidation as chosen in C0.
-      Redirects for changed slugs. Discontinued products hidden with their page
-      kept. Parity check against the JSON, then remove the JSON read path.
-- [ ] **C5 · Sign-in and the admin shell (S).** Magic link, the staff list,
-      the `proxy.ts` gate plus a session check inside every Server Action (the
-      proxy alone is not trusted), the `/admin` layout, `noindex`, the real
-      email sender.
-- [ ] **C6 · Product editor (L).** Fields, finishes from the library,
+      Redirects for changed slugs. Discontinued products hidden with their
+      page kept. Search as a server query. Category filtering, facets and sort
+      in SQL, passing the existing tests. Bounded prerendering. Parity check
+      against the JSON, then remove the JSON read path.
+- [ ] **C5 · Sign-in and the admin shell (S).** Magic links and staff
+      invitations delivered to the local mail catcher, the staff list with its
+      role column, the `proxy.ts` gate plus a session check inside every
+      Server Action (the proxy alone is not trusted), the `/admin` layout,
+      `noindex`.
+- [ ] **C6 · Products grid (M).** AG Grid on the Infinite Row Model over a
+      paged, sorted, filtered server query. Search, column chooser, saved and
+      shared views, bulk actions by selection or by filter, inline editing of
+      simple fields through the draft path.
+- [ ] **C7 · Product editor (L).** Fields, finishes from the library,
       completeness, version-checked saves with the conflict prompt, saving
       drafts.
-- [ ] **C7 · Media (M).** Gallery upload with in-browser downscaling, reorder,
+- [ ] **C8 · Media (M).** Gallery upload with in-browser downscaling, reorder,
       captions and alt text, data sheets, orphan cleanup, a storage meter.
-- [ ] **C8 · Publish, preview, history (M).** The publish action and
+- [ ] **C9 · Publish, preview, history (M).** The publish action and batched
       invalidation, draft-mode preview, the History tab with diff and restore,
       the Activity feed.
-- [ ] **C9 · Categories, finishes, ordering (M).** Category editing and drag
+- [ ] **C10 · Categories, finishes, ordering (M).** Category editing and drag
       ordering, the featured flag feeding the homepage, the finish library.
-- [ ] **C10 · Import and export (M).** Excel export, import with the preview
-      and error rows, imports landing as drafts.
-- [ ] **C11 · Hardening and handover (M).** Row-level security tests in
+- [ ] **C11 · Import and export (L).** Upload, column mapping and presets,
+      import rules, chunked staging with progress, preview in the grid, apply
+      in batches, publish or discard by job; streamed export of views,
+      selections or whole entities; templates; a round-trip test.
+- [ ] **C12 · Hardening and handover (M).** Row-level security tests in
       `npm run check`, the browser audit extended to `/admin` with a test
-      session, the handover runbook, and one rehearsal of the move to a fresh
-      Supabase account.
+      session, load tests of the grid and of import at ten times the
+      catalogue, the handover runbook, and one rehearsal of the move to a
+      fresh Supabase account.
+
+Choosing an email provider is deliberately not a milestone. It is a
+conversation to have before the dashboard is used anywhere but the development
+machine, and the switch is configuration when it happens.
