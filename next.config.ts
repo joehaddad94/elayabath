@@ -1,11 +1,37 @@
 import type { NextConfig } from "next";
 
+/**
+ * Where Supabase Storage lives, read from the environment so that moving
+ * between a local stack, Joe's development project and Elaya's own account
+ * changes a setting and not this file.
+ */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  : undefined;
+
+/** Next 16 refuses to optimise images served from a local address, as a
+ *  guard against reaching into a private network. A local Supabase stack
+ *  serves from 127.0.0.1, so the guard is lifted only when the configured
+ *  host is itself local, which can never be true of a deployed site. */
+const supabaseIsLocal =
+  supabaseUrl !== undefined && ["127.0.0.1", "localhost"].includes(supabaseUrl.hostname);
+
 const nextConfig: NextConfig = {
-  // Every route in this site is prerendered from committed JSON, so there is
-  // no remote image host to allow and no runtime data source to configure.
-  // Images are local files under public/, already converted to WebP by the
-  // ingest pipeline; next/image still handles sizing and srcset.
+  // Catalogue photography, swatches and data sheets live in Supabase Storage
+  // public buckets; the site's own room photography stays under public/.
+  // next/image handles sizing and srcset for both.
   images: {
+    remotePatterns: supabaseUrl
+      ? [
+          {
+            protocol: supabaseUrl.protocol.replace(":", "") as "http" | "https",
+            hostname: supabaseUrl.hostname,
+            port: supabaseUrl.port,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
+    dangerouslyAllowLocalIP: supabaseIsLocal,
     // The catalogue renders at a handful of fixed sizes: a grid card, a
     // category block and the product hero. Narrowing this list keeps the
     // build from generating variants nothing requests.
@@ -44,7 +70,7 @@ const nextConfig: NextConfig = {
           // /sitemap.xml, /robots.txt and every image in public/ out of the
           // rewrite: they are files, not routes, and sending them into the
           // locale tree 404s them.
-          source: "/:path((?!en$|en/|_next/|api/)[^.]*)",
+          source: "/:path((?!en$|en/|_next/|api/|admin$|admin/)[^.]*)",
           destination: "/en/:path",
         },
       ],

@@ -158,7 +158,11 @@ const checks: Check[] = [
     name: "no unused exports",
     why: "an export nothing imports is usually a helper that was duplicated inline somewhere instead",
     run: () => {
-      const files = codeFiles().filter((f) => !rel(f).includes("src/app/"));
+      // Generated code is not ours to prune: database.types.ts is rewritten
+      // wholesale by `npm run db:types` from the live schema.
+      const files = codeFiles().filter(
+        (f) => !rel(f).includes("src/app/") && !rel(f).endsWith(".types.ts"),
+      );
       const all = [...codeFiles(), ...walk(path.join(ROOT, "scripts"), (f) => f.endsWith(".ts"))]
         .map(read)
         .join("\n");

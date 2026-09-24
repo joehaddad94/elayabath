@@ -449,8 +449,13 @@ a hundred times that changes configuration or plan tier, not code.
    sheets, about 1 MB of swatches and room photography. The scrape itself is
    735 MB, but that is WordPress's many resized copies of each photo; only one
    optimised image per product is kept.
-3. Everything is imported as published, since it is already live on the old
-   site. Placeholder prices are dropped.
+3. Everything in the six mapped categories is imported as published, since it
+   is already live on the old site. Placeholder prices are dropped.
+3a. **The other 56 products** sit in old-site categories this site does not
+   map: shower toilets (15), urinals (15), kitchen mixers (12), bidets (11)
+   and accessible fittings (3). Decided 2026-09-24: they are seeded into five
+   new categories, Shower Toilets, Urinals, Kitchen, Bidets and Accessible,
+   **as drafts**, products included, for staff to publish when they choose.
 4. **Parity check**: the public site rendered from the database must match the
    site rendered from the JSON, page for page, for the 50 products it shows
    today. Only then is the JSON read path removed.
@@ -603,7 +608,7 @@ Email.
 
 Sizes are relative: S is a day or less, M a few days, L about a week.
 
-- [ ] **C0 · Spike and confirm (S).** Enable `cacheComponents` on a branch and
+- [x] **C0 · Spike and confirm (S).** Enable `cacheComponents` on a branch and
       list what breaks on the public site; choose tags or paths. Theme AG Grid
       from the site's tokens in both palettes and confirm the browser audit can
       read it. Confirm that cell editing and CSV export are in the Community
@@ -616,7 +621,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       Serve the search index from a route instead of a JSON import. The site
       must behave identically: every audit green, no visible change. Shippable
       on its own.
-- [ ] **C2 · Supabase foundation (M).** The local stack through the CLI,
+- [x] **C2 · Supabase foundation (M).** The local stack through the CLI,
       including the mail catcher. Migrations for the schema, indexes,
       row-level security, buckets and policies. Environment wiring,
       `remotePatterns`, exclude `/admin` and `/api` from the locale rewrite. A
@@ -669,6 +674,18 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   dynamic routes become partial prerenders. The browser audit passes
   unchanged (38 page loads, no problems). The flag is switched on in C4,
   where the first cached reads appear.
+- **Direct sign-in works with nothing sent.** Against the local Auth
+  service: the server issues a sign-in token without sending anything and
+  redeems it on the spot. A first sign-in gets a `signup` token, a returning
+  one a `magiclink` token, so the action redeems with the type Auth reports
+  (`verification_type`) rather than assuming. The session is recognised as
+  staff and sees drafts; an anonymous client sees none. Emails sent: 0.
+- **The sign-up hook refuses unlisted addresses** through the real Auth API,
+  with a 403 and "This address is not on the staff list."
+- **Local Supabase runs on Docker Desktop** (28.0.4, WSL2), without the
+  services the dashboard does not use: realtime, edge functions, analytics.
+- **Still open:** the Vercel plan (Joe to confirm). The AG Grid checks move to
+  C6, where the grid is built.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
