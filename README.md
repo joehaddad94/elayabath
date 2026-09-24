@@ -168,3 +168,9 @@ Inherited from the live site, reproduced faithfully, and reported rather than si
 ## Licence and content
 
 Product imagery, copy and catalogue data belong to Elaya Bath.
+
+## Next: the product dashboard
+
+The plan for managing products, categories and finishes from `/admin`, with
+drafts, publishing, history and Excel import, is in [`CMS-PLAN.md`](CMS-PLAN.md).
+Planned, not started: it is built after the site design is approved.
