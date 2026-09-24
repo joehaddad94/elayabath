@@ -30,8 +30,7 @@ export default async function ProductsPage({
   if (!isLocale(raw)) notFound();
   const locale = raw;
   const t = getDictionary(locale);
-  const categories = getCategories();
-  const meta = getCatalogueMeta();
+  const [categories, meta] = await Promise.all([getCategories(), getCatalogueMeta()]);
 
   return (
     <main id="main">

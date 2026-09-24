@@ -18,12 +18,12 @@ import styles from "./SiteHeader.module.css";
  * are gone with the cart, because the commercial model is browse then quote
  * and there is nothing to sign in to.
  */
-export function SiteHeader({ locale }: { locale: Locale }) {
+export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
 
   // Read here, in a server component, and handed down as plain data. NavLinks
   // is a client component and must never import the catalogue itself.
-  const categories = getCategories();
+  const categories = await getCategories();
 
   const items = [
     { href: routes.about(locale), label: t.nav.about },

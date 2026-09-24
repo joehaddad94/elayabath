@@ -26,9 +26,10 @@ import { routes } from "@/lib/routes";
 import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
 import styles from "./product.module.css";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const products = await getProducts();
   return LOCALES.flatMap((locale) =>
-    getProducts().map((product) => ({ locale, slug: product.slug })),
+    products.map((product) => ({ locale, slug: product.slug })),
   );
 }
 
@@ -38,7 +39,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) return {};
   return {
     title: `${product.name} ${product.sku}`,
@@ -64,13 +65,15 @@ export default async function ProductPage({
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
 
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) notFound();
 
   const t = getDictionary(locale);
-  const category = getCategory(product.categorySlug);
-  const finishes = getFinishesFor(product);
-  const related = getRelatedProducts(product, 4);
+  const [category, finishes, related] = await Promise.all([
+    getCategory(product.categorySlug),
+    getFinishesFor(product),
+    getRelatedProducts(product, 4),
+  ]);
 
   const spec: Array<[string, React.ReactNode]> = [
     [t.common.itemCode, product.sku],

@@ -11,7 +11,7 @@ const ORIGIN = SITE_ORIGIN;
  * is deliberately absent: it is rewritten away, so the clean path is the one
  * that should be indexed.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const l = DEFAULT_LOCALE;
 
   const staticRoutes = [
@@ -32,11 +32,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${ORIGIN}${path}`,
       priority,
     })),
-    ...getCategories().map((c) => ({
+    ...(await getCategories()).map((c) => ({
       url: `${ORIGIN}${routes.category(c.slug, l)}`,
       priority: 0.8,
     })),
-    ...getProducts().map((p) => ({
+    ...(await getProducts()).map((p) => ({
       url: `${ORIGIN}${routes.product(p.slug, l)}`,
       priority: 0.6,
     })),

@@ -32,8 +32,7 @@ export default async function AboutPage({
   if (!isLocale(raw)) notFound();
   const locale = raw;
   const t = getDictionary(locale);
-  const meta = getCatalogueMeta();
-  const categories = getCategories();
+  const [meta, categories] = await Promise.all([getCatalogueMeta(), getCategories()]);
 
   // Counted from the catalogue, never asserted. The live About page makes no
   // numeric claims at all, so any number here has to be one we can show.

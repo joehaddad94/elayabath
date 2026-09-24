@@ -1,21 +1,19 @@
 import type { SearchEntry } from "./types";
 
 /**
- * The index, loaded on demand.
+ * The index, fetched on demand from `/api/search-index`.
  *
- * Deliberately NOT in lib/catalogue.ts. That module imports every catalogue
- * JSON at the top level, so a client component importing anything from it
- * drags the whole catalogue into the browser bundle: routing search through
- * it put a 45 KB chunk of product records in front of every visitor who
- * opened the search page. This module imports no data statically, so the
- * dynamic import below is the only thing that ships, and it ships as its own
- * chunk fetched when search is actually used.
+ * Deliberately NOT in lib/catalogue.ts. That module holds every catalogue
+ * record, so a client component importing anything from it drags the whole
+ * catalogue into the browser bundle: routing search through it once put a
+ * 45 KB chunk of product records in front of every visitor who opened the
+ * search page. This module imports no data at all; the index arrives over
+ * the network, only when search is actually used.
  */
 export async function loadSearchIndex(): Promise<SearchEntry[]> {
-  const loaded = await import("../../data/search.json", {
-    with: { type: "json" },
-  });
-  return loaded.default as SearchEntry[];
+  const response = await fetch("/api/search-index");
+  if (!response.ok) throw new Error(`search index: ${response.status}`);
+  return (await response.json()) as SearchEntry[];
 }
 
 /**

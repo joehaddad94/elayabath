@@ -28,9 +28,10 @@ import {
 import type { Finish } from "@/lib/types";
 import styles from "./category.module.css";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const categories = await getCategories();
   return LOCALES.flatMap((locale) =>
-    getCategories().map((category) => ({ locale, category: category.slug })),
+    categories.map((category) => ({ locale, category: category.slug })),
   );
 }
 
@@ -40,7 +41,7 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category: slug } = await params;
-  const category = getCategory(slug);
+  const category = await getCategory(slug);
   if (!category) return {};
   return {
     title: category.name,
@@ -64,22 +65,22 @@ export default async function CategoryPage({
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
 
-  const category = getCategory(slug);
+  const category = await getCategory(slug);
   if (!category) notFound();
 
   const t = getDictionary(locale);
-  const products = getProductsInCategory(slug);
+  const products = await getProductsInCategory(slug);
 
   // Only the finishes this category actually contains, so the filter never
   // offers a colour that would return nothing.
-  const finishes = category.finishes
-    .map((finishSlug) => getFinish(finishSlug))
-    .filter((f): f is Finish => Boolean(f));
+  const finishes = (
+    await Promise.all(category.finishes.map((finishSlug) => getFinish(finishSlug)))
+  ).filter((f): f is Finish => Boolean(f));
 
   // Only blurb[0] was ever painted. Anything the client wrote beyond it was
   // being carried in the data and never shown.
   const extra = category.blurb?.slice(1) ?? [];
-  const others = getCategories().filter((c) => c.slug !== category.slug);
+  const others = (await getCategories()).filter((c) => c.slug !== category.slug);
 
   const crumbs = [
     { name: t.nav.home, href: routes.home(locale) },

@@ -611,7 +611,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       issued and redeemed without sending an email, and that the sign-up
       hook rejects unlisted addresses. Confirm the Vercel plan. Record the
       outcomes here.
-- [ ] **C1 · Async seam (S).** Make every `lib/catalogue.ts` function `async`,
+- [x] **C1 · Async seam (S).** Make every `lib/catalogue.ts` function `async`,
       still reading the JSON, and update its eight call sites and the sitemap.
       Serve the search index from a route instead of a JSON import. The site
       must behave identically: every audit green, no visible change. Shippable
@@ -661,6 +661,14 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       session, load tests of the grid and of import at ten times the
       catalogue, the handover runbook, and one rehearsal of the move to a
       fresh Supabase account.
+
+### C0 outcomes
+
+- **Caching: tags.** `cacheComponents: true` builds the current site with no
+  code changes: every real page stays fully static, and only the shells of
+  dynamic routes become partial prerenders. The browser audit passes
+  unchanged (38 page loads, no problems). The flag is switched on in C4,
+  where the first cached reads appear.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

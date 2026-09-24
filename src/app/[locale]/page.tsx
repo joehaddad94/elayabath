@@ -40,10 +40,12 @@ export default async function HomePage({
   const locale = raw;
   const t = getDictionary(locale);
 
-  const meta = getCatalogueMeta();
-  const categories = getCategories();
-  const products = getProducts();
-  const finishes = getFinishes();
+  const [meta, categories, products, finishes] = await Promise.all([
+    getCatalogueMeta(),
+    getCategories(),
+    getProducts(),
+    getFinishes(),
+  ]);
 
   // Only the categories the client has actually written copy for lead the
   // page. The live homepage leads with four, one of which has no products

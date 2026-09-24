@@ -31,7 +31,7 @@ export default async function CataloguePage({
   if (!isLocale(raw)) notFound();
   const locale = raw;
   const t = getDictionary(locale);
-  const meta = getCatalogueMeta();
+  const meta = await getCatalogueMeta();
 
   return (
     <main id="main">
