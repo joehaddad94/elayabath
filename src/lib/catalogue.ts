@@ -125,6 +125,13 @@ function toProduct(s: ProductSnapshot): Product {
   };
 }
 
+/** A product snapshot, as `public.product_snapshot` builds it, in the site's
+ *  shape. For the preview (lib/preview.ts), which reads the working copy
+ *  and must render it exactly as publishing it would. */
+export function productFromSnapshot(snapshot: unknown): Product {
+  return toProduct(snapshot as ProductSnapshot);
+}
+
 function toFinish(s: FinishSnapshot): Finish {
   return {
     slug: s.slug,

@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Runs before every /admin request, and nowhere else.
+ * Runs before every /admin request, and before product pages opened in
+ * preview (draft mode), and nowhere else.
  *
  * Two jobs. It refreshes the Supabase session, so a staff member signed in
  * yesterday stays signed in today (a server component can read cookies but
@@ -43,6 +44,16 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname, search } = request.nextUrl;
+
+  // A product page in preview reads the draft as the signed-in staff member
+  // (lib/preview.ts), so the session needs the same refresh here. Nobody is
+  // turned away: without a staff session the page is simply the live one.
+  if (!pathname.startsWith("/admin")) {
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  }
+
   const isPublic = pathname === "/admin/sign-in" || pathname.startsWith("/admin/auth/");
 
   if (!user && !isPublic) {
@@ -65,6 +76,14 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// `__prerender_bypass` is the cookie `draftMode().enable()` sets; only the
+// staff-only preview route sets it. Next reads this config at build time, so
+// the values must be written out as literals.
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    { source: "/product/:path*", has: [{ type: "cookie", key: "__prerender_bypass" }] },
+    { source: "/:locale/product/:path*", has: [{ type: "cookie", key: "__prerender_bypass" }] },
+  ],
 };

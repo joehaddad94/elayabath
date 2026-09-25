@@ -652,7 +652,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       drafts.
 - [x] **C8 · Media (M).** Gallery upload with in-browser downscaling, reorder,
       captions and alt text, data sheets, orphan cleanup, a storage meter.
-- [ ] **C9 · Publish, preview, history (M).** The publish action and batched
+- [x] **C9 · Publish, preview, history (M).** The publish action and batched
       invalidation, draft-mode preview, the History tab with diff and restore,
       the Activity feed.
 - [ ] **C10 · Categories, finishes, ordering (M).** Category editing and drag
@@ -743,7 +743,8 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   correctly. Avoiding it would mean a database lookup in the proxy on every
   product request.
 - **To confirm in C9:** the sitemap is built ahead, so it only drops a
-  discontinued product once publishing clears its cache tag.
+  discontinued product once publishing clears its cache tag. *Confirmed in
+  C9: it drops out on publish and returns when made live again.*
 
 ### C5 outcomes
 
@@ -869,6 +870,39 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   be followed by a redeploy.
 - **Tests:** 65 database tests (gallery and data sheet saves, storage guards)
   and 79 unit tests.
+
+### C9 outcomes
+
+- **Twenty-one checks pass in a real browser.**
+- **Preview** opens the saved draft on the real product page, under a banner,
+  sent as private and `noindex`. Visitors see the live page at the same
+  time. Preview uses Next's draft mode, switched on only by the staff-only
+  `/admin/preview` route, and the draft is then read as the signed-in staff
+  member under row-level security. A copied preview cookie without a staff
+  session shows only the live page (tested). A never-published draft can be
+  previewed while visitors get a 404. The proxy also runs for product pages
+  carrying the preview cookie, and nowhere else on the public site, so a
+  long preview session keeps its sign-in.
+- **History** lists every published version. Choosing one shows how it
+  differs from what is on screen now (name, code, address, category, type,
+  status, dimensions, description, features, finishes added or removed,
+  photos and main photo, data sheet). **Restore** copies it back as a draft
+  through `public.restore_product`, version-checked like any save, photos
+  and per-finish photos included. The site is unchanged until it is
+  published again. A version whose category no longer exists, or whose
+  address now redirects to another product, is refused with the reason
+  rather than guessed. Featured and manual order are not part of a version
+  and are left alone.
+- **Activity** shows what is waiting to be published, with who edited it
+  and when, and every publish newest first, paged by revision id (the seed
+  published hundreds within the same instant, so paging by time would skip
+  some).
+- **Tightened:** `product_snapshot` now answers staff (or the service key)
+  only, so a signed-in account removed from the staff list, whose session
+  can outlive the removal, can no longer read drafts through it. The save
+  functions are closed to anonymous callers too.
+- **Tests:** 76 database tests (11 new for restore and the snapshot guard).
+  The C6, C7 and C8 browser checks still pass. The public audit is clean.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

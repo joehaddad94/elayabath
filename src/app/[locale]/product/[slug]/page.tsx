@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
@@ -8,6 +9,7 @@ import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
 import { Icon } from "@/components/Icon/Icon";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
+import { PreviewBanner } from "@/components/PreviewBanner/PreviewBanner";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { QuoteAction } from "@/components/QuoteAction/QuoteAction";
 import { ShortlistButton } from "@/components/Shortlist/ShortlistButton";
@@ -22,6 +24,7 @@ import {
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
+import { getPreviewProduct } from "@/lib/preview";
 import { categoryBand } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
@@ -72,7 +75,11 @@ export default async function ProductPage({
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
 
-  const product = await getProduct(slug);
+  // In preview (draft mode, switched on only from the dashboard), staff see
+  // the saved draft; everyone else, and staff outside preview, the live one.
+  const { isEnabled: previewing } = await draftMode();
+  const preview = previewing ? await getPreviewProduct(slug) : undefined;
+  const product = preview?.product ?? (await getProduct(slug));
   if (!product) {
     // A product whose code changed keeps its old address working.
     const moved = await getRedirect(slug);
@@ -116,6 +123,7 @@ export default async function ProductPage({
 
   return (
     <main id="main">
+      {preview && <PreviewBanner productId={preview.id} />}
       <JsonLd
         graph={[
           productSchema(product, routes.product(product.slug)),

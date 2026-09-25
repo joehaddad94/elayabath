@@ -830,6 +830,10 @@ export type Database = {
         Args: { p_id: string; p_note?: string }
         Returns: number
       }
+      restore_product: {
+        Args: { p_id: string; p_revision: number; p_version: number }
+        Returns: number
+      }
       save_product: {
         Args: {
           p_fields: Json
