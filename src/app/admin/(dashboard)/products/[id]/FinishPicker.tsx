@@ -24,6 +24,9 @@ export function FinishPicker({
   onChange: (next: string[]) => void;
 }) {
   const [query, setQuery] = useState("");
+  // The library stays closed until someone searches or asks for it, so a
+  // product with its finishes chosen doesn't carry 40 more below them.
+  const [browsing, setBrowsing] = useState(false);
   const searchId = useId();
   const byId = useMemo(() => new Map(library.map((f) => [f.id, f])), [library]);
 
@@ -92,6 +95,11 @@ export function FinishPicker({
           placeholder="Name, code or material"
           autoComplete="off"
         />
+        {!browsing && query.trim() === "" ? (
+          <button type="button" className={`btn btn-secondary ${styles.browse}`} onClick={() => setBrowsing(true)}>
+            Browse the library
+          </button>
+        ) : (
         <ul className={styles.options} aria-label="Finishes you can add">
           {matches.map((f) => (
             <li key={f.id}>
@@ -110,6 +118,7 @@ export function FinishPicker({
           ))}
           {matches.length === 0 && <li className={styles.hint}>Nothing matches.</li>}
         </ul>
+        )}
       </div>
     </div>
   );
@@ -119,6 +128,9 @@ function Swatch({ finish }: { finish: FinishOption | undefined }) {
   return finish?.swatchUrl ? (
     <Image src={finish.swatchUrl} alt="" width={28} height={28} className={styles.swatch} />
   ) : (
-    <span className={styles.swatch} aria-hidden="true" />
+    // No swatch in the client's data: the code, so the tile still says which.
+    <span className={`${styles.swatch} ${styles.noSwatch}`} aria-hidden="true">
+      {finish?.code}
+    </span>
   );
 }

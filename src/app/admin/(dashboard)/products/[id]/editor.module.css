@@ -256,6 +256,19 @@
   gap: var(--space-2);
 }
 
+.browse {
+  justify-self: start;
+}
+
+.noSwatch {
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+}
+
 .options {
   margin: 0;
   padding: 0;

@@ -8,7 +8,7 @@ import { publishProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 
 export type SaveResult =
-  | { ok: true; version: number; updatedAt: string; message: string }
+  | { ok: true; version: number; publishedVersion: number | null; updatedAt: string; message: string }
   | { ok: false; error: string; fields?: Record<string, string> }
   | { ok: false; conflict: { by: string | null; at: string; version: number }; error: string };
 
@@ -110,12 +110,16 @@ export async function saveProduct(input: { id: string; version: number; form: un
     return { ok: false, error: message, fields: field && error?.code === "23505" ? { [field]: message } : undefined };
   }
 
-  const { data: row } = await supabase.from("products").select("updated_at").eq("id", id.data).single();
+  const { data: row } = await supabase.from("products").select("updated_at, published_version").eq("id", id.data).single();
+  const matchesLive = row?.published_version === saved;
   return {
     ok: true,
     version: saved,
+    publishedVersion: row?.published_version ?? null,
     updatedAt: row?.updated_at ?? new Date().toISOString(),
-    message: "Saved as a draft. The site changes when you publish.",
+    message: matchesLive
+      ? "Saved. It now matches the live version, so there is nothing to publish."
+      : "Saved as a draft. The site changes when you publish.",
   };
 }
 

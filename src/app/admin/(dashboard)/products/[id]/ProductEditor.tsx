@@ -161,6 +161,7 @@ export function ProductEditor({
     setBusy(null);
     if (result.ok) {
       setVersion(result.version);
+      setPublishedVersion(result.publishedVersion);
       setBase(form);
       setSaved({ at: result.updatedAt, by: me });
       setConflict(null);

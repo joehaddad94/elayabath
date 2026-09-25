@@ -24,6 +24,8 @@ interface JobView {
   tagged: number;
 }
 
+const plural = (n: number, one: string, many: string) => `${n.toLocaleString("en")} ${n === 1 ? one : many}`;
+
 const OUTCOME_LABEL: Record<string, string> = {
   new: "New",
   changed: "Changed",
@@ -127,7 +129,7 @@ export function ImportJob({
   };
 
   const apply = async () => {
-    if (!window.confirm(`Apply ${toApply.toLocaleString("en")} changes as drafts? Nothing goes live until it is published.`)) return;
+    if (!window.confirm(`Apply ${plural(toApply, "change", "changes")} as drafts? Nothing goes live until it is published.`)) return;
     let refused = 0;
     const ok = await loop(
       "Applying",
@@ -138,7 +140,12 @@ export function ImportJob({
       },
       toApply,
     );
-    if (ok && refused) setNotice({ text: `${refused} rows were left alone because someone changed them after the check. They are listed as errors.`, error: true });
+    if (ok && refused) {
+      setNotice({
+        text: `${plural(refused, "row was", "rows were")} left alone because someone changed them after the check. They are listed as errors.`,
+        error: true,
+      });
+    }
     router.refresh();
   };
 
@@ -278,7 +285,7 @@ export function ImportJob({
           <h2 id="step-check">2. What it changes</h2>
           <p className={styles.counts}>
             {Object.entries(OUTCOME_LABEL).map(([key, label]) => (
-              <span key={key} className={key === "error" && counts.error ? styles.bad : ""}>
+              <span key={key} className={key === "error" && counts.error ? styles.bad : undefined}>
                 <strong>{(counts[key] ?? 0).toLocaleString("en")}</strong> {label.toLowerCase()}
               </span>
             ))}
@@ -292,11 +299,11 @@ export function ImportJob({
         <section className={styles.step} aria-labelledby="step-apply">
           <h2 id="step-apply">3. Apply as drafts</h2>
           <p>
-            {toApply.toLocaleString("en")} rows will be saved as drafts: only the mapped columns change. Rows with errors
+            {plural(toApply, "row", "rows")} will be saved as drafts: only the mapped columns change. Rows with errors
             are left out; fix them in the file and import it again, or apply the rest now.
           </p>
-          <button type="button" className="btn btn-primary" disabled={progress !== null || toApply === 0} onClick={() => void apply()}>
-            {job.status === "applying" ? "Continue applying" : `Apply ${toApply.toLocaleString("en")} changes`}
+          <button type="button" className={`btn btn-primary ${styles.fit}`} disabled={progress !== null || toApply === 0} onClick={() => void apply()}>
+            {job.status === "applying" ? "Continue applying" : `Apply ${plural(toApply, "change", "changes")}`}
           </button>
         </section>
       )}
@@ -307,7 +314,7 @@ export function ImportJob({
             Applied as drafts. Nothing is live yet.{" "}
             {(job.entity === "products" || job.entity === "product_finishes") && (
               <Link href={`/admin/products?state=${encodeURIComponent(JSON.stringify({ toolbar: { importJob: job.id } }))}`}>
-                See the {job.tagged.toLocaleString("en")} products in the grid
+                See the {plural(job.tagged, "product", "products")} in the grid
               </Link>
             )}
           </p>

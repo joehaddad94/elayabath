@@ -144,13 +144,13 @@ function Completeness({ value, data }: ICellRendererParams<GridRow, number>) {
 }
 
 function Status({ value }: ICellRendererParams<GridRow, GridRow["status"]>) {
-  return value ? <span className={`${styles.badge} ${grid[value]}`}>{STATUS_LABEL[value]}</span> : null;
+  return value ? <span className={`${styles.badge} ${grid.cellBadge} ${grid[value]}`}>{STATUS_LABEL[value]}</span> : null;
 }
 
 function Changes({ value, data }: ICellRendererParams<GridRow, boolean>) {
   if (!value) return null;
   return (
-    <span className={`${styles.badge} ${styles.badgeWarn}`}>
+    <span className={`${styles.badge} ${styles.badgeWarn} ${grid.cellBadge}`}>
       {data?.published_version == null ? "Never published" : "Unpublished changes"}
     </span>
   );
@@ -386,7 +386,20 @@ export function ProductsGrid({
       }
       const matching = scope === "matching";
       const count = matching ? total ?? 0 : selected.length;
-      if (matching && action === "publish" && !window.confirm(`Publish all ${count} matching products to the live site?`)) return;
+      // Acting on everything matching the filter can touch hundreds of
+      // products in one click, so it always asks first, with the count.
+      if (matching) {
+        const target = action === "category" ? categories.find((c) => c.id === moveTo)?.name ?? "" : "";
+        const question: Record<typeof action, string> = {
+          publish: `Publish all ${count} matching products to the live site?`,
+          discontinue: `Discontinue all ${count} matching products? They leave the listings once published.`,
+          activate: `Make all ${count} matching products live? It takes effect once published.`,
+          feature: `Feature all ${count} matching products on the homepage? It takes effect once published.`,
+          unfeature: `Take all ${count} matching products off the homepage? It takes effect once published.`,
+          category: `Move all ${count} matching products to ${target}? Their product types are cleared.`,
+        };
+        if (!window.confirm(question[action])) return;
+      }
       setBusy(true);
       const result = await bulkUpdate({
         action,
@@ -397,7 +410,7 @@ export function ProductsGrid({
       setNotice(result.ok ? { text: result.message } : { text: result.error, error: true });
       if (result.ok) refresh();
     },
-    [scope, total, selected, currentState, moveTo, refresh],
+    [scope, total, selected, currentState, moveTo, refresh, categories],
   );
 
   const toggleColumns = useMemo(
@@ -640,7 +653,9 @@ export function ProductsGrid({
         </button>
       </div>
 
-      {/* Bulk actions: the ticked rows, or everything matching the filter. */}
+      {/* Bulk actions: the ticked rows, or everything matching the filter.
+          One slim line; the actions appear only when there is something to
+          act on, so the grid keeps the space the rest of the time. */}
       <div className={grid.bulk} aria-live="polite">
         <span className={grid.count}>
           {total === null ? "Loading" : `${total.toLocaleString("en")} product${total === 1 ? "" : "s"}`}
@@ -656,32 +671,38 @@ export function ProductsGrid({
             All {total?.toLocaleString("en") ?? ""} matching
           </label>
         </div>
-        <div className={grid.actions}>
-          <button type="button" className="btn btn-primary" disabled={busy || selectionCount === 0} onClick={() => void runBulk("publish")}>
-            Publish
-          </button>
-          <button type="button" className="btn btn-secondary" disabled={busy || selectionCount === 0} onClick={() => void runBulk("discontinue")}>
-            Discontinue
-          </button>
-          <button type="button" className="btn btn-secondary" disabled={busy || selectionCount === 0} onClick={() => void runBulk("activate")}>
-            Make live
-          </button>
-          <button type="button" className="btn btn-secondary" disabled={busy || selectionCount === 0} onClick={() => void runBulk("feature")}>
-            Feature
-          </button>
-          <button type="button" className="btn btn-secondary" disabled={busy || selectionCount === 0} onClick={() => void runBulk("unfeature")}>
-            Unfeature
-          </button>
-          <select className="input" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} aria-label="Move to category">
-            <option value="">Move to…</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-          <button type="button" className="btn btn-secondary" disabled={busy || selectionCount === 0 || !moveTo} onClick={() => void runBulk("category")}>
-            Move
-          </button>
-        </div>
+        {selectionCount === 0 ? (
+          <span className={styles.muted}>Tick rows to act on them, or choose all matching.</span>
+        ) : (
+          <div className={grid.actions}>
+            <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void runBulk("publish")}>
+              Publish
+            </button>
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("discontinue")}>
+              Discontinue
+            </button>
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("activate")}>
+              Make live
+            </button>
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("feature")}>
+              Feature
+            </button>
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("unfeature")}>
+              Unfeature
+            </button>
+            <span className={grid.move}>
+              <select className="input" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} aria-label="Move to category">
+                <option value="">Move to…</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <button type="button" className="btn btn-secondary" disabled={busy || !moveTo} onClick={() => void runBulk("category")}>
+                Move
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
       {notice && (
@@ -700,6 +721,8 @@ export function ProductsGrid({
           columnDefs={columnDefs}
           defaultColDef={{ sortable: true, resizable: true, filter: false }}
           rowSelection={{ mode: "multiRow", checkboxes: true, headerCheckbox: false, enableClickSelection: false }}
+          // The tick box first, before the pinned item code, where people look for it.
+          selectionColumnDef={{ pinned: "left", width: 48, resizable: false, suppressHeaderMenuButton: true }}
           undoRedoCellEditing
           undoRedoCellEditingLimit={20}
           stopEditingWhenCellsLoseFocus

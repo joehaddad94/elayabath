@@ -1048,6 +1048,38 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   reads the database, so it needs the hosted project first), the Vercel plan,
   an email provider, and Elaya's decision on the P08 finish code.
 
+### Dashboard UX audit (26 September 2026)
+
+A screenshot review of every screen and key state found 14 issues, all
+fixed:
+
+- **Import page:** the export table's template column was empty, with its
+  links on stray rows (flex on table cells). Plurals ("1 rows", "Apply 1
+  changes") fixed; "2 errors" is a badge, not a fake link; long problems no
+  longer clip.
+- **Grid:** every "all matching" bulk action now confirms with the count
+  (only Publish did before). The bulk bar is one slim line and shows its
+  actions only when there is something to act on, so the grid gains about
+  80px. The tick box comes first. Status badges no longer stretch to the
+  row height.
+- **"Unpublished changes" means a real change.** A save that leaves a
+  product identical to its live version (content and featured flag) marks it
+  as matching live, and grid edits go through the same `save_product`. A
+  one-time pass fixed products already in that state. Publishing a version
+  that is already in the history no longer adds a duplicate entry.
+- **Overview:** every card links to what it counts; "Never published" and
+  "Waiting to be published" are separate cards, so the numbers no longer
+  seem to disagree with Activity; the storage card sits in the same row;
+  the P08 notice links to the shared-codes filter. "system" reads "Seed or
+  script" wherever an author is shown.
+- **Finishes:** the editor's library list stays closed until you search or
+  browse; finishes with no swatch (the three acrylics, 125 products) show
+  their code instead of an empty square.
+- **Phones:** the navigation folds behind a Menu button naming the current
+  section, so the grid's first rows show on the first screen.
+
+Checked: 139 database tests, 135 browser checks, both audits.
+
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
 machine, and the switch is configuration when it happens.

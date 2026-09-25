@@ -48,7 +48,7 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
         </Link>
         <AdminNav items={SECTIONS} />
         <div className={styles.who}>
-          <span>{email}</span>
+          <span className={styles.whoEmail}>{email}</span>
           <ThemeToggle label="Switch to the {theme} palette" />
           <form action={signOut}>
             <button type="submit" className={styles.linkButton}>

@@ -64,6 +64,18 @@
   height: 32px;
 }
 
+/* No swatch in the client's data: the code, so the tile still says which
+   finish it is. */
+.noSwatch {
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  overflow: hidden;
+}
+
 .bigSwatch {
   width: 72px;
   height: 72px;

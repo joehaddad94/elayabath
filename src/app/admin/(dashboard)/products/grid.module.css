@@ -45,7 +45,9 @@
 
 .bulk {
   align-items: center;
-  padding: var(--space-3);
+  gap: var(--space-2) var(--space-4);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-3);
   background: var(--color-surface);
   border: var(--rule);
 }
@@ -53,7 +55,6 @@
 .count {
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
-  min-width: 10rem;
 }
 
 .scope {
@@ -64,14 +65,30 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   margin-inline-start: auto;
+}
+
+.move {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.move select {
+  width: auto;
+}
+
+/* A badge inside a grid cell: its own line height, not the row's. */
+.cellBadge {
+  line-height: 1.5;
+  vertical-align: middle;
 }
 
 /* Fills the window below the toolbars, so the grid scrolls, not the page:
    the Infinite Row Model loads as the grid's own viewport moves. */
 .grid {
-  height: max(28rem, calc(100vh - 20rem));
+  height: max(28rem, calc(100vh - 17rem));
 }
 
 .thumb {

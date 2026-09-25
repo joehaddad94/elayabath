@@ -68,14 +68,18 @@ export default async function ImportsPage() {
             {ENTITIES.map((e) => (
               <tr key={e}>
                 <td>{ENTITY_LABEL[e]}</td>
-                <td className={styles.linkRow}>
+                <td>
+                  <span className={styles.linkRow}>
                   <a href={exportLink(e, "xlsx")}>Excel</a>
                   <a href={exportLink(e, "csv")}>CSV</a>
                   {(e === "products" || e === "categories") && <a href={exportLink(e, "xlsx", "&source=published")}>Live, Excel</a>}
+                </span>
                 </td>
-                <td className={styles.linkRow}>
+                <td>
+                  <span className={styles.linkRow}>
                   <a href={exportLink(e, "xlsx", "&scope=template")}>Excel</a>
                   <a href={exportLink(e, "csv", "&scope=template")}>CSV</a>
+                </span>
                 </td>
               </tr>
             ))}

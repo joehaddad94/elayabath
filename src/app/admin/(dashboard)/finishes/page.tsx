@@ -8,8 +8,8 @@ import { FinishLibrary, type LibraryFinish } from "./FinishLibrary";
 export const metadata: Metadata = { title: "Finishes" };
 
 /** The finish library: every finish, what uses it, and its state. */
-export default async function FinishesPage({ searchParams }: { searchParams: Promise<{ finish?: string }> }) {
-  const { finish: selected } = await searchParams;
+export default async function FinishesPage({ searchParams }: { searchParams: Promise<{ finish?: string; only?: string }> }) {
+  const { finish: selected, only } = await searchParams;
   const { supabase } = await requireStaff();
   const [finishes, { data: usage }, { data: shared }] = await Promise.all([
     fetchAll((from, to) =>
@@ -57,7 +57,7 @@ export default async function FinishesPage({ searchParams }: { searchParams: Pro
           </p>
         </div>
       </div>
-      <FinishLibrary finishes={rows} selected={selected} />
+      <FinishLibrary finishes={rows} selected={selected} only={only} />
     </>
   );
 }

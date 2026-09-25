@@ -42,6 +42,10 @@ const theme = themeQuartz.withParams({
   fontFamily: "inherit",
 });
 
+function Lines({ value }: { value?: string }) {
+  return value ? <div className={styles.pre}>{value}</div> : null;
+}
+
 const FILTERS = [
   ["", "All"],
   ["error", "Errors"],
@@ -88,9 +92,9 @@ export function ImportPreview({ jobId }: { jobId: string }) {
           Object.entries(p.data?.diff ?? {})
             .map(([field, d]) => `${field}: ${d.from || "empty"} → ${d.to || "empty"}`)
             .join("\n"),
-        cellClass: styles.pre,
+        cellRenderer: Lines,
       },
-      { colId: "errors", headerName: "Problems", flex: 1, minWidth: 220, wrapText: true, autoHeight: true, valueGetter: (p) => (p.data?.errors ?? []).join("\n"), cellClass: styles.pre },
+      { colId: "errors", headerName: "Problems", flex: 1, minWidth: 220, wrapText: true, autoHeight: true, valueGetter: (p) => (p.data?.errors ?? []).join("\n"), cellRenderer: Lines },
     ],
     [],
   );

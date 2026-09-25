@@ -63,19 +63,19 @@ export async function updateProductField(input: {
     }
   }
 
-  const { data: saved, error } = await supabase
-    .from("products")
-    .update(patch)
-    .eq("id", input.id)
-    .eq("version", input.version)
-    .select("id")
-    .maybeSingle();
+  // Through the same save as the product editor: version-checked, and a
+  // change back to the live value leaves nothing to publish.
+  const { error } = await supabase.rpc("save_product", {
+    p_id: input.id,
+    p_version: input.version,
+    p_fields: patch as never,
+  });
 
   const fresh = await supabase.from("admin_products").select(ADMIN_PRODUCT_COLUMNS).eq("id", input.id).maybeSingle();
   const row = fresh.data ? toGridRow(fresh.data as unknown as Record<string, unknown>) : undefined;
 
-  if (error) return { ok: false, error: "That change couldn't be saved. Try again.", row };
-  if (!saved) {
+  if (error && error.code !== "PT409") return { ok: false, error: "That change couldn't be saved. Try again.", row };
+  if (error) {
     return {
       ok: false,
       error: row

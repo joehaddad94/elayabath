@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { authorLabel } from "@/lib/admin/links";
 import admin from "../../../admin.module.css";
 import styles from "./editor.module.css";
 
@@ -162,7 +163,7 @@ export function History({
               </span>
               <span className={styles.meta}>
                 {when(r.publishedAt)}
-                {r.publishedBy ? ` · ${r.publishedBy}` : ""}
+                {` · ${authorLabel(r.publishedBy)}`}
               </span>
               {r.note && <span className={styles.meta}>{r.note}</span>}
             </button>

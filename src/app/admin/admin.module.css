@@ -185,7 +185,8 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  /* Eight cards: one row on a wide screen, then two, four, eight. */
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
   gap: var(--space-3);
   margin-bottom: calc(var(--space-8) * 1.2);
 }
@@ -291,8 +292,57 @@ a.stat:hover {
   color: var(--color-text);
 }
 
+/* The phone's section menu; on a wide screen the links show as a row. */
+.menuToggle {
+  display: none;
+}
+
 @media (max-width: 48rem) {
+  .menuToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 36px;
+    margin-inline-start: auto;
+    padding: 0 var(--space-3);
+    border: var(--rule);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .nav {
+    display: none;
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+  }
+
+  .navOpen {
+    display: flex;
+  }
+
+  .nav a {
+    min-height: 44px;
+    border-bottom: var(--rule);
+  }
+
+  .nav a[aria-current="page"] {
+    border-bottom: var(--rule);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+    padding-inline-start: var(--space-3);
+  }
+
+  .whoEmail {
+    display: none;
+  }
+
+  /* An open menu sits right under the logo row, above the account links. */
   .who {
+    order: 4;
     width: 100%;
     justify-content: space-between;
   }

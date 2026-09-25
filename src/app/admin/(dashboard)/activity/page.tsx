@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { authorLabel, gridLink } from "@/lib/admin/links";
 import { requireStaff } from "@/lib/admin/session";
 import styles from "../../admin.module.css";
 
@@ -13,7 +14,7 @@ const when = (iso: string) =>
 const KIND: Record<string, string> = { product: "Product", category: "Category", finish: "Finish" };
 
 /** The grid, filtered to products with unpublished changes. */
-const CHANGES_LINK = `/admin/products?state=${encodeURIComponent(JSON.stringify({ toolbar: { changes: true } }))}`;
+const CHANGES_LINK = gridLink({ changes: true });
 
 /**
  * Who changed what, and when: every publish, newest first, and the edits
@@ -124,7 +125,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
                       {r.entity_type === "product" ? <Link href={`/admin/products/${r.entity_id}`}>{label}</Link> : label}
                     </td>
                     <td>{r.version}</td>
-                    <td className={styles.muted}>{r.published_by ?? "not recorded"}</td>
+                    <td className={styles.muted}>{authorLabel(r.published_by)}</td>
                     <td className={styles.muted}>{r.note ?? ""}</td>
                   </tr>
                 );

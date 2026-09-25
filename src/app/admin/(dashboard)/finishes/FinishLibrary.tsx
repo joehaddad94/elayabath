@@ -32,11 +32,15 @@ const stateOf = (f: LibraryFinish) =>
  * right. Saved as a draft and published like everything else; the swatch is
  * reduced in the browser and uploaded straight to Storage.
  */
-export function FinishLibrary({ finishes, selected }: { finishes: LibraryFinish[]; selected?: string }) {
+const ONLY = ["", "shared", "unpublished", "retired", "unused"] as const;
+
+export function FinishLibrary({ finishes, selected, only: initialOnly }: { finishes: LibraryFinish[]; selected?: string; only?: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [family, setFamily] = useState("");
-  const [only, setOnly] = useState<"" | "shared" | "unpublished" | "retired" | "unused">("");
+  const [only, setOnly] = useState<(typeof ONLY)[number]>(
+    ONLY.includes(initialOnly as (typeof ONLY)[number]) ? (initialOnly as (typeof ONLY)[number]) : "",
+  );
   const [chosenId, setChosenId] = useState<string | null>(selected ?? null);
 
   const shown = useMemo(() => {
@@ -88,7 +92,9 @@ export function FinishLibrary({ finishes, selected }: { finishes: LibraryFinish[
                 {f.swatchUrl ? (
                   <Image src={f.swatchUrl} alt="" width={32} height={32} className={styles.swatch} />
                 ) : (
-                  <span className={styles.swatch} aria-hidden="true" />
+                  <span className={`${styles.swatch} ${styles.noSwatch}`} aria-hidden="true">
+                    {f.form.code}
+                  </span>
                 )}
                 <span className={styles.name}>
                   {f.form.name}
@@ -232,7 +238,9 @@ function FinishEditor({ finish, onDeleted }: { finish: LibraryFinish; onDeleted:
         {form.swatch_path ? (
           <Image src={storageUrl("swatches", form.swatch_path)} alt="" width={72} height={72} className={styles.bigSwatch} />
         ) : (
-          <span className={styles.bigSwatch} aria-hidden="true" />
+          <span className={`${styles.bigSwatch} ${styles.noSwatch}`} aria-hidden="true">
+            {form.code}
+          </span>
         )}
         <button type="button" className="btn btn-secondary" disabled={busy !== null} onClick={() => upload.current?.click()}>
           {busy === "upload" ? "Uploading" : form.swatch_path ? "Replace swatch" : "Upload a swatch"}
