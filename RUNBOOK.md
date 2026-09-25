@@ -63,9 +63,12 @@ Playwright is installed on demand, not as a dependency:
 For the first hosted project, and again for Elaya's own account. Steps that
 need a login or a secret are for Joe (or Elaya) to run, not to paste anywhere.
 
-1. **Create the project** in the Supabase dashboard, in the region nearest
-   Doha that Supabase offers. Note the project ref, the URL, the publishable
-   key and the secret key.
+1. **Create the project** in the Supabase dashboard. The current one is in
+   Frankfurt (`eu-central-1`), and `vercel.json` runs the site's server code
+   in Frankfurt (`fra1`) to match: every dashboard action and page rebuild
+   queries the database, so the two must be neighbours. A project in another
+   region needs `vercel.json` changed to match. Note the project ref, the
+   URL, the publishable key and the secret key.
 2. **Link the repository** to it:
    ```bash
    npx supabase login
