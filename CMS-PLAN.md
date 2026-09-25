@@ -999,6 +999,55 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
 - **Tests:** 103 database tests (10 new for apply and discard) and 88 unit
   tests (the CSV reader and writer, formula protection).
 
+### C12 outcomes (all but the hosted rehearsal)
+
+- **Access rules are in `npm run check`.** 134 database tests now run in the
+  gate, 31 of them new: every dashboard function and view is refused to an
+  anonymous visitor and to a signed-in account that isn't on the staff
+  list. That found one loose end, fixed: Supabase grants new views to the
+  anonymous role by default. Row-level security already left them empty,
+  and the grants are now revoked outright.
+- **The dashboard audit** (`npm run audit:admin`) runs the public audit's
+  checks on all 12 dashboard screens, signed in, in both palettes, at
+  desktop and phone width: 48 page loads, 0 problems. It found, and C12
+  fixed: links in lists 23px tall (under the 24px target minimum), and the
+  overview and Activity tables pushing the page wider than a phone, because
+  the dashboard's grid column grew to the widest table.
+- **Load test at ten times the catalogue** (`npm run load`, local only):
+  6,000 new products imported through the real screens in 14 s to check and
+  10 s to apply, 0 errors. With 6,596 products, the grid's heaviest queries
+  answer in 300 to 500 ms. The public shelf and search answer in under
+  50 ms. Publishing costs about 13 ms per product in the database.
+- **Rehearsed from an empty database:** all 15 migrations apply cleanly from
+  zero and the seed fills it in 9 seconds, every count matching. Every
+  browser check passes on the result.
+- **The move to another account is built and rehearsed locally.**
+  `scripts/move/export.ts` writes every table and every stored file to a
+  folder; `scripts/move/import.ts` loads it into an empty project and checks
+  every count. Rehearsal: edits made (a rename with its redirect, a new
+  staff member, an upload, a saved view), exported, database reset,
+  imported, exported again. Every table was identical, and all 1,247 files
+  were byte for byte the same. All 135 browser checks and both audits passed
+  on the moved database. The rehearsal caught a real bug: paging a sort with
+  ties dropped three product-finish links and repeated three others. Every
+  paged query now ends on a unique column.
+- **The end-to-end browser tests are in the repository** (`scripts/e2e/`,
+  `npm run e2e:<name>`): 135 checks across the grid, editor, media, preview
+  and history, categories and finishes, and import and export. Run each
+  against a freshly started server; they put back what they change. One
+  check (the homepage order reaching the homepage) failed intermittently when
+  run straight after the others, and passed every time alone and four times
+  in a row since; it now reports the page positions and live ranks if it
+  fails, so the next failure will say why.
+- **The runbook** is [RUNBOOK.md](./RUNBOOK.md): environment, local setup,
+  checks, setting up a hosted project, moving to Elaya's account, sign-in and
+  staff, the cache, backups, the free plan's limits, troubleshooting. The
+  README no longer describes the site as static JSON.
+- **Still open, needing Joe:** the rehearsal on a real hosted project (it
+  needs one), merging `cms` into `develop` and `main` (the public site now
+  reads the database, so it needs the hosted project first), the Vercel plan,
+  an email provider, and Elaya's decision on the P08 finish code.
+
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
 machine, and the switch is configuration when it happens.

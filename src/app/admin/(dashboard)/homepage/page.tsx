@@ -21,6 +21,7 @@ export default async function HomepagePage() {
       .eq("featured", true)
       .order("featured_rank", { ascending: true, nullsFirst: false })
       .order("name")
+      .order("id")
       .range(from, to),
   );
   const { data: images } = await supabase

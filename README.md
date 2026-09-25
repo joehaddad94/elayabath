@@ -1,33 +1,37 @@
 # Elaya Bath
 
-A rebuild of [elayabath.com](https://elayabath.com) as a statically generated Next.js site.
+A rebuild of [elayabath.com](https://elayabath.com) in Next.js, with a dashboard at `/admin` where
+Elaya's staff manage the catalogue.
 
 Elaya Bath sells sanitaryware: washbasins, toilets, tapware, bathtubs, showers and
 accessories. The commercial model is **browse then quote**. No prices are published, there is
 no basket and nothing is sold through the site. Every product page ends in a request for a
 quotation carrying the item code.
 
-Build progress is tracked in [MILESTONES.md](./MILESTONES.md).
+Build progress is tracked in [MILESTONES.md](./MILESTONES.md) (the site) and
+[CMS-PLAN.md](./CMS-PLAN.md) (the dashboard). How to set up, run, back up and move it is in
+[RUNBOOK.md](./RUNBOOK.md).
 
 ## Running it
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build, prerenders every route
-npm run check      # typecheck, lint, test, audit, build. The gate before pushing
-npm run ingest     # regenerate data/ from the source archive
+npm run db:start   # local Supabase (Docker Desktop)
+npm run seed       # the catalogue into it
+npm run dev        # http://localhost:3000, dashboard at /admin
+npm run check      # types, lint, tests, audits, database tests, build. The gate before pushing
 ```
 
-Node 20 or newer. Next 16 uses Turbopack by default.
+Node 20 or newer. Next 16 uses Turbopack by default. The full setup, including
+`.env.local`, is in [RUNBOOK.md](./RUNBOOK.md).
 
 ## Why it is built this way
 
-**Static, from generated JSON.** The catalogue is 596 products with no prices, no stock and no
-personalisation. Nothing on the site needs to be live, so nothing is: an ingest script turns
-the source archive into typed JSON committed to the repo, and every route is prerendered at
-build time. There is no database to run, no API to keep up, and the whole site can be served
-from a CDN. Content changes are a commit.
+**Cached pages over a database.** The catalogue is 596 products with no prices, no stock and
+no personalisation, so visitors never need a live query. It lives in Supabase (Postgres, Auth,
+Storage), where staff edit drafts and publish them. Each page is built once from the published
+copy and cached, and publishing refreshes only the pages it touches. Visitors get static pages;
+staff get a dashboard; nothing is redeployed to change a product.
 
 **The design system is CSS, not a framework.** The two palettes were contrast-audited before
 this repo existed. Re-expressing them as utility classes would have risked that work for no
@@ -57,10 +61,11 @@ src/
     robots.ts
   components/            one folder per component: Thing.tsx + Thing.module.css
   lib/
-    catalogue.ts         the only module that reads data/. Pages never import JSON
+    catalogue.ts         the only module that reads the catalogue (the published copy)
     types.ts             the shape of a product, category and finish
     i18n/                dictionary, locale config
-    search.ts
+    admin/               the dashboard's schemas, queries, publishing, import and export
+    supabase/            clients: public, server (as the staff member), admin, browser
   styles/
     system.css           Industry design system, vendored unchanged
     themes/              stone.css, ink.css. Palettes only, no layout
@@ -69,21 +74,20 @@ src/
 
 Three rules keep this from rotting:
 
-1. **Pages never import from `data/` directly.** They go through `lib/catalogue.ts`, so the
-   storage decision can change later without touching a single page.
+1. **Pages never read the database directly.** They go through `lib/catalogue.ts`, which is
+   why moving the catalogue from JSON to Supabase changed no page.
 2. **`scripts/ingest/` is the only code that knows the source archive exists.** Everything
    downstream sees clean typed records.
-3. **Client components never import `lib/catalogue.ts`.** It imports every catalogue JSON at
-   module scope, so anything a `"use client"` file pulls from it drags the whole catalogue into
-   the browser bundle. Shared logic that both sides need lives in a data-free module
-   (`lib/finishes.ts`, `lib/search.ts`) instead. This is not hypothetical: routing the search
-   index through `catalogue.ts` put a 45 KB chunk of product records in front of every visitor
-   who opened the search page, and the only symptom was the bundle size.
+3. **Client components never import `lib/catalogue.ts`.** It is server-only; shared logic
+   both sides need lives in a data-free module instead. This rule predates the database: when
+   the catalogue was JSON, one such import put a 45 KB chunk of product records in front of
+   every visitor who opened search.
 
 ## Checking the work
 
-`npm run check` runs everything: types, lint, tests, the static audit, and a
-production build.
+`npm run check` runs everything: types, lint, tests, the static audit, the
+database tests (`supabase/tests/`, including every access rule) and a
+production build. The database tests need the local stack running.
 
 **Tests** (`npm test`, Vitest) cover pure logic only: parsing, ranking,
 grouping, formatting. Every case is a real record from the client's catalogue
@@ -110,21 +114,23 @@ horizontal overflow at 1440 and 390, broken images, alt text, heading order
 and landmarks. Its routes come from the catalogue, so widening the slice
 widens the audit with it.
 
+**The dashboard audit** (`npm run audit:admin`) runs the same checks on every
+dashboard screen, signed in, and **the load test** (`npm run load`) imports
+6,000 products and times the grid at ten times the catalogue.
+
 Playwright is deliberately not a dependency: it pulls a few hundred megabytes
 of browser binaries for a tool run occasionally. Install it when you want it:
 
 ```bash
-npm i -D playwright && npx playwright install chromium
+npm i --no-save playwright && npx playwright install chromium
 npm run build && npm start          # one terminal
 npm run audit:browser               # another
 ```
 
 ## Search
 
-The search index is emitted by the ingest alongside the catalogue and loaded
-with a dynamic import, so it becomes its own chunk fetched the first time
-someone opens search rather than weight every other visitor carries. Matching
-is deliberately exact rather than fuzzy: the people it has to serve most are
+Search runs in the database (`public.search_catalogue`), so a visitor never
+downloads an index. Matching is deliberately exact rather than fuzzy: the people it has to serve most are
 specifiers arriving with an item code from a drawing, and fuzzy matching a
 code turns a precise query into a list of near misses.
 
@@ -144,11 +150,10 @@ document still has to render in a palette the site actually uses.
 ## Data
 
 The catalogue comes from a full crawl of the live site held outside this repo. `npm run ingest`
-reads it and writes `data/*.json`. Records are validated as they are written, so a malformed
-product fails the build instead of rendering an empty page.
-
-v1 ships a **50-product slice spread across categories**, which exercises every template,
-filter and edge case. Widening it to all 596 is a constant in the ingest config, not a rewrite.
+reads it and stages all 596 products; `npm run seed` loads them into Supabase and publishes
+what is live on the old site. Records are validated as they are staged, so a malformed product
+fails there instead of rendering an empty page. From then on the catalogue is edited in the
+dashboard.
 
 ## Things wrong with the source data
 
@@ -169,8 +174,11 @@ Inherited from the live site, reproduced faithfully, and reported rather than si
 
 Product imagery, copy and catalogue data belong to Elaya Bath.
 
-## Next: the product dashboard
+## The dashboard
 
-The plan for managing products, categories and finishes from `/admin`, with
-drafts, publishing, history and Excel import, is in [`CMS-PLAN.md`](CMS-PLAN.md).
-Planned, not started: it is built after the site design is approved.
+At `/admin`, for Elaya's staff: a products grid (AG Grid) with saved views and
+bulk actions, a product editor with gallery, data sheet, finishes, preview
+and history, categories, finishes, the homepage order, import and export of
+Excel and CSV, media and an activity feed. Every change is a draft until it
+is published. The design is in [CMS-PLAN.md](./CMS-PLAN.md), with what each
+milestone found; running it is in [RUNBOOK.md](./RUNBOOK.md).

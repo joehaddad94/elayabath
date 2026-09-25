@@ -66,6 +66,9 @@
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
+  /* One column no wider than the screen: without it, the column grows to
+     the widest table's natural width and the whole page scrolls sideways. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .bar {
@@ -396,4 +399,26 @@ a.stat:hover {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+/* A link laid out as a block (in a list, a row of actions, a flex row) is a
+   target of its own: at least 24px tall (WCAG 2.5.8). Links in running text
+   stay inline and are unaffected. */
+.main a {
+  min-height: 24px;
+}
+
+.linkRow a,
+.pager a,
+.orderRow a {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* On a phone a wide table scrolls within itself, not the whole page. */
+@media (max-width: 48rem) {
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
 }

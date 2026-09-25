@@ -25,6 +25,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
         .eq("category_id", id)
         .order("position")
         .order("name")
+        .order("id")
         .range(from, to),
     ),
   ]);

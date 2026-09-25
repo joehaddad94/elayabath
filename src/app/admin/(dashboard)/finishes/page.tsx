@@ -18,6 +18,8 @@ export default async function FinishesPage({ searchParams }: { searchParams: Pro
         .select("id, slug, code, name, family, swatch_path, status, version, published_version, updated_at, updated_by")
         .order("family")
         .order("code")
+        // Codes repeat (P08), so a unique tail keeps pages from overlapping.
+        .order("id")
         .range(from, to),
     ),
     supabase.from("finish_usage").select("id, products, live_products").limit(5000),

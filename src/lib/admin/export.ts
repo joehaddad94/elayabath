@@ -64,6 +64,7 @@ async function* exportRows(supabase: Client, request: ExportRequest): AsyncGener
         .select("position, products!inner(sku), finishes!inner(slug)")
         .order("product_id")
         .order("position")
+        .order("finish_id")
         .range(from, from + 999);
       const rows = (data ?? []).map((l) => ({ sku: l.products.sku, finish: l.finishes.slug }));
       rows.sort((a, b) => a.sku.localeCompare(b.sku));

@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "ingest": "node scripts/ingest/index.ts",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run audit && npm run build",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run audit && npm run db:test && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "audit": "node scripts/audit/static.ts",
@@ -19,7 +19,17 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
-    "seed": "node --env-file-if-exists=.env.local scripts/seed/index.ts"
+    "seed": "node --env-file-if-exists=.env.local scripts/seed/index.ts",
+    "audit:admin": "node --env-file-if-exists=.env.local scripts/audit/admin.ts",
+    "load": "node --env-file-if-exists=.env.local scripts/load/index.ts",
+    "move:export": "node scripts/move/export.ts",
+    "move:import": "node scripts/move/import.ts",
+    "e2e:products-grid": "node --env-file-if-exists=.env.local scripts/e2e/products-grid.mjs",
+    "e2e:product-editor": "node --env-file-if-exists=.env.local scripts/e2e/product-editor.mjs",
+    "e2e:media": "node --env-file-if-exists=.env.local scripts/e2e/media.mjs",
+    "e2e:preview-history": "node --env-file-if-exists=.env.local scripts/e2e/preview-history.mjs",
+    "e2e:categories-finishes": "node --env-file-if-exists=.env.local scripts/e2e/categories-finishes.mjs",
+    "e2e:import-export": "node --env-file-if-exists=.env.local scripts/e2e/import-export.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
