@@ -229,7 +229,7 @@ const checks: Check[] = [
     name: "no font weight loaded but never painted",
     why: "each unused weight is a font file downloaded on every page for nothing",
     run: () => {
-      const layout = read(path.join(ROOT, "src/app/[locale]/layout.tsx"));
+      const layout = read(path.join(ROOT, "src/lib/fonts.ts"));
       const css = [...cssFiles().map(read)].join("\n");
       const usedWeights = new Set<string>();
       for (const m of css.matchAll(/font-weight:\s*(\d{3})/g)) usedWeights.add(m[1] ?? "");

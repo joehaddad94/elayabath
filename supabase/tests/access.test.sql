@@ -7,6 +7,24 @@
 begin;
 select plan(19);
 
+-- A clean slate inside this transaction. The local database may hold the
+-- seeded catalogue and a real staff member; the rollback at the end puts all
+-- of it back.
+delete from public.published_products;
+delete from public.published_categories;
+delete from public.published_finishes;
+delete from public.redirects;
+delete from public.product_finishes;
+delete from public.product_images;
+delete from public.products;
+delete from public.product_types;
+delete from public.categories;
+alter table public.staff disable trigger staff_guard_last;
+delete from public.staff;
+alter table public.staff enable trigger staff_guard_last;
+delete from public.reserved_addresses;
+
+
 -- ── fixtures, as the table owner ───────────────────────────────────────────
 
 insert into public.reserved_addresses (email) values ('info@example.test');

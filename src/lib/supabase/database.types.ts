@@ -716,7 +716,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      duplicate_finish_codes: {
+        Row: {
+          code: string | null
+          finishes: number | null
+          slugs: string[] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_publish: { Args: never; Returns: boolean }

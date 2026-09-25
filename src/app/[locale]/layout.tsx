@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Barlow, Barlow_Condensed } from "next/font/google";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
+import { fontVariables } from "@/lib/fonts";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader/SiteHeader";
 import { LOCALES, directionOf, isLocale } from "@/lib/i18n/config";
@@ -10,27 +10,6 @@ import { getDictionary } from "@/lib/i18n";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
 import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "@/styles/globals.css";
-
-/* The design system asks for Barlow Condensed over Barlow. Loading them
-   through next/font rather than the system stylesheet's @import means they
-   are self-hosted, preloaded and not render-blocking, with no layout shift
-   as they swap in. */
-const barlow = Barlow({
-  subsets: ["latin"],
-  // Only 400 is ever painted: the system sets headings in Barlow Condensed at
-  // --font-heading-weight, and nothing calls for a medium or bold body face.
-  // Loading 500 and 700 shipped two font files per page for nothing.
-  weight: ["400"],
-  variable: "--font-barlow",
-  display: "swap",
-});
-
-const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-barlow-condensed",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
@@ -81,7 +60,7 @@ export default async function LocaleLayout({
       lang={locale}
       dir={directionOf(locale)}
       data-theme={DEFAULT_THEME}
-      className={`${barlow.variable} ${barlowCondensed.variable}`}
+      className={fontVariables}
       suppressHydrationWarning
     >
       <head>

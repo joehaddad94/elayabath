@@ -636,7 +636,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       page kept. Search as a server query. Category filtering, facets and sort
       in SQL, passing the existing tests. Bounded prerendering. Parity check
       against the JSON, then remove the JSON read path.
-- [ ] **C5 · Sign-in and the admin shell (M).** Direct sign-in while no
+- [x] **C5 · Sign-in and the admin shell (M).** Direct sign-in while no
       provider is configured, magic links once one is, switching on its own.
       The staff list with its role column, the bootstrap row from
       `BOOTSTRAP_STAFF_EMAIL`, the sign-up hook, the last-staff guard, the
@@ -744,6 +744,29 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   product request.
 - **To confirm in C9:** the sitemap is built ahead, so it only drops a
   discontinued product once publishing clears its cache tag.
+
+### C5 outcomes
+
+- **Seventeen behaviours verified end to end** in a real browser against the
+  local stack: signed-out requests go to sign-in and come back afterwards;
+  an unlisted address and a published one are refused with the same
+  wording, so the form reveals nothing; the first staff member signs
+  straight in; the staff list refuses a published address; a colleague can
+  be added, signs in, and on being removed is turned away on their next
+  page with the reason; the last member cannot be removed; sign-ins and
+  refusals are recorded and shown on the Staff page; signing out works; and
+  an eleventh attempt from one connection within fifteen minutes is
+  refused, even for a real address.
+- **Every dashboard response is `noindex` and `no-store`**, set by the proxy;
+  `robots.txt` also disallows `/admin` and `/api/`.
+- **The service key's use is exactly two files:** the sign-in action and the
+  magic-link confirmation route, both before a user exists to act as.
+- **Session reads render inside `<Suspense>`.** Under `cacheComponents`,
+  reading cookies is request data; the dashboard's frame is static and the
+  signed-in part streams in.
+- **The database tests now start from a clean slate** inside their own
+  transaction, so they pass whether or not the local database holds the
+  seeded catalogue, and the rollback leaves it as it was.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
