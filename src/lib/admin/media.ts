@@ -12,6 +12,14 @@ export function uploadFolder(productId: string): string {
   return `products/${productId}/`;
 }
 
+/** Swatches live in the swatches bucket, one folder per finish. */
+export function swatchFolder(finishId: string): string {
+  return `finishes/${finishId}/`;
+}
+
+/** Swatches are shown small; 256px covers a large-screen retina tile. */
+export const MAX_SWATCH_EDGE = 256;
+
 /** Storage on Supabase's free plan. Shown on the meter so there is warning
  *  well before uploads start failing; change it here if the plan changes. */
 export const STORAGE_QUOTA_BYTES = 1024 ** 3;
@@ -47,7 +55,7 @@ export interface PreparedPhoto {
  * JPEG used instead. The photo's own orientation is applied, so a portrait
  * phone photo stays upright.
  */
-export async function preparePhoto(file: File): Promise<PreparedPhoto> {
+export async function preparePhoto(file: File, maxEdge = MAX_PHOTO_EDGE): Promise<PreparedPhoto> {
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
@@ -56,7 +64,7 @@ export async function preparePhoto(file: File): Promise<PreparedPhoto> {
       `${file.name} can't be read here. Save it as JPEG or PNG and try again (iPhone HEIC photos included).`,
     );
   }
-  const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);
   const height = Math.round(bitmap.height * scale);
 

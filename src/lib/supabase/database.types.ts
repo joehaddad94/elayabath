@@ -296,6 +296,13 @@ export type Database = {
             foreignKeyName: "product_finishes_finish_id_fkey"
             columns: ["finish_id"]
             isOneToOne: false
+            referencedRelation: "finish_usage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_finishes_finish_id_fkey"
+            columns: ["finish_id"]
+            isOneToOne: false
             referencedRelation: "finishes"
             referencedColumns: ["id"]
           },
@@ -393,6 +400,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
         ]
       }
       products: {
@@ -403,6 +417,7 @@ export type Database = {
           description: string
           dimensions: string | null
           featured: boolean
+          featured_rank: number | null
           features: string[]
           id: string
           import_job_id: string | null
@@ -424,6 +439,7 @@ export type Database = {
           description?: string
           dimensions?: string | null
           featured?: boolean
+          featured_rank?: number | null
           features?: string[]
           id?: string
           import_job_id?: string | null
@@ -445,6 +461,7 @@ export type Database = {
           description?: string
           dimensions?: string | null
           featured?: boolean
+          featured_rank?: number | null
           features?: string[]
           id?: string
           import_job_id?: string | null
@@ -468,6 +485,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
+          {
             foreignKeyName: "products_import_job_id_fkey"
             columns: ["import_job_id"]
             isOneToOne: false
@@ -480,6 +504,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "product_types"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "type_counts"
+            referencedColumns: ["type_id"]
           },
         ]
       }
@@ -516,6 +547,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "published_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: true
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
         ]
       }
       published_finishes: {
@@ -545,6 +583,13 @@ export type Database = {
             foreignKeyName: "published_finishes_finish_id_fkey"
             columns: ["finish_id"]
             isOneToOne: true
+            referencedRelation: "finish_usage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "published_finishes_finish_id_fkey"
+            columns: ["finish_id"]
+            isOneToOne: true
             referencedRelation: "finishes"
             referencedColumns: ["id"]
           },
@@ -554,6 +599,7 @@ export type Database = {
         Row: {
           category_slug: string
           featured: boolean
+          featured_rank: number | null
           finish_count: number
           finishes: string[]
           materials: string[]
@@ -570,6 +616,7 @@ export type Database = {
         Insert: {
           category_slug: string
           featured?: boolean
+          featured_rank?: number | null
           finish_count?: number
           finishes?: string[]
           materials?: string[]
@@ -586,6 +633,7 @@ export type Database = {
         Update: {
           category_slug?: string
           featured?: boolean
+          featured_rank?: number | null
           finish_count?: number
           finishes?: string[]
           materials?: string[]
@@ -781,6 +829,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
+          {
             foreignKeyName: "products_import_job_id_fkey"
             columns: ["import_job_id"]
             isOneToOne: false
@@ -794,7 +849,22 @@ export type Database = {
             referencedRelation: "product_types"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "type_counts"
+            referencedColumns: ["type_id"]
+          },
         ]
+      }
+      category_counts: {
+        Row: {
+          category_id: string | null
+          live: number | null
+          products: number | null
+        }
+        Relationships: []
       }
       duplicate_finish_codes: {
         Row: {
@@ -804,10 +874,42 @@ export type Database = {
         }
         Relationships: []
       }
+      finish_usage: {
+        Row: {
+          id: string | null
+          live_products: number | null
+          products: number | null
+        }
+        Relationships: []
+      }
+      type_counts: {
+        Row: {
+          category_id: string | null
+          products: number | null
+          type_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_publish: { Args: never; Returns: boolean }
       delete_draft_product: { Args: { p_id: string }; Returns: undefined }
+      delete_unused_finish: { Args: { p_id: string }; Returns: undefined }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_staff: { Args: never; Returns: boolean }
       media_in_use: {
@@ -834,6 +936,15 @@ export type Database = {
         Args: { p_id: string; p_revision: number; p_version: number }
         Returns: number
       }
+      save_category: {
+        Args: {
+          p_fields: Json
+          p_id: string
+          p_types?: Json
+          p_version: number
+        }
+        Returns: number
+      }
       save_product: {
         Args: {
           p_fields: Json
@@ -847,6 +958,12 @@ export type Database = {
       search_catalogue: {
         Args: { p_limit?: number; p_query: string }
         Returns: Json
+      }
+      set_category_order: { Args: { p_ids: string[] }; Returns: number }
+      set_featured_order: { Args: { p_ids: string[] }; Returns: number }
+      set_product_order: {
+        Args: { p_category: string; p_ids: string[] }
+        Returns: number
       }
       shelf: {
         Args: {

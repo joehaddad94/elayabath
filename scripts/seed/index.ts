@@ -306,6 +306,13 @@ async function main() {
     );
   });
 
+  // The homepage's manual order starts as the order it showed before: by name.
+  const featuredOrder = products
+    .filter((p) => featured.has(p.slug))
+    .sort((a, b) => a.name.localeCompare(b.name) || a.sku.localeCompare(b.sku))
+    .map((p) => productId.get(p.slug)!);
+  must(await db.rpc("set_featured_order", { p_ids: featuredOrder }), "featured order");
+
   // ── check the result against what was staged ───────────────────────────
   const count = async (table: string) => {
     const r = await db.from(table).select("*", { count: "exact", head: true });

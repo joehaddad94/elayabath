@@ -211,6 +211,8 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .select("snapshot")
     .eq("status", "active")
     .eq("featured", true)
+    // Staff set this order on the dashboard's Homepage screen.
+    .order("featured_rank", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true })
     .order("sku", { ascending: true });
   if (error) fail("featured products", error);

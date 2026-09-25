@@ -11,6 +11,9 @@ import { AdminNav, type AdminNavItem } from "./AdminNav";
 const SECTIONS: AdminNavItem[] = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/products", label: "Products" },
+  { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/finishes", label: "Finishes" },
+  { href: "/admin/homepage", label: "Homepage" },
   { href: "/admin/media", label: "Media" },
   { href: "/admin/activity", label: "Activity" },
   { href: "/admin/staff", label: "Staff" },

@@ -395,6 +395,12 @@ export function ProductEditor({
                   ))}
                 </select>
                 {error("category_id")}
+                {categories.find((c) => c.id === form.category_id)?.draft && (
+                  <span className={styles.hint}>
+                    This category is a draft: the product can go live, but it has no category page or menu entry until the
+                    category is published.
+                  </span>
+                )}
               </div>
               <div className={styles.field}>
                 <label htmlFor={`${ids}-type_id`} className={styles.label}>Type</label>

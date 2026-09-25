@@ -655,7 +655,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
 - [x] **C9 · Publish, preview, history (M).** The publish action and batched
       invalidation, draft-mode preview, the History tab with diff and restore,
       the Activity feed.
-- [ ] **C10 · Categories, finishes, ordering (M).** Category editing and drag
+- [x] **C10 · Categories, finishes, ordering (M).** Category editing and drag
       ordering, the featured flag feeding the homepage, the finish library.
 - [ ] **C11 · Import and export (L).** Upload, column mapping and presets,
       import rules, chunked staging with progress, preview in the grid, apply
@@ -903,6 +903,52 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   functions are closed to anonymous callers too.
 - **Tests:** 76 database tests (11 new for restore and the snapshot guard).
   The C6, C7 and C8 browser checks still pass. The public audit is clean.
+
+### C10 outcomes
+
+- **Twenty-five checks pass in a real browser.**
+- **Order is layout, not an edit.** Moving products within a category, the
+  categories in the menu, or the homepage's featured products is published
+  as a whole with "Publish this order". It goes live at once and leaves no
+  product or category with unpublished changes (checked: reordering 203
+  bathtubs left the draft count unchanged). A change of position alone no
+  longer bumps a row's version. Lists can be ordered by dragging, or by
+  buttons that do the same with a keyboard or on a phone.
+- **The homepage has a manual order.** It used to sort featured products by
+  name; `featured_rank` now holds the order, starting as the old one, so
+  nothing moved. The Homepage screen marks where the site's 12-product
+  cut-off falls, and flags products featured in a draft that still need
+  publishing. The seed sets the same starting order.
+- **Categories** edit name, description paragraphs and product types, saved
+  as a version-checked draft through `public.save_category` and published.
+  Publishing a category now also renames its types on live product pages,
+  and refreshes those pages. A type products still use can't be removed. A
+  new category starts as a draft at the end of the menu.
+- **Web addresses of categories and finishes are fixed once published.**
+  Only products have redirects, so changing these would break links and
+  the site's filter URLs. Before publishing they can be edited freely.
+- **Finish library:** filter by material, shared code, unpublished, unused
+  or retired. Edit name, code and material, upload a swatch (reduced to
+  256px in the browser), publish. Retiring hides a finish from the picker
+  and the filters, while products that list it keep showing it (the editor
+  says how many). Only a finish nothing uses and nothing has published can
+  be deleted. Adding a finish whose code another finish already has is
+  allowed, since the client's data has such cases, but it is said out loud.
+  The six finishes behind P08, RT10 and RT13 are one filter away.
+- **A new finish goes live with its first product.** Publishing a product
+  now publishes any of its finishes that were never published; otherwise
+  the product page would silently leave the finish out.
+- **The product editor warns** when a product sits in a draft category: it
+  can go live, but has no category page or menu entry yet.
+- **Found in testing:** "Save and publish" on categories and finishes
+  published correctly but still showed "Unpublished changes", because the
+  version was read from before the save. Both now take the published
+  version from the database. Counting products per category or type now
+  happens in the database (`category_counts`, `type_counts`), since the API
+  returns at most 1,000 rows. Long lists (a category's products for
+  ordering) are read in pages.
+- **Tests:** 93 database tests (17 new). The C6 to C9 browser checks and the
+  public audit still pass.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
