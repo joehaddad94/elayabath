@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireStaff } from "@/lib/admin/session";
 import styles from "../../admin.module.css";
 import { ProductsGrid, type SavedView } from "./ProductsGrid";
@@ -31,6 +32,9 @@ export default async function ProductsPage() {
             time or in bulk.
           </p>
         </div>
+        <Link href="/admin/products/new" className="btn btn-primary">
+          New product
+        </Link>
       </div>
       <ProductsGrid
         me={email}

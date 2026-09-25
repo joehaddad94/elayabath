@@ -647,7 +647,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       paged, sorted, filtered server query. Search, column chooser, saved and
       shared views, bulk actions by selection or by filter, inline editing of
       simple fields through the draft path.
-- [ ] **C7 · Product editor (L).** Fields, finishes from the library,
+- [x] **C7 · Product editor (L).** Fields, finishes from the library,
       completeness, version-checked saves with the conflict prompt, saving
       drafts.
 - [ ] **C8 · Media (M).** Gallery upload with in-browser downscaling, reorder,
@@ -792,6 +792,43 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
 - **AG Grid modules are registered one by one** (Community only). The grid
   names any it is missing in the console, which is how two were caught; the
   C12 admin audit keeps watching for that.
+
+### C7 outcomes
+
+- **Twenty-seven checks pass in a real browser.** The item code in the grid
+  opens the editor. A save writes every field and the finish list as one
+  new version, through `public.save_product`, while the live page stays as
+  it was. Ctrl+S saves. Leaving with unsaved changes asks first.
+- **Conflicts offer the choice the plan promised.** A stale save is refused
+  and names who saved first; "Keep mine and overwrite" replaces the version
+  that was shown, never a blind write; "Load their version" swaps the form
+  for theirs.
+- **Publishing from the editor** saves first if needed, then publishes, and
+  the public page changes on the next request. A new web address leaves a
+  308 from the old one, and the editor says so before publishing. An
+  address that still redirects to another product can't be taken, since
+  publishing would steal that redirect. A discontinued product keeps its
+  page, marked.
+- **New products** start as drafts from an item code, a name and a category,
+  with the address derived from the code as the seed does. Only a product
+  that has never been published can be deleted; anything that has been live
+  is discontinued instead. Both rules are enforced in the database.
+- **One schema for every write:** `src/lib/admin/product-schema.ts` is used by
+  the editor as you type, by its Server Action, and by the grid's inline
+  edits, and will be used by import. Checked against all 596 seeded
+  products, which found item codes like "E06-SW10353 A+ E06-SW10353 B" that
+  name a pair; codes may contain `+`.
+- **A finish keeps its own photo** when the list is reordered or edited; only
+  its position moves. Codes shared by two finishes (P08, RT10, RT13) are
+  marked in the picker.
+- **Found in testing:** publishing refreshes the page, and the editor was
+  keyed on the version number, so it rebuilt itself and lost its message.
+  It now keeps what is on screen and takes the server's copy only when
+  asked or when nothing here is unsaved. Also, after a refused New product
+  form, React cleared the category choice; the form is now rebuilt with
+  what was typed.
+- **Tests:** 12 more database tests (`supabase/tests/save.test.sql`, 59 in
+  all) and 8 unit tests for the schema (77 in all).
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

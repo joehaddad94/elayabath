@@ -807,6 +807,7 @@ export type Database = {
     }
     Functions: {
       can_publish: { Args: never; Returns: boolean }
+      delete_draft_product: { Args: { p_id: string }; Returns: undefined }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_staff: { Args: never; Returns: boolean }
       product_snapshot: { Args: { p_id: string }; Returns: Json }
@@ -820,6 +821,15 @@ export type Database = {
       }
       publish_product: {
         Args: { p_id: string; p_note?: string }
+        Returns: number
+      }
+      save_product: {
+        Args: {
+          p_fields: Json
+          p_finishes?: string[]
+          p_id: string
+          p_version: number
+        }
         Returns: number
       }
       search_catalogue: {

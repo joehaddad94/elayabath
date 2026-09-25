@@ -303,3 +303,36 @@ a.stat:hover {
     padding-inline: var(--space-2);
   }
 }
+
+.crumbs {
+  margin: 0 0 var(--space-3);
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+.newForm {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 32rem;
+}
+
+.newForm .field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.newForm label {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.fieldError {
+  font-size: 0.85rem;
+  font-weight: 600;
+}

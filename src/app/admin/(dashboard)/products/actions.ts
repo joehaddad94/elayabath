@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { toGridRow, type GridRow } from "@/lib/admin/grid-row";
 import { ADMIN_PRODUCT_COLUMNS, gridStateSchema, matchingIds } from "@/lib/admin/product-query";
+import { productFields } from "@/lib/admin/product-schema";
 import { publishProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 import type { TablesUpdate } from "@/lib/supabase/database.types";
@@ -14,15 +15,12 @@ type ProductPatch = TablesUpdate<"products">;
 /** The fields the grid may edit directly. Everything with structure (the
  *  gallery, finishes, the description) is edited in the product editor. */
 const edit = z.discriminatedUnion("field", [
-  z.object({ field: z.literal("name"), value: z.string().trim().min(1, "A name is required.").max(200) }),
-  z.object({
-    field: z.literal("dimensions"),
-    value: z.string().trim().max(200).transform((v) => (v === "" ? null : v)).nullable(),
-  }),
-  z.object({ field: z.literal("featured"), value: z.boolean() }),
+  z.object({ field: z.literal("name"), value: productFields.name }),
+  z.object({ field: z.literal("dimensions"), value: productFields.dimensions }),
+  z.object({ field: z.literal("featured"), value: productFields.featured }),
   z.object({ field: z.literal("status"), value: z.enum(["active", "discontinued"]) }),
-  z.object({ field: z.literal("category_id"), value: z.uuid() }),
-  z.object({ field: z.literal("type_id"), value: z.uuid().nullable() }),
+  z.object({ field: z.literal("category_id"), value: productFields.category_id }),
+  z.object({ field: z.literal("type_id"), value: productFields.type_id }),
 ]);
 
 export type EditResult =

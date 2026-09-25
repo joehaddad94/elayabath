@@ -24,6 +24,7 @@ import {
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DropdownMenu } from "radix-ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -104,6 +105,17 @@ const STATUS_LABEL: Record<GridRow["status"], string> = {
   active: "Live",
   discontinued: "Discontinued",
 };
+
+/** The item code opens the product editor, for everything the grid can't
+ *  edit in place. */
+function Sku({ value, data }: ICellRendererParams<GridRow, string>) {
+  if (!data) return null;
+  return (
+    <Link href={`/admin/products/${data.id}`} className={grid.open}>
+      {value}
+    </Link>
+  );
+}
 
 function Thumb({ value, data }: ICellRendererParams<GridRow, string | null>) {
   if (!value) return <span className={grid.noThumb}>none</span>;
@@ -301,7 +313,7 @@ export function ProductsGrid({
   const columnDefs = useMemo<ColDef<GridRow>[]>(
     () => [
       { field: "image_url", colId: "image", headerName: "", width: 64, sortable: false, resizable: false, cellRenderer: Thumb },
-      { field: "sku", colId: "sku", headerName: "Item code", filter: "agTextColumnFilter", width: 170, pinned: "left" },
+      { field: "sku", colId: "sku", headerName: "Item code", filter: "agTextColumnFilter", width: 170, pinned: "left", cellRenderer: Sku },
       { field: "name", colId: "name", headerName: "Name", editable: true, filter: "agTextColumnFilter", flex: 1, minWidth: 180 },
       {
         field: "category_id",
