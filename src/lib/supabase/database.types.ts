@@ -303,6 +303,13 @@ export type Database = {
             foreignKeyName: "product_finishes_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "admin_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_finishes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -343,6 +350,13 @@ export type Database = {
           width?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "admin_products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_images_product_id_fkey"
             columns: ["product_id"]
@@ -590,6 +604,13 @@ export type Database = {
             foreignKeyName: "published_products_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: true
+            referencedRelation: "admin_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "published_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -612,6 +633,13 @@ export type Database = {
           product_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "redirects_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "admin_products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "redirects_product_id_fkey"
             columns: ["product_id"]
@@ -716,6 +744,58 @@ export type Database = {
       }
     }
     Views: {
+      admin_products: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          category_position: number | null
+          category_slug: string | null
+          completeness: number | null
+          dimensions: string | null
+          featured: boolean | null
+          finish_count: number | null
+          has_changes: boolean | null
+          has_datasheet: boolean | null
+          id: string | null
+          image_path: string | null
+          import_job_id: string | null
+          missing: string[] | null
+          name: string | null
+          position: number | null
+          published_version: number | null
+          sku: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["entity_status"] | null
+          type_id: string | null
+          type_name: string | null
+          updated_at: string | null
+          updated_by: string | null
+          version: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       duplicate_finish_codes: {
         Row: {
           code: string | null

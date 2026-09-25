@@ -10,6 +10,7 @@ import { AdminNav, type AdminNavItem } from "./AdminNav";
 /** Sections appear here as they are built, never as dead links. */
 const SECTIONS: AdminNavItem[] = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/products", label: "Products" },
   { href: "/admin/staff", label: "Staff" },
 ];
 

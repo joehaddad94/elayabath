@@ -643,7 +643,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       refusal of addresses published on the site, and a record of every direct
       sign-in. The `proxy.ts` gate plus a session check inside every Server
       Action (the proxy alone is not trusted), the `/admin` layout, `noindex`.
-- [ ] **C6 · Products grid (M).** AG Grid on the Infinite Row Model over a
+- [x] **C6 · Products grid (M).** AG Grid on the Infinite Row Model over a
       paged, sorted, filtered server query. Search, column chooser, saved and
       shared views, bulk actions by selection or by filter, inline editing of
       simple fields through the draft path.
@@ -767,6 +767,31 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
 - **The database tests now start from a clean slate** inside their own
   transaction, so they pass whether or not the local database holds the
   seeded catalogue, and the rollback leaves it as it was.
+
+### C6 outcomes
+
+- **Twenty-one checks pass in a real browser** against the seeded catalogue:
+  the grid opens on 596 products and pages in 100-row blocks as it scrolls;
+  search, category, "needs attention" (285) and "unpublished changes" (56)
+  narrow it; column filters and sorts run in the database, and an unknown
+  column name is ignored rather than reaching the query; the rows route
+  refuses anyone signed out.
+- **Inline edits go through the draft path.** A rename saves to the working
+  copy with the version bumped while the live page is unchanged; a stale
+  edit is refused with the name of whoever saved first; publishing puts the
+  change on the public page on the next request.
+- **Bulk actions work on ticked rows or on everything matching**, and say
+  that the result is a draft. Publishing everything matching asks first.
+- **Saved views** round-trip through a link (`?view=`), and the grid's
+  colours follow both palettes.
+- **Two bugs found and fixed in testing:** narrowing the filters while
+  scrolled far down asked for rows past the end, which the database refuses;
+  the route now answers with no rows and the new count, and a reload scrolls
+  to the top. A block requested before a reload could also land after it and
+  overwrite the count; stale answers are now ignored.
+- **AG Grid modules are registered one by one** (Community only). The grid
+  names any it is missing in the console, which is how two were caught; the
+  C12 admin audit keeps watching for that.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

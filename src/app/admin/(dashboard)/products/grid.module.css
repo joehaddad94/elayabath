@@ -1,0 +1,155 @@
+.wrap {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.toolbar,
+.bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 11rem;
+}
+
+.field > span {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.bulk {
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: var(--rule);
+}
+
+.count {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 10rem;
+}
+
+.scope {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+/* Fills the window below the toolbars, so the grid scrolls, not the page:
+   the Infinite Row Model loads as the grid's own viewport moves. */
+.grid {
+  height: max(28rem, calc(100vh - 20rem));
+}
+
+.thumb {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  background: var(--color-surface);
+}
+
+.noThumb {
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.warn {
+  color: var(--color-text);
+  font-weight: 400;
+}
+
+.active {
+  border-color: var(--color-accent);
+}
+
+.draft,
+.discontinued {
+  border-style: dashed;
+}
+
+/* The column and view menus, drawn by Radix in a portal. */
+.menu {
+  z-index: 60;
+  min-width: 15rem;
+  max-height: 70vh;
+  overflow: auto;
+  padding: var(--space-2) 0;
+  background: var(--color-surface);
+  border: var(--rule);
+  color: var(--color-text);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-neutral-900) 22%, transparent);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 32px;
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--space-6);
+  position: relative;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.menuItem[data-highlighted] {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.tick {
+  position: absolute;
+  inset-inline-start: var(--space-2);
+}
+
+.menuNote {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.sep {
+  height: 1px;
+  margin: var(--space-2) 0;
+  background: var(--color-divider);
+}
+
+.saveView {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+}
