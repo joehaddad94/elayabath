@@ -359,7 +359,7 @@ export function ProductsGrid({
         headerName: "Last edited",
         width: 170,
         valueFormatter: (p) =>
-          p.value ? new Date(p.value as string).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "",
+          p.value ? new Date(p.value as string).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Qatar" }) : "",
       },
       { field: "updated_by", colId: "updatedBy", headerName: "By", width: 200, hide: true },
     ],

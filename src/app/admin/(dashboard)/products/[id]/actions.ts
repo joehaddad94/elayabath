@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { describeWriteError, productFields, productForm, slugFromSku } from "@/lib/admin/product-schema";
+import { uploadFolder } from "@/lib/admin/media";
 import { publishProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 
@@ -33,14 +34,24 @@ export async function saveProduct(input: { id: string; version: number; form: un
     for (const issue of parsed.error.issues) fields[String(issue.path[0])] ??= issue.message;
     return { ok: false, error: "Some fields need attention.", fields };
   }
-  const { finishes, ...fields } = parsed.data;
+  const { finishes, images, ...fields } = parsed.data;
 
-  const { data: current } = await supabase
-    .from("products")
-    .select("published_version, category_id")
-    .eq("id", id.data)
-    .maybeSingle();
+  const [{ data: current }, { data: stored }] = await Promise.all([
+    supabase.from("products").select("published_version, datasheet_path").eq("id", id.data).maybeSingle(),
+    supabase.from("product_images").select("path").eq("product_id", id.data),
+  ]);
   if (!current) return { ok: false, error: "This product no longer exists." };
+
+  // Files the product already has are fine; a new one must be an upload into
+  // this product's own folder, so a save can't claim some other file.
+  const folder = uploadFolder(id.data);
+  const known = new Set((stored ?? []).map((i) => i.path));
+  if (images.some((i) => !known.has(i.path) && !i.path.startsWith(folder))) {
+    return { ok: false, error: "A photograph didn't come from this product's uploads. Remove it and upload it again." };
+  }
+  if (fields.datasheet_path && fields.datasheet_path !== current.datasheet_path && !fields.datasheet_path.startsWith(folder)) {
+    return { ok: false, error: "The data sheet didn't come from this product's uploads. Upload it again." };
+  }
 
   // "Draft" means never published. Once a product has been live it is either
   // live or discontinued; it cannot go back to never having been published.
@@ -77,6 +88,7 @@ export async function saveProduct(input: { id: string; version: number; form: un
     p_version: version.data,
     p_fields: fields,
     p_finishes: finishes,
+    p_images: images,
   });
 
   if (error?.code === "PT409") {

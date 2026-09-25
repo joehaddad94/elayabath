@@ -650,7 +650,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
 - [x] **C7 · Product editor (L).** Fields, finishes from the library,
       completeness, version-checked saves with the conflict prompt, saving
       drafts.
-- [ ] **C8 · Media (M).** Gallery upload with in-browser downscaling, reorder,
+- [x] **C8 · Media (M).** Gallery upload with in-browser downscaling, reorder,
       captions and alt text, data sheets, orphan cleanup, a storage meter.
 - [ ] **C9 · Publish, preview, history (M).** The publish action and batched
       invalidation, draft-mode preview, the History tab with diff and restore,
@@ -829,6 +829,46 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   what was typed.
 - **Tests:** 12 more database tests (`supabase/tests/save.test.sql`, 59 in
   all) and 8 unit tests for the schema (77 in all).
+
+### C8 outcomes
+
+- **Twenty checks pass in a real browser** with phone-sized photos (4000 x
+  3000). Photos are reduced in the browser to 1600px on the long edge and
+  sent straight to Storage as WebP (JPEG where the browser can't write
+  WebP): a 369 KB test photo arrived as 31 KB, and a 5 MB phone photo will
+  typically arrive as a few hundred KB. A file that isn't a photo is refused
+  by name. iPhone HEIC photos that the browser can't read get a message
+  asking for JPEG or PNG.
+- **The gallery and data sheet are part of the draft.** Uploading puts the
+  file in Storage, and the product changes only when saved, through the
+  same version-checked `save_product` as every other field. So there is one
+  Save, one conflict check and one Publish for everything. Order, "make
+  main", alt text (prefilled from the name and dimensions, flagged when
+  empty) and captions all save together. The grid's thumbnail follows the
+  main photo, and on publish the live page leads with it and links the new
+  data sheet.
+- **Every upload gets a new name** inside `products/<product id>/`. Files are
+  cached for a year, so a replaced photo is never the old address
+  overwritten. The id, not the web address, names the folder, so it
+  survives renames. A save can only claim files the product already has or
+  files from its own folder.
+- **Unused means unused everywhere.** `public.media_in_use()` counts the
+  working copy, the live site and every published version in the history,
+  so restoring an old version (C9) always has its photos. Only uploads
+  that were never saved, or were replaced before being published, are
+  unused, and only after a day's grace. The Media page lists them and
+  removes them on request; nothing is deleted automatically. Today every
+  stored file is in use.
+- **The storage meter** is on the Media page and the overview: 121 MB of the
+  free plan's 1 GB, 115 MB of it data sheets. It warns above 80%.
+- **Found in testing:** the cleanup's confirmation disappeared because the
+  refreshed page swapped the section it lived in; it is now kept in place.
+- **For the runbook:** a publish from a script with the service key updates
+  the database but not the site's cached pages, which are only refreshed by
+  publishing from the dashboard. Anything run outside the dashboard should
+  be followed by a redeploy.
+- **Tests:** 65 database tests (gallery and data sheet saves, storage guards)
+  and 79 unit tests.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

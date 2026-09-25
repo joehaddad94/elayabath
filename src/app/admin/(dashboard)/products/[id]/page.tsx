@@ -25,10 +25,10 @@ export default async function ProductPage({
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const { supabase, email } = await requireStaff();
 
-  const [product, links, overview, live, categories, types, finishes, duplicates] = await Promise.all([
+  const [product, links, images, live, categories, types, finishes, duplicates] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
     supabase.from("product_finishes").select("finish_id").eq("product_id", id).order("position"),
-    supabase.from("admin_products").select("image_path, has_datasheet").eq("id", id).maybeSingle(),
+    supabase.from("product_images").select("path, alt, caption, width, height").eq("product_id", id).order("position").order("created_at"),
     supabase.from("published_products").select("slug, status").eq("product_id", id).maybeSingle(),
     supabase.from("categories").select("id, name, status").order("position"),
     supabase.from("product_types").select("id, name, category_id").order("name"),
@@ -56,8 +56,6 @@ export default async function ProductPage({
     publishedVersion: p.published_version,
     updatedAt: p.updated_at,
     updatedBy: p.updated_by,
-    imageUrl: overview.data?.image_path ? storageUrl("product-media", overview.data.image_path) : null,
-    hasDatasheet: overview.data?.has_datasheet ?? false,
     live: live.data ? { slug: live.data.slug, status: live.data.status } : null,
     form: {
       sku: p.sku,
@@ -70,6 +68,8 @@ export default async function ProductPage({
       features: p.features,
       status: p.status,
       featured: p.featured,
+      datasheet_path: p.datasheet_path,
+      images: images.data ?? [],
       finishes: (links.data ?? []).map((l) => l.finish_id),
     },
   };

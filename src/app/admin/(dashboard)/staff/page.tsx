@@ -6,7 +6,7 @@ import { AddStaffForm, RemoveStaffButton } from "./StaffForms";
 export const metadata: Metadata = { title: "Staff" };
 
 const when = (iso: string) =>
-  new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Qatar" });
 
 /**
  * Who can sign in, and who has.

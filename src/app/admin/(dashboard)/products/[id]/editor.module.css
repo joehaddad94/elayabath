@@ -185,13 +185,6 @@
   font-weight: 600;
 }
 
-.photo {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: contain;
-  background: var(--color-bg);
-}
 
 .conflict {
   display: grid;
@@ -302,5 +295,103 @@
   .side {
     position: static;
     order: -1;
+  }
+}
+
+/* ── photographs and data sheet ───────────────────────────────────────── */
+.media {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.photos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  border-top: var(--rule);
+}
+
+.photoItem {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border-bottom: var(--rule);
+}
+
+.thumb {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: var(--color-bg);
+}
+
+.photoFields {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.photoFields .label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.photoRole {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.photoButtons {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: end;
+}
+
+.drop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-control);
+}
+
+.dropOver {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.problems {
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.datasheet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 40rem) {
+  .photoItem {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  .photoButtons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
   }
 }

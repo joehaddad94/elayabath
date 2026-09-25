@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { STORAGE_QUOTA_BYTES, formatBytes } from "@/lib/admin/media";
 import { requireStaff } from "@/lib/admin/session";
 import styles from "../admin.module.css";
 
@@ -24,11 +26,15 @@ export default async function Overview() {
     ])
   ).map((r) => r.count ?? 0) as [number, number, number, number, number, number, number];
 
-  const { data: recent } = await supabase
-    .from("revisions")
-    .select("entity_type, version, note, published_by, published_at, snapshot")
-    .order("published_at", { ascending: false })
-    .limit(8);
+  const [{ data: recent }, { data: usage }] = await Promise.all([
+    supabase
+      .from("revisions")
+      .select("entity_type, version, note, published_by, published_at, snapshot")
+      .order("published_at", { ascending: false })
+      .limit(8),
+    supabase.rpc("storage_usage"),
+  ]);
+  const stored = (usage ?? []).reduce((sum, r) => sum + Number(r.bytes), 0);
 
   const stats: Array<[string, number]> = [
     ["Products live", live],
@@ -55,6 +61,12 @@ export default async function Overview() {
             <span className={styles.statLabel}>{label}</span>
           </div>
         ))}
+        <Link href="/admin/media" className={styles.stat}>
+          <span className={styles.statValue}>{((stored / STORAGE_QUOTA_BYTES) * 100).toFixed(0)}%</span>
+          <span className={styles.statLabel}>
+            Storage used, {formatBytes(stored)} of {formatBytes(STORAGE_QUOTA_BYTES)}
+          </span>
+        </Link>
       </div>
 
       {sharedCodes > 0 && (
@@ -90,7 +102,7 @@ export default async function Overview() {
                   <td>{r.version}</td>
                   <td className={styles.muted}>{r.published_by}</td>
                   <td className={styles.muted}>
-                    {new Date(r.published_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+                    {new Date(r.published_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Qatar" })}
                   </td>
                 </tr>
               );

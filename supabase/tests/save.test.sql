@@ -2,7 +2,7 @@
 -- version-checked) and delete_draft_product. Run with `npx supabase test db`.
 
 begin;
-select plan(12);
+select plan(18);
 
 -- A clean slate inside this transaction; the rollback puts everything back.
 delete from public.published_products;
@@ -29,6 +29,9 @@ insert into public.products (id, sku, slug, name, category_id, status, published
 values
   ('00000000-0000-0000-0000-00000000d001', 'T-1', 't-1', 'Basin', '00000000-0000-0000-0000-00000000c001', 'active', 1),
   ('00000000-0000-0000-0000-00000000d002', 'T-2', 't-2', 'Draft', '00000000-0000-0000-0000-00000000c001', 'draft', null);
+insert into public.product_images (product_id, path, alt, position) values
+  ('00000000-0000-0000-0000-00000000d001', 'products/t-1.webp', 'Old alt', 0),
+  ('00000000-0000-0000-0000-00000000d001', 'products/t-1-side.webp', 'Side', 1);
 insert into public.product_finishes (product_id, finish_id, position, image_path) values
   ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000f001', 0, 'photos/white.webp'),
   ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000f002', 1, null);
@@ -46,6 +49,10 @@ select throws_ok(
   $$ select public.delete_draft_product('00000000-0000-0000-0000-00000000d002') $$,
   'PT409', null,
   'a non-staff delete is refused');
+select throws_ok($$ select * from public.storage_usage() $$, '42501', null,
+  'a non-staff user cannot see storage usage');
+select throws_ok($$ select * from public.unused_media() $$, '42501', null,
+  'or the list of unused files');
 
 -- ── a staff member ─────────────────────────────────────────────────────────
 
@@ -74,6 +81,26 @@ select is(
       and finish_id = '00000000-0000-0000-0000-00000000f001'),
   'photos/white.webp',
   'a finish that stays keeps its own photo');
+
+-- The gallery: reorder, drop one, add one, change alt text; and the data sheet.
+select is(
+  public.save_product(
+    '00000000-0000-0000-0000-00000000d001', 2,
+    '{"datasheet_path":"products/d001/sheet.pdf"}', null,
+    '[{"path":"products/d001/new.webp","alt":"New","caption":"Front","width":1600,"height":1200},
+      {"path":"products/t-1.webp","alt":"New alt","caption":""}]'),
+  3,
+  'a gallery change is a save like any other');
+select is(
+  (select array_agg(path || '=' || alt order by position) from public.product_images
+    where product_id = '00000000-0000-0000-0000-00000000d001'),
+  array['products/d001/new.webp=New', 'products/t-1.webp=New alt'],
+  'the gallery is replaced as a set, in order, with its alt text');
+select ok(
+  (select width = 1600 and caption = 'Front' from public.product_images where path = 'products/d001/new.webp'),
+  'a new photo keeps its size and caption');
+select is((select datasheet_path from public.products where sku = 'T-1'), 'products/d001/sheet.pdf',
+  'the data sheet is part of the save');
 
 select throws_ok(
   $$ select public.save_product('00000000-0000-0000-0000-00000000d001', 1, '{"name":"Stale"}') $$,

@@ -336,3 +336,21 @@ a.stat:hover {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+.sectionTitle {
+  margin: 0 0 var(--space-3);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.meterText {
+  margin: 0 0 var(--space-2);
+}
+
+.meter {
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin-bottom: var(--space-6);
+}

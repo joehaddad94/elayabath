@@ -9,6 +9,9 @@ import { z } from "zod";
  * rules the Server Action enforces.
  */
 
+/** A path inside a bucket: no leading slash, no "..", ordinary characters. */
+const STORAGE_PATH = /^(?!.*\.\.)[A-Za-z0-9][A-Za-z0-9_./-]*$/;
+
 const optionalText = (max: number, label: string) =>
   z
     .string()
@@ -40,12 +43,33 @@ export const productFields = {
     .array(z.string().trim().max(300, "Each feature can be at most 300 characters."))
     .max(40, "At most 40 features.")
     .transform((list) => list.filter((f) => f !== "")),
+  datasheet_path: z
+    .string()
+    .regex(STORAGE_PATH, "That data sheet isn't a stored file.")
+    .refine((p) => p.endsWith(".pdf"), "A data sheet must be a PDF.")
+    .nullable(),
   status: z.enum(["draft", "active", "discontinued"]),
   featured: z.boolean(),
 };
 
+/** One photograph in the gallery. The file is already in Storage; this is
+ *  what the product says about it. */
+export const productImage = z.object({
+  path: z.string().regex(STORAGE_PATH, "That photograph isn't a stored file."),
+  alt: z.string().trim().max(300, "Alt text can be at most 300 characters."),
+  caption: z.string().trim().max(300, "A caption can be at most 300 characters.").nullable(),
+  width: z.int().positive().nullable(),
+  height: z.int().positive().nullable(),
+});
+
+export type ProductImage = z.input<typeof productImage>;
+
 export const productForm = z.object({
   ...productFields,
+  images: z.array(productImage).max(40, "At most 40 photographs.").refine(
+    (list) => new Set(list.map((i) => i.path)).size === list.length,
+    "A photograph is listed twice.",
+  ),
   finishes: z
     .array(z.uuid())
     .max(300)

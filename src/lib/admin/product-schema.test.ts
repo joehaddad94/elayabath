@@ -12,6 +12,8 @@ const valid = {
   features: [],
   status: "active" as const,
   featured: false,
+  datasheet_path: null,
+  images: [],
   finishes: [],
 };
 
@@ -46,6 +48,15 @@ describe("productForm", () => {
   it("refuses a finish listed twice", () => {
     const id = "00000000-0000-4000-8000-00000000f001";
     expect(productForm.safeParse({ ...valid, finishes: [id, id] }).success).toBe(false);
+  });
+
+  it("refuses a stored path that climbs out of its folder", () => {
+    const image = { path: "products/../secret.webp", alt: "", caption: null, width: null, height: null };
+    expect(productForm.safeParse({ ...valid, images: [image] }).success).toBe(false);
+  });
+
+  it("refuses a data sheet that isn't a PDF", () => {
+    expect(productForm.safeParse({ ...valid, datasheet_path: "products/x/sheet.docx" }).success).toBe(false);
   });
 
   it("refuses an empty name", () => {

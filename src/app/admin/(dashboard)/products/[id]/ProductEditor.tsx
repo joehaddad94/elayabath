@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -9,6 +8,7 @@ import admin from "../../../admin.module.css";
 import { deleteDraftProduct, publishProduct, saveProduct } from "./actions";
 import styles from "./editor.module.css";
 import { FinishPicker } from "./FinishPicker";
+import { Datasheet, Gallery } from "./Media";
 
 export interface FinishOption {
   id: string;
@@ -27,13 +27,12 @@ export interface EditorProduct {
   publishedVersion: number | null;
   updatedAt: string;
   updatedBy: string | null;
-  imageUrl: string | null;
-  hasDatasheet: boolean;
   live: { slug: string; status: string } | null;
-  form: Omit<ProductForm, "dimensions" | "type_id" | "status"> & {
+  form: Omit<ProductForm, "dimensions" | "type_id" | "status" | "datasheet_path"> & {
     dimensions: string;
     type_id: string | null;
     status: "draft" | "active" | "discontinued";
+    datasheet_path: string | null;
   };
 }
 
@@ -227,11 +226,11 @@ export function ProductEditor({
   }, [dirty]);
 
   const checks = [
-    { label: "Photograph", ok: product.imageUrl !== null },
+    { label: "Photograph", ok: form.images.length > 0 },
     { label: "Product type", ok: form.type_id !== null },
     { label: "Dimensions", ok: form.dimensions.trim() !== "" },
     { label: "Description", ok: form.description.trim() !== "" },
-    { label: "Data sheet", ok: product.hasDatasheet },
+    { label: "Data sheet", ok: form.datasheet_path !== null },
     { label: "At least one finish", ok: form.finishes.length > 0 },
   ];
   const score = checks.filter((c) => c.ok).length;
@@ -383,6 +382,30 @@ export function ProductEditor({
           </fieldset>
 
           <fieldset className={styles.section}>
+            <legend>Photographs</legend>
+            <Gallery
+              productId={product.id}
+              images={form.images}
+              defaultAlt={[form.name, form.dimensions.trim()].filter(Boolean).join(", ")}
+              onChange={(update) => {
+                setForm((f) => ({ ...f, images: update(f.images) }));
+                setErrors((current) => {
+                  const next = { ...current };
+                  delete next.images;
+                  return next;
+                });
+              }}
+            />
+            {error("images")}
+          </fieldset>
+
+          <fieldset className={styles.section}>
+            <legend>Data sheet</legend>
+            <Datasheet productId={product.id} path={form.datasheet_path} onChange={(path) => set("datasheet_path", path)} />
+            {error("datasheet_path")}
+          </fieldset>
+
+          <fieldset className={styles.section}>
             <legend>Finishes</legend>
             <FinishPicker library={library} value={form.finishes} onChange={(next) => set("finishes", next)} />
             {error("finishes")}
@@ -445,13 +468,6 @@ export function ProductEditor({
             </ul>
             <p className={styles.hint}>Gaps never block publishing; they show on the Needs attention list.</p>
           </section>
-
-          {product.imageUrl && (
-            <section className={styles.panel}>
-              <h2>Photograph</h2>
-              <Image src={product.imageUrl} alt="" width={320} height={320} className={styles.photo} />
-            </section>
-          )}
 
           {publishedVersion === null && (
             <section className={styles.panel}>

@@ -810,6 +810,13 @@ export type Database = {
       delete_draft_product: { Args: { p_id: string }; Returns: undefined }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_staff: { Args: never; Returns: boolean }
+      media_in_use: {
+        Args: never
+        Returns: {
+          bucket_id: string
+          name: string
+        }[]
+      }
       product_snapshot: { Args: { p_id: string }; Returns: Json }
       publish_category: {
         Args: { p_id: string; p_note?: string }
@@ -828,6 +835,7 @@ export type Database = {
           p_fields: Json
           p_finishes?: string[]
           p_id: string
+          p_images?: Json
           p_version: number
         }
         Returns: number
@@ -847,6 +855,23 @@ export type Database = {
           p_types?: string[]
         }
         Returns: Json
+      }
+      storage_usage: {
+        Args: never
+        Returns: {
+          bucket_id: string
+          bytes: number
+          files: number
+        }[]
+      }
+      unused_media: {
+        Args: { p_grace?: string }
+        Returns: {
+          bucket_id: string
+          bytes: number
+          created_at: string
+          name: string
+        }[]
       }
     }
     Enums: {
