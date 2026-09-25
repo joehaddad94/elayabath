@@ -627,10 +627,10 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       `remotePatterns`, exclude `/admin` and `/api` from the locale rewrite. A
       test that proves an anonymous visitor cannot read drafts or write
       anything.
-- [ ] **C3 · Seed and backups (M).** Full-catalogue ingest, the seed script,
+- [x] **C3 · Seed and backups (M).** Full-catalogue ingest, the seed script,
       media upload, counts checked against the scrape. The nightly keep-alive
       and backup job.
-- [ ] **C4 · Public site on the database (L).** `lib/catalogue.ts` reads the
+- [x] **C4 · Public site on the database (L).** `lib/catalogue.ts` reads the
       published read model. Caching and invalidation as chosen in C0.
       Redirects for changed slugs. Discontinued products hidden with their
       page kept. Search as a server query. Category filtering, facets and sort
@@ -686,6 +686,64 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   services the dashboard does not use: realtime, edge functions, analytics.
 - **Still open:** the Vercel plan (Joe to confirm). The AG Grid checks move to
   C6, where the grid is built.
+
+### C3 outcomes
+
+- **Staged and seeded: 596 products, 11 categories, 87 finishes** (the old
+  site's exact finish count), 3,719 product-finish links, 596 photographs.
+  540 products are live in the six published categories; 56 sit in the five
+  draft categories. Every count is checked against what was staged.
+- **34 gaps, recorded not fatal:** 20 products never had a data sheet linked,
+  9 sheets could not be fetched, 5 photographs are too small to use well. No
+  product is missing a photograph. They are in `.seed/data/gaps.json` and
+  become the Needs attention list.
+- **Per-finish photographs: 6 genuine.** The old site pointed 18 variations
+  at photos of their own, but 12 were artefacts (the parent photo, a paired
+  product's code, in one case a different product entirely). Only photos
+  whose own name carries the finish's code are taken.
+- **Finish codes are not unique in the client's data.** P08 is two different
+  finishes, Polished Copper (67 products) and Polished Rose Gold (9), so a
+  quote for "P08" cannot tell them apart; RT10 and RT13 are each one finish
+  entered twice. Nothing is merged: the slug is the identity, the code is
+  indexed, and `duplicate_finish_codes` lets the dashboard flag each one.
+  **P08 needs a decision from Elaya.**
+- The seed refuses a database that already has products, so it can never
+  overwrite staff edits on a hosted project.
+- **Backups:** `scripts/backup` exports all 19 tables (3.5 MB) plus a
+  540-product `catalogue.json`, verified locally. Three limits: GitHub runs
+  scheduled workflows only from the default branch, so the job starts once
+  this is on `main`; GitHub switches schedules off in a repository with no
+  activity for 60 days, after which it needs re-enabling with one click; and
+  files in Storage are not in the backup, so dashboard uploads exist only in
+  Storage until a paid plan or a separate media backup covers them.
+
+### C4 outcomes
+
+- **Parity: 50 of 50 products identical on all 13 fields** checked against
+  the JSON the site was built from, and all 50 pages render from the
+  database.
+- **Search and shelves run in SQL.** `public.search_catalogue` and
+  `public.shelf` carry the old rules, and the browser-side tests were ported
+  case for case (`supabase/tests/search.test.sql`, `shelf.test.sql`); the
+  TypeScript implementations were removed rather than kept as dead code. 47
+  database tests in all.
+- **Verified in the browser:** a shelf pages 24 at a time ("Show 24 more"),
+  filters and sorts through `/api/shelf`, and a shared filtered link loads
+  filtered. A renamed product's old URL answers 308 to the new one. A
+  discontinued product keeps its page with a notice and leaves search and
+  the shelf.
+- **Only featured pages are built ahead.** Everything else renders on first
+  visit and is cached until a publish clears it.
+- **The full catalogue found a real accessibility gap:** a product called ACE
+  has a title link narrower than 24px, so card titles now have a minimum
+  width as well as height.
+- **Known quirk:** the first, uncached render of a redirect sends its
+  `Location` header twice, both with the same value; every later response
+  sends one. That is Next's behaviour, and browsers and crawlers follow it
+  correctly. Avoiding it would mean a database lookup in the proxy on every
+  product request.
+- **To confirm in C9:** the sitemap is built ahead, so it only drops a
+  discontinued product once publishing clears its cache tag.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

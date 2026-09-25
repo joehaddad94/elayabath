@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { groupFinishesByFamily } from "@/lib/finishes";
@@ -15,12 +15,10 @@ import {
   SORT_KEYS,
   appliedFilters,
   countSelected,
-  facetCounts,
-  filterProducts,
   isSortKey,
-  sortProducts,
+  shelfQuery,
 } from "@/lib/product-filters";
-import type { Category, FacetOption, Finish, FinishFamily, Product } from "@/lib/types";
+import type { Category, FacetOption, Finish, FinishFamily, ShelfPage } from "@/lib/types";
 import {
   getSearch,
   getServerSearch,
@@ -48,15 +46,28 @@ function toParams(selection: Selection, sort: SortKey): URLSearchParams {
   return params;
 }
 
+/** Products fetched per request. The first page comes with the page itself. */
+export const SHELF_PAGE = 24;
+
+/**
+ * A category shelf: filters, sort, chips and the grid.
+ *
+ * The filtering, counting and paging run in the database. The first page of
+ * the unfiltered shelf arrives with the page, which is what keeps the page
+ * static; every other view of it (a filter, a sort, the next page, or a link
+ * shared with filters in it) is fetched from /api/shelf. While a request is
+ * in flight the previous results stay on screen, marked busy, rather than
+ * flashing empty.
+ */
 export function ProductBrowser({
   category,
-  products,
+  initial,
   finishes,
   locale,
   t,
 }: {
   category: Category;
-  products: Product[];
+  initial: ShelfPage;
   finishes: Finish[];
   locale: Locale;
   t: Dictionary;
@@ -99,29 +110,68 @@ export function ProductBrowser({
 
   const clear = useCallback(() => commit(EMPTY_SELECTION, sort), [sort, commit]);
 
-  const visible = useMemo(
-    () => sortProducts(filterProducts(products, selection), sort),
-    [products, selection, sort],
-  );
+  // What is on screen, with the request it answers. Keyed, so a slow answer
+  // to an earlier selection can never be shown against a later one.
+  const wanted = shelfQuery(category.slug, selection, sort, 0, SHELF_PAGE);
+  const [data, setData] = useState(() => ({
+    key: shelfQuery(category.slug, EMPTY_SELECTION, "default", 0, SHELF_PAGE),
+    shelf: initial,
+  }));
+  const [loadingMore, setLoadingMore] = useState(false);
+  const busy = data.key !== wanted;
+
+  useEffect(() => {
+    if (data.key === wanted) return;
+    const controller = new AbortController();
+    void fetch(`/api/shelf?${wanted}`, { signal: controller.signal })
+      .then((response) => (response.ok ? (response.json() as Promise<ShelfPage>) : null))
+      .then((shelf) => {
+        if (shelf) setData({ key: wanted, shelf });
+      })
+      .catch(() => {
+        /* superseded by a newer selection, or offline: keep what is shown */
+      });
+    return () => controller.abort();
+  }, [wanted, data.key]);
+
+  const shown = data.shelf.products;
+  const total = data.shelf.total;
+
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true);
+    try {
+      const response = await fetch(
+        `/api/shelf?${shelfQuery(category.slug, selection, sort, shown.length, SHELF_PAGE)}`,
+      );
+      if (!response.ok) return;
+      const next = (await response.json()) as ShelfPage;
+      setData((current) =>
+        current.key === wanted
+          ? { key: wanted, shelf: { ...next, products: [...current.shelf.products, ...next.products] } }
+          : current,
+      );
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [category.slug, selection, sort, shown.length, wanted]);
 
   const colourGroups = useMemo(() => groupFinishesByFamily(finishes), [finishes]);
 
-  // Counts that answer "what would I get if I added this", recomputed against
-  // the other axes. They used to be static catalogue totals that never moved.
-  const typeOptions = useMemo(
-    () => facetCounts(products, selection, "type", category.productTypes),
-    [products, selection, category.productTypes],
+  // Counts that answer "what would I get if I added this", computed by the
+  // database against the other axes. Every option the category offers is
+  // listed; one the current selection rules out reads zero.
+  const typeOptions = useMemo(() => {
+    const counts = new Map(data.shelf.facets.type.map((o) => [o.value, o.count]));
+    return category.productTypes.map((o) => ({ ...o, count: counts.get(o.value) ?? 0 }));
+  }, [data.shelf.facets.type, category.productTypes]);
+  const materialOptions = useMemo(() => {
+    const counts = new Map(data.shelf.facets.material.map((o) => [o.value, o.count]));
+    return category.materials.map((o) => ({ ...o, count: counts.get(o.value) ?? 0 }));
+  }, [data.shelf.facets.material, category.materials]);
+  const colourCounts = useMemo(
+    () => new Map(data.shelf.facets.colour.map((o) => [o.value, o.count])),
+    [data.shelf.facets.colour],
   );
-  const materialOptions = useMemo(
-    () => facetCounts(products, selection, "material", category.materials),
-    [products, selection, category.materials],
-  );
-  const colourCounts = useMemo(() => {
-    const options = finishes.map((f) => ({ value: f.slug, label: f.name, count: 0 }));
-    return new Map(
-      facetCounts(products, selection, "colour", options).map((o) => [o.value, o.count]),
-    );
-  }, [products, selection, finishes]);
 
   const labels = useMemo(
     () => ({
@@ -241,8 +291,8 @@ export function ProductBrowser({
         <div className={styles.toolbar}>
           <p className={styles.count} role="status">
             {format(t.category.showing, {
-              shown: visible.length,
-              total: products.length,
+              shown: shown.length,
+              total,
             })}
           </p>
 
@@ -285,10 +335,27 @@ export function ProductBrowser({
           </ul>
         )}
 
-        {visible.length > 0 ? (
-          <ProductGrid products={visible} locale={locale} t={t} priorityCount={4} />
-        ) : (
-          <p className={styles.empty}>{t.category.noResults}</p>
+        <div aria-busy={busy} className={busy ? styles.busy : undefined}>
+          {shown.length > 0 ? (
+            <ProductGrid products={shown} locale={locale} t={t} priorityCount={4} />
+          ) : (
+            <p className={styles.empty}>{t.category.noResults}</p>
+          )}
+        </div>
+
+        {!busy && shown.length < total && (
+          <div className={styles.more}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => void loadMore()}
+              disabled={loadingMore}
+            >
+              {loadingMore
+                ? t.category.loading
+                : format(t.category.loadMore, { n: Math.min(SHELF_PAGE, total - shown.length) })}
+            </button>
+          </div>
         )}
       </div>
     </div>

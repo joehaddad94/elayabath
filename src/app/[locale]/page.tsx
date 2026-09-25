@@ -13,8 +13,8 @@ import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
 import {
   getCatalogueMeta,
   getCategories,
+  getFeaturedProducts,
   getFinishes,
-  getProducts,
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
@@ -43,7 +43,9 @@ export default async function HomePage({
   const [meta, categories, products, finishes] = await Promise.all([
     getCatalogueMeta(),
     getCategories(),
-    getProducts(),
+    // Chosen by staff with the featured flag. Seeded to exactly the products
+    // this page showed before the catalogue moved to the database.
+    getFeaturedProducts(),
     getFinishes(),
   ]);
 
@@ -83,7 +85,7 @@ export default async function HomePage({
           foot={t.home.plateFoot}
         />
 
-        {hero && (
+        {hero?.image && (
           <figure className={`${styles.heroProduct} blueprint`}>
             <Image
               src={hero.image.src}

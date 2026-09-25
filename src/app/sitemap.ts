@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE_ORIGIN } from "@/lib/site";
-import { getCategories, getProducts } from "@/lib/catalogue";
+import { getCategories, getProductSlugs } from "@/lib/catalogue";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 
@@ -36,8 +36,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${ORIGIN}${routes.category(c.slug, l)}`,
       priority: 0.8,
     })),
-    ...(await getProducts()).map((p) => ({
-      url: `${ORIGIN}${routes.product(p.slug, l)}`,
+    ...(await getProductSlugs()).map((slug) => ({
+      url: `${ORIGIN}${routes.product(slug, l)}`,
       priority: 0.6,
     })),
   ];

@@ -17,6 +17,11 @@ const supabaseIsLocal =
   supabaseUrl !== undefined && ["127.0.0.1", "localhost"].includes(supabaseUrl.hostname);
 
 const nextConfig: NextConfig = {
+  // Catalogue reads are cached with 'use cache' and cleared by tag when staff
+  // publish (see src/lib/catalogue.ts and src/lib/cache-tags.ts). Measured in
+  // the C0 spike: this changes nothing a visitor sees on the static pages.
+  cacheComponents: true,
+
   // Catalogue photography, swatches and data sheets live in Supabase Storage
   // public buckets; the site's own room photography stays under public/.
   // next/image handles sizing and srcset for both.

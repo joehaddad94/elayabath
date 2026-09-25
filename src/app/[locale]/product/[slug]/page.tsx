@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
 import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
@@ -15,8 +15,9 @@ import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
   getCategory,
   getFinishesFor,
+  getFeaturedProducts,
   getProduct,
-  getProducts,
+  getRedirect,
   getRelatedProducts,
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
@@ -26,8 +27,14 @@ import { routes } from "@/lib/routes";
 import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
 import styles from "./product.module.css";
 
+/**
+ * Built ahead: the featured products only. Building every product page at
+ * deploy time slows the build in step with the catalogue; the rest render on
+ * their first visit and are cached from then on, which is also how a product
+ * published after a deploy gets its page.
+ */
 export async function generateStaticParams() {
-  const products = await getProducts();
+  const products = await getFeaturedProducts();
   return LOCALES.flatMap((locale) =>
     products.map((product) => ({ locale, slug: product.slug })),
   );
@@ -52,7 +59,7 @@ export async function generateMetadata({
       .filter(Boolean)
       .join(", "),
     alternates: canonical(routes.product(product.slug)),
-    openGraph: { images: [product.image.src] },
+    openGraph: product.image ? { images: [product.image.src] } : undefined,
   };
 }
 
@@ -66,9 +73,15 @@ export default async function ProductPage({
   const locale = rawLocale;
 
   const product = await getProduct(slug);
-  if (!product) notFound();
+  if (!product) {
+    // A product whose code changed keeps its old address working.
+    const moved = await getRedirect(slug);
+    if (moved) permanentRedirect(routes.product(moved, locale));
+    notFound();
+  }
 
   const t = getDictionary(locale);
+  const discontinued = product.status === "discontinued";
   const [category, finishes, related] = await Promise.all([
     getCategory(product.categorySlug),
     getFinishesFor(product),
@@ -130,18 +143,31 @@ export default async function ProductPage({
         <Container className={styles.pdp}>
           <div className={styles.media}>
             <figure className={`${styles.figure} blueprint`}>
-              <Image
-                src={product.image.src}
-                alt={product.image.alt}
-                width={product.image.width}
-                height={product.image.height}
-                sizes="(max-width: 62rem) 100vw, 34rem"
-                priority
-              />
+              {product.image ? (
+                <Image
+                  src={product.image.src}
+                  alt={product.image.alt}
+                  width={product.image.width}
+                  height={product.image.height}
+                  sizes="(max-width: 62rem) 100vw, 34rem"
+                  priority
+                
+                />
+              ) : (
+                <span className={styles.noPhoto}>{t.common.noPhoto}</span>
+              )}
             </figure>
           </div>
 
           <div>
+            {/* Its page stays, so links from catalogues, emails and search
+                results still land somewhere useful: here, pointing at what
+                replaced it. */}
+            {discontinued && (
+              <p className={styles.discontinued} role="status">
+                {t.product.discontinued}
+              </p>
+            )}
             <span className={styles.kicker}>{product.type.name}</span>
             <h1 className={styles.title}>{product.name}</h1>
             <p className={styles.sku}>

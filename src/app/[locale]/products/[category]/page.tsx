@@ -7,17 +7,18 @@ import { FinishRail } from "@/components/FinishRail/FinishRail";
 import { Hero } from "@/components/Hero/Hero";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
-import { ProductBrowser } from "@/components/ProductBrowser/ProductBrowser";
+import { ProductBrowser, SHELF_PAGE } from "@/components/ProductBrowser/ProductBrowser";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
   getCategories,
   getCategory,
   getFinish,
-  getProductsInCategory,
+  getShelf,
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
 import { categoryBand, categoryBanner, categoryInset } from "@/lib/imagery";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
+import { EMPTY_SELECTION } from "@/lib/product-filters";
 import { routes } from "@/lib/routes";
 import {
   breadcrumbSchema,
@@ -69,7 +70,10 @@ export default async function CategoryPage({
   if (!category) notFound();
 
   const t = getDictionary(locale);
-  const products = await getProductsInCategory(slug);
+  // The first page of the unfiltered shelf comes with the page, which keeps
+  // the page static. Filters, sorting and further pages are fetched.
+  const initial = await getShelf(slug, EMPTY_SELECTION, "default", SHELF_PAGE, 0);
+  const products = initial.products;
 
   // Only the finishes this category actually contains, so the filter never
   // offers a colour that would return nothing.
@@ -120,7 +124,7 @@ export default async function CategoryPage({
         <Container>
           <ProductBrowser
             category={category}
-            products={products}
+            initial={initial}
             finishes={finishes}
             locale={locale}
             t={t}

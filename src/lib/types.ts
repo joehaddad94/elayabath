@@ -64,19 +64,33 @@ export interface Product {
   description: string;
   /** e.g. `Without Tap Hole`, `Center Outlet`. */
   features: string[];
-  image: {
-    src: string;
-    width: number;
-    height: number;
-    alt: string;
-  };
+  /** The card and hero image, which is the first of the gallery. Null when
+   *  staff have published a product before photographing it: the dashboard
+   *  flags that as incomplete but does not block it. */
+  image: ProductImage | null;
+  /** Every photograph, in the order staff set. */
+  gallery?: ProductImage[];
   /** Finish slugs, in the order the client lists them. May be empty: some
    *  products genuinely have no finish options recorded. */
   finishes: string[];
+  /** A photograph of the product in a particular finish, where one exists,
+   *  keyed by finish slug. The room left for variants. */
+  finishImages?: Record<string, string>;
   /** Distinct families across this product's finishes, for filtering. */
   materials: FinishFamily[];
-  /** Path under public/, or null where the sheet could not be fetched. */
+  /** URL of the technical data sheet, or null where there is none. */
   datasheet: string | null;
+  /** Discontinued products keep their page, so old links survive, but leave
+   *  every listing. Absent means active. */
+  status?: "active" | "discontinued";
+}
+
+export interface ProductImage {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  caption?: string;
 }
 
 export interface FacetOption<T extends string = string> {
@@ -122,4 +136,16 @@ export interface CatalogueMeta {
   productsInCatalogue: number;
   categoriesInCatalogue: number;
   finishesInCatalogue: number;
+}
+
+/** One page of a category shelf, as the database returns it. */
+export interface ShelfPage {
+  /** Products matching the selection, in total, not just on this page. */
+  total: number;
+  products: Product[];
+  facets: {
+    type: FacetOption[];
+    material: FacetOption<FinishFamily>[];
+    colour: Array<{ value: string; count: number }>;
+  };
 }

@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { format, type Dictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
-import { loadSearchIndex, searchCatalogue } from "@/lib/search";
 import type { SearchEntry } from "@/lib/types";
 import styles from "./SearchBox.module.css";
 
 /**
- * The index is loaded on demand rather than bundled with the page.
+ * Asks the server as the visitor types, a moment after they pause.
  *
- * At 50 products it would hardly matter; at 596 it is about 45 KB that every
- * visitor who never opens search would pay for. A dynamic import gives it its
- * own chunk, fetched the first time this component mounts, and the page is
- * useful before it arrives.
+ * It used to download the whole catalogue index and match in the browser.
+ * The matching rules are unchanged; they now run in the database, so the page
+ * costs the same at 60 products or 60,000, and nothing about the catalogue
+ * ships to a visitor who never searches.
  */
 export function SearchBox({
   locale,
@@ -31,24 +30,32 @@ export function SearchBox({
   // somebody can send to a colleague.
   const initial = useSearchParams().get("q") ?? "";
   const [query, setQuery] = useState(initial);
-  const [index, setIndex] = useState<SearchEntry[] | null>(null);
+  // Results are stored with the query they answer, so a slow response for an
+  // earlier query can never be shown against a later one.
+  const [answer, setAnswer] = useState<{ query: string; hits: SearchEntry[] } | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    void loadSearchIndex().then((entries) => {
-      if (!cancelled) setIndex(entries);
-    });
+    const q = query.trim();
+    if (!q) return;
+    const controller = new AbortController();
+    // A short pause before asking: one request per word typed, not per key.
+    const timer = setTimeout(() => {
+      void fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+        .then((response) => (response.ok ? response.json() : []))
+        .then((hits: SearchEntry[]) => setAnswer({ query: q, hits }))
+        .catch(() => {
+          /* aborted by the next keystroke, or offline: keep the last answer */
+        });
+    }, 180);
     return () => {
-      cancelled = true;
+      clearTimeout(timer);
+      controller.abort();
     };
-  }, []);
-
-  const hits = useMemo(
-    () => (index ? searchCatalogue(index, query) : []),
-    [index, query],
-  );
+  }, [query]);
 
   const asked = query.trim().length > 0;
+  const current = asked && answer?.query === query.trim();
+  const hits = current ? answer.hits : [];
 
   return (
     <div className={styles.wrap}>
@@ -67,7 +74,7 @@ export function SearchBox({
       <p className={styles.hint}>{t.search.hint}</p>
 
       <div aria-live="polite">
-        {asked && (
+        {current && (
           <p className={styles.count}>
             {hits.length > 0
               ? format(t.search.resultsFor, { q: query.trim() })
@@ -77,7 +84,7 @@ export function SearchBox({
 
         {hits.length > 0 && (
           <ul className={styles.results}>
-            {hits.map(({ entry }) => (
+            {hits.map((entry) => (
               <li key={entry.s}>
                 <Link className={styles.hit} href={routes.product(entry.s, locale)}>
                   <span className={styles.name}>{entry.n}</span>

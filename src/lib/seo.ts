@@ -74,7 +74,7 @@ export function productSchema(product: Product, url: string) {
     sku: product.sku,
     mpn: product.sku,
     url: abs(url),
-    image: abs(product.image.src),
+    image: product.image ? abs(product.image.src) : undefined,
     description: product.description || undefined,
     category: product.categoryName,
     brand: { "@type": "Brand", name: "Elaya Bath" },

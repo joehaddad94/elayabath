@@ -130,3 +130,23 @@
   flex-wrap: wrap;
   gap: var(--space-3);
 }
+
+.noPhoto {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 100%;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+}
+
+.discontinued {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  font-size: 0.92rem;
+}

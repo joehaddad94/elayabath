@@ -348,3 +348,17 @@
 .swatch[data-empty] img {
   opacity: 0.5;
 }
+
+/* While a new selection is on its way, the old results stay put and dim,
+   rather than the grid emptying and refilling. */
+.busy {
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: calc(var(--space-8) * 1.2);
+}

@@ -37,7 +37,9 @@ export type Database = {
         Row: {
           blurb: string[]
           created_at: string
+          icon: string | null
           id: string
+          image: string | null
           name: string
           position: number
           published_version: number | null
@@ -50,7 +52,9 @@ export type Database = {
         Insert: {
           blurb?: string[]
           created_at?: string
+          icon?: string | null
           id?: string
+          image?: string | null
           name: string
           position?: number
           published_version?: number | null
@@ -63,7 +67,9 @@ export type Database = {
         Update: {
           blurb?: string[]
           created_at?: string
+          icon?: string | null
           id?: string
+          image?: string | null
           name?: string
           position?: number
           published_version?: number | null
@@ -713,8 +719,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_publish: { Args: never; Returns: boolean }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_staff: { Args: never; Returns: boolean }
+      product_snapshot: { Args: { p_id: string }; Returns: Json }
+      publish_category: {
+        Args: { p_id: string; p_note?: string }
+        Returns: number
+      }
+      publish_finish: {
+        Args: { p_id: string; p_note?: string }
+        Returns: number
+      }
+      publish_product: {
+        Args: { p_id: string; p_note?: string }
+        Returns: number
+      }
+      search_catalogue: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: Json
+      }
+      shelf: {
+        Args: {
+          p_category: string
+          p_colours?: string[]
+          p_limit?: number
+          p_materials?: string[]
+          p_offset?: number
+          p_sort?: string
+          p_types?: string[]
+        }
+        Returns: Json
+      }
     }
     Enums: {
       entity_status: "draft" | "active" | "discontinued"

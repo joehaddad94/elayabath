@@ -31,14 +31,20 @@ export function ProductCard({
   return (
     <article className={`card blueprint ${styles.card}`}>
       <Link className={styles.media} href={href} tabIndex={-1} aria-hidden="true">
-        <Image
-          src={product.image.src}
-          alt={product.image.alt}
-          width={product.image.width}
-          height={product.image.height}
-          sizes="(max-width: 48rem) 50vw, (max-width: 72rem) 33vw, 20rem"
-          priority={priority}
-        />
+        {product.image ? (
+          <Image
+            src={product.image.src}
+            alt={product.image.alt}
+            width={product.image.width}
+            height={product.image.height}
+            sizes="(max-width: 48rem) 50vw, (max-width: 72rem) 33vw, 20rem"
+            priority={priority}
+          />
+        ) : (
+          // Staff can publish a product before it is photographed; the
+          // dashboard flags it, and the card holds its shape meanwhile.
+          <span className={styles.noPhoto}>{t.common.noPhoto}</span>
+        )}
       </Link>
 
       <div className={styles.body}>

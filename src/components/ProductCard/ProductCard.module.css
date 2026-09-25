@@ -43,11 +43,15 @@
   margin: 0;
 }
 
+/* 24px each way, the WCAG 2.2 minimum. The height was set when the titles
+   were measured at 22px; the width only mattered once the full catalogue
+   brought in a product called ACE, whose title is narrower than that. */
 .title a {
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   min-height: 24px;
+  min-width: 24px;
 }
 
 .title a:hover {
@@ -82,4 +86,18 @@
   display: grid;
   gap: var(--space-2);
   margin-top: auto;
+}
+
+/* Held at the photograph's usual square, so a grid with a missing photo does
+   not collapse one card shorter than its neighbours. */
+.noPhoto {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 100%;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
 }
