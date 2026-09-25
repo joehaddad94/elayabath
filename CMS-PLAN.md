@@ -657,7 +657,7 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
       the Activity feed.
 - [x] **C10 · Categories, finishes, ordering (M).** Category editing and drag
       ordering, the featured flag feeding the homepage, the finish library.
-- [ ] **C11 · Import and export (L).** Upload, column mapping and presets,
+- [x] **C11 · Import and export (L).** Upload, column mapping and presets,
       import rules, chunked staging with progress, preview in the grid, apply
       in batches, publish or discard by job; streamed export of views,
       selections or whole entities; templates; a round-trip test.
@@ -949,6 +949,55 @@ Sizes are relative: S is a day or less, M a few days, L about a week.
   ordering) are read in pages.
 - **Tests:** 93 database tests (17 new). The C6 to C9 browser checks and the
   public audit still pass.
+
+### C11 outcomes
+
+- **Twenty-one checks pass in a real browser.**
+- **Round-trip safe, tested on the whole catalogue:** every product (596),
+  category (11), finish (87) and product's finish list (589) exported and
+  imported back with zero changes and zero errors. Exports use the import's
+  own column names and values (category and type names, finish web
+  addresses, Live, Discontinued or Draft, Yes or No), so a sheet maps
+  itself on the way back.
+- **Import flow:** the browser uploads to the private `imports` bucket, the
+  server reads the file once (Excel, CSV or TSV; comma or semicolon; up to
+  50,000 rows) and suggests a mapping from the headers. The staff member
+  maps columns, chooses how rows are found (item code, or ID when codes are
+  changing), what a blank cell means (keep or clear) and what happens to
+  unknown rows (create or skip), and can save the mapping as a preset. A
+  later file with the same headers maps itself.
+- **Checking** runs in chunks of 200 from the page, with progress, using the
+  editors' own schemas. The preview is AG Grid, filtered by outcome, with
+  each change as "field: before → after" and each problem in words:
+  an unknown category, a type that isn't in the category, an item code
+  repeated in the file ("also appears on row 2"), or a finish code shared
+  by two finishes ("P08 belongs to Polished Copper and Polished Rose Gold;
+  use the finish's web address").
+- **Applying** runs in batches of 200, each one database transaction
+  (`public.apply_import`), writing drafts tagged with the import. Only
+  mapped columns change. A row someone edited after the check is refused and
+  listed, never overwritten (tested). Product finish sheets, one row per
+  link, are grouped per product first, so each product's list is replaced
+  whole and in order.
+- **Publish or discard as a unit.** Publishing works through the tagged
+  products in batches. Discarding (`public.discard_import`) deletes what the
+  import created and returns what it changed to the live version, featured
+  flag included, leaving no unpublished changes behind (tested).
+- **Export** streams from the server: CSV row by row, Excel through exceljs's
+  streaming writer, so memory stays flat. From the Products grid: this view
+  (its filters, sort and visible columns), the ticked rows (sent as a form,
+  since thousands of ids won't fit in a link) or every product. From the
+  Import page: every entity, the live versions of products and categories,
+  and blank templates. Cells a spreadsheet would run as formulas are written
+  with a leading apostrophe, which import removes again.
+- **Dependencies:** `exceljs`, as planned. Its old `uuid` carried a moderate
+  advisory (it concerns uuid versions exceljs doesn't use); an npm override
+  moves it to the fixed version, and `npm audit` reports nothing.
+- **Found in testing:** exceljs's streaming writer only takes a frozen
+  header when the sheet is created; a view export repeated the item code
+  column; checking a file overwrote the note of which saved mapping it used.
+- **Tests:** 103 database tests (10 new for apply and discard) and 88 unit
+  tests (the CSV reader and writer, formula protection).
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

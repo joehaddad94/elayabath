@@ -106,6 +106,18 @@ const STATUS_LABEL: Record<GridRow["status"], string> = {
   discontinued: "Discontinued",
 };
 
+/** Grid columns that have a spreadsheet column of their own. */
+const EXPORT_FIELD: Record<string, string> = {
+  sku: "sku",
+  name: "name",
+  category: "category",
+  type: "type",
+  status: "status",
+  featured: "featured",
+  dimensions: "dimensions",
+  finishes: "finishes",
+};
+
 /** The item code opens the product editor, for everything the grid can't
  *  edit in place. */
 function Sku({ value, data }: ICellRendererParams<GridRow, string>) {
@@ -419,6 +431,34 @@ export function ProductsGrid({
     setViewName("");
   };
 
+  /**
+   * Downloads a spreadsheet through a form post (ticked rows can be too many
+   * ids for a link). The view's visible columns become the export's columns,
+   * in the grid's order.
+   */
+  const exportRows = (scope: "view" | "ids" | "all", format: "xlsx" | "csv") => {
+    const visible = (apiRef.current?.getColumnState() ?? []).filter((c) => !c.hide).map((c) => EXPORT_FIELD[c.colId]).filter(Boolean);
+    const form = document.createElement("form");
+    form.method = "post";
+    form.action = "/api/admin/export";
+    const fields: Record<string, string> = { entity: "products", format, scope };
+    if (scope === "view") {
+      fields.state = JSON.stringify(currentState());
+      fields.columns = ["sku", ...visible].join(",");
+    }
+    if (scope === "ids") fields.ids = selected.map((r) => r.id).join(",");
+    for (const [name, value] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  };
+
   const selectionCount = scope === "matching" ? total ?? 0 : selected.length;
 
   return (
@@ -551,6 +591,38 @@ export function ProductsGrid({
                     ))}
                 </>
               )}
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <button type="button" className="btn btn-secondary">
+              Export
+            </button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content className={grid.menu} align="end" sideOffset={4}>
+              {(["xlsx", "csv"] as const).map((format) => (
+                <DropdownMenu.Item key={`view-${format}`} className={grid.menuItem} onSelect={() => exportRows("view", format)}>
+                  This view, {format === "xlsx" ? "Excel" : "CSV"} ({total?.toLocaleString("en") ?? 0})
+                </DropdownMenu.Item>
+              ))}
+              {(["xlsx", "csv"] as const).map((format) => (
+                <DropdownMenu.Item
+                  key={`ticked-${format}`}
+                  className={grid.menuItem}
+                  disabled={selected.length === 0}
+                  onSelect={() => exportRows("ids", format)}
+                >
+                  Ticked rows, {format === "xlsx" ? "Excel" : "CSV"} ({selected.length})
+                </DropdownMenu.Item>
+              ))}
+              <DropdownMenu.Separator className={grid.sep} />
+              <DropdownMenu.Item className={grid.menuItem} onSelect={() => exportRows("all", "xlsx")}>
+                Every product, Excel
+              </DropdownMenu.Item>
+              <p className={grid.menuNote}>Import sheets back on the Import page; they map themselves.</p>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>

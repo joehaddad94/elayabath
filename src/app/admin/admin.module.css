@@ -391,3 +391,9 @@ a.stat:hover {
   object-fit: contain;
   background: var(--color-bg);
 }
+
+.linkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

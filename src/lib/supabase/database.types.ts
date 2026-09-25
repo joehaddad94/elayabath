@@ -206,31 +206,43 @@ export type Database = {
       }
       import_rows: {
         Row: {
+          applied: boolean
+          base_version: number | null
           diff: Json | null
           errors: string[]
           job_id: string
+          key: string | null
           outcome: string | null
           parsed: Json | null
           raw: Json
           row_number: number
+          target_id: string | null
         }
         Insert: {
+          applied?: boolean
+          base_version?: number | null
           diff?: Json | null
           errors?: string[]
           job_id: string
+          key?: string | null
           outcome?: string | null
           parsed?: Json | null
           raw: Json
           row_number: number
+          target_id?: string | null
         }
         Update: {
+          applied?: boolean
+          base_version?: number | null
           diff?: Json | null
           errors?: string[]
           job_id?: string
+          key?: string | null
           outcome?: string | null
           parsed?: Json | null
           raw?: Json
           row_number?: number
+          target_id?: string | null
         }
         Relationships: [
           {
@@ -907,9 +919,11 @@ export type Database = {
       }
     }
     Functions: {
+      apply_import: { Args: { p_job: string; p_limit?: number }; Returns: Json }
       can_publish: { Args: never; Returns: boolean }
       delete_draft_product: { Args: { p_id: string }; Returns: undefined }
       delete_unused_finish: { Args: { p_id: string }; Returns: undefined }
+      discard_import: { Args: { p_job: string }; Returns: Json }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_staff: { Args: never; Returns: boolean }
       media_in_use: {
