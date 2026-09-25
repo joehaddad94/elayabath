@@ -43,3 +43,6 @@ next-env.d.ts
 
 # generated build artefacts that are not committed
 /out
+
+# Seed staging: the full-catalogue ingest output, loaded into Supabase by scripts/seed
+/.seed/

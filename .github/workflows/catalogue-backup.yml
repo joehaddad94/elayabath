@@ -1,0 +1,67 @@
+# Nightly: back up every table, and keep the free-tier project awake.
+#
+# The Supabase free tier has no backups and pauses a project after a week
+# with no activity. The public site is cached, so a quiet week could pause it
+# and take the dashboard down with it. This job reads every table each night,
+# which is both a backup and the activity that prevents the pause.
+#
+# Needs two repository secrets, set once the hosted project exists:
+#   SUPABASE_URL          the project URL
+#   SUPABASE_SECRET_KEY   the service key. It lives here and nowhere public.
+#
+# Output goes to the `catalogue-backup` branch. A night with no edits makes no
+# commit, so the branch history reads as a log of the days something changed.
+
+name: Catalogue backup
+
+on:
+  schedule:
+    - cron: "17 2 * * *" # 02:17 UTC, 05:17 in Doha
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: catalogue-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Export every table
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node scripts/backup/index.ts "$RUNNER_TEMP/backup"
+
+      - name: Commit to the catalogue-backup branch
+        run: |
+          git config user.name "catalogue-backup"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin catalogue-backup >/dev/null; then
+            git fetch origin catalogue-backup
+            git checkout -B catalogue-backup origin/catalogue-backup
+          else
+            git checkout --orphan catalogue-backup
+            git rm -rf --quiet .
+          fi
+          rm -rf backup
+          cp -r "$RUNNER_TEMP/backup" backup
+          git add -A backup
+          if git diff --cached --quiet; then
+            echo "No changes since the last backup."
+          else
+            git commit -m "Catalogue backup $(date -u +%Y-%m-%d)"
+            git push origin catalogue-backup
+          fi

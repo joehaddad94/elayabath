@@ -1,8 +1,17 @@
 /**
  * What the ingest reads, what it selects, and where it writes.
  *
- * This is the only file to edit when widening the build past the v1 slice:
- * raise the quotas, or set SLICE to null to take everything.
+ * Two modes, chosen by environment variable:
+ *
+ *   npm run ingest
+ *     The site's own data: the 50-product slice, written into data/ and
+ *     public/, committed. Unchanged from before the database existed.
+ *
+ *   INGEST_OUT=.seed INGEST_SLICE=all npm run ingest
+ *     Seed mode: the whole catalogue, written into a gitignored staging
+ *     folder that scripts/seed loads into Supabase. Gaps (a product with no
+ *     photo, no description) are recorded rather than failing the run,
+ *     because the plan imports gaps as gaps and lets staff fix them.
  */
 import path from "node:path";
 
@@ -13,8 +22,15 @@ export const ARCHIVE =
   "C:/Users/Joe/Desktop/elayabath-revamp/output";
 
 export const REPO = path.resolve(import.meta.dirname, "../..");
-export const DATA_DIR = path.join(REPO, "data");
-export const PUBLIC_DIR = path.join(REPO, "public");
+
+/** Where output goes. The repo by default; a staging folder in seed mode. */
+export const OUT = process.env.INGEST_OUT
+  ? path.resolve(REPO, process.env.INGEST_OUT)
+  : REPO;
+export const SEED_MODE = OUT !== REPO;
+
+export const DATA_DIR = path.join(OUT, "data");
+export const PUBLIC_DIR = path.join(OUT, "public");
 
 /**
  * The v1 slice: 50 products spread across categories, so every template,
@@ -24,7 +40,7 @@ export const PUBLIC_DIR = path.join(REPO, "public");
  * Set to null to ingest the entire catalogue. Nothing else has to change:
  * the pipeline, the templates and the routes are all count-agnostic.
  */
-export const SLICE: Record<string, number> | null = {
+export const SLICE: Record<string, number> | null = process.env.INGEST_SLICE === "all" ? null : {
   WASHBASINS: 10,
   BATHTUBS: 9,
   Tapware: 9,
@@ -44,6 +60,9 @@ export const CATEGORIES: ReadonlyArray<{
   name: string;
   icon?: string;
   image?: string;
+  /** Seeded unpublished, for staff to publish when they choose. Never in the
+   *  site's own slice, which takes only the categories in SLICE. */
+  draft?: boolean;
 }> = [
   { source: "WASHBASINS", slug: "washbasins", name: "Washbasins", icon: "icon-washbasins.png", image: "room-washbasins.webp" },
   { source: "BATHTUBS", slug: "bathtubs", name: "Bathtubs", icon: "icon-furniture.png" },
@@ -51,6 +70,13 @@ export const CATEGORIES: ReadonlyArray<{
   { source: "TOILETS", slug: "toilets", name: "Toilets", icon: "icon-toilets.png", image: "room-toilets.webp" },
   { source: "Accessories", slug: "accessories", name: "Accessories" },
   { source: "Showers", slug: "showers", name: "Showers" },
+  // The 56 products the six categories above do not cover. Decided
+  // 2026-09-24: seeded as five new categories, as drafts.
+  { source: "SHOWER TOILETS", slug: "shower-toilets", name: "Shower Toilets", draft: true },
+  { source: "URINALS", slug: "urinals", name: "Urinals", draft: true },
+  { source: "Kitchen", slug: "kitchen", name: "Kitchen", draft: true },
+  { source: "BIDETS", slug: "bidets", name: "Bidets", draft: true },
+  { source: "ADA", slug: "accessible", name: "Accessible", draft: true },
 ];
 
 /**

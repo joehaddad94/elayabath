@@ -24,6 +24,7 @@ export interface RawProduct {
   variations?: Array<{
     sku?: string;
     attributes?: Record<string, string>;
+    image?: { title?: string; url?: string };
   }>;
 }
 

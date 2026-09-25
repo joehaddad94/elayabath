@@ -23,6 +23,8 @@ import {
   DATA_DIR,
   PRODUCT_IMAGE_WIDTH,
   PUBLIC_DIR,
+  REPO,
+  SEED_MODE,
   SLICE,
   SWATCH_IMAGE_WIDTH,
 } from "./config.ts";
@@ -53,6 +55,22 @@ import { FINISH_FAMILY_NAMES } from "../../src/lib/types.ts";
 const problems: string[] = [];
 function fail(message: string): void {
   problems.push(message);
+}
+
+/** Seed mode only: things wrong with a record that do not stop it being
+ *  imported. Written to gaps.json and surfaced to staff as Needs attention. */
+const gaps: Array<{ sku: string; gap: string }> = [];
+function gap(sku: string, message: string): void {
+  gaps.push({ sku, gap: message });
+}
+
+/** A per-finish photo: a product photographed in one particular finish. */
+interface FinishImage {
+  product: string;
+  finish: string;
+  src: string;
+  width: number;
+  height: number;
 }
 
 async function readJson<T>(file: string): Promise<T | null> {
@@ -163,7 +181,21 @@ async function main(): Promise<void> {
 
   await fs.rm(path.join(PUBLIC_DIR, "products"), { recursive: true, force: true });
   await fs.rm(path.join(PUBLIC_DIR, "swatches"), { recursive: true, force: true });
+  await fs.rm(path.join(PUBLIC_DIR, "finish-images"), { recursive: true, force: true });
   await fs.mkdir(DATA_DIR, { recursive: true });
+
+  // Data sheets already in the repo are copied rather than fetched again,
+  // and any already staged are kept, so a re-run never asks Elaya's server
+  // for a file it has already served.
+  if (SEED_MODE) {
+    const committed = path.join(REPO, "public", "docs");
+    await fs.mkdir(path.join(PUBLIC_DIR, "docs"), { recursive: true });
+    for (const file of await fs.readdir(committed).catch(() => [])) {
+      const to = path.join(PUBLIC_DIR, "docs", file);
+      if (!(await exists(to))) await fs.copyFile(path.join(committed, file), to);
+    }
+  }
+  const finishImages: FinishImage[] = [];
 
   // Swatch files live beside the product images in the archive, under names
   // that do not always match the attribute slug. Index them once, loosely.
@@ -190,24 +222,30 @@ async function main(): Promise<void> {
     const imagesDir = path.join(ARCHIVE, "products", dir, "images");
     const files = (await fs.readdir(imagesDir).catch(() => [])) as string[];
     const source = pickLargest(files, sku);
+    let image: Product["image"] | null = null;
     if (!source) {
-      fail(`${sku}: no image in the archive`);
-      continue;
-    }
-
-    let image;
-    try {
-      const out = path.join(PUBLIC_DIR, "products", `${slug}.webp`);
-      const result = await toWebp(path.join(imagesDir, source), out, PRODUCT_IMAGE_WIDTH);
-      image = {
-        src: `/products/${slug}.webp`,
-        width: result.width,
-        height: result.height,
-        alt: describeImage(raw.name!, typeName, dimensions),
-      };
-    } catch (error) {
-      fail(`${sku}: image conversion failed (${String(error).slice(0, 80)})`);
-      continue;
+      if (SEED_MODE) gap(sku, "no photograph in the archive");
+      else {
+        fail(`${sku}: no image in the archive`);
+        continue;
+      }
+    } else {
+      try {
+        const out = path.join(PUBLIC_DIR, "products", `${slug}.webp`);
+        const result = await toWebp(path.join(imagesDir, source), out, PRODUCT_IMAGE_WIDTH);
+        image = {
+          src: `/products/${slug}.webp`,
+          width: result.width,
+          height: result.height,
+          alt: describeImage(raw.name!, typeName, dimensions),
+        };
+      } catch (error) {
+        if (SEED_MODE) gap(sku, `photograph could not be converted (${String(error).slice(0, 60)})`);
+        else {
+          fail(`${sku}: image conversion failed (${String(error).slice(0, 80)})`);
+          continue;
+        }
+      }
     }
 
     // datasheet
@@ -218,11 +256,64 @@ async function main(): Promise<void> {
     const url = rawHtml ? findDatasheetUrl(rawHtml) : null;
     if (url) {
       const out = path.join(PUBLIC_DIR, "docs", `${slug}.pdf`);
-      if (await fetchDocument(url, out)) {
+      if (await exists(out)) {
         datasheet = `/docs/${slug}.pdf`;
         datasheetsFound += 1;
+      } else {
+        if (await fetchDocument(url, out)) {
+          datasheet = `/docs/${slug}.pdf`;
+          datasheetsFound += 1;
+        }
+        await sleep(250); // their WAF rate-limited the original crawl
       }
-      await sleep(250); // their WAF rate-limited the original crawl
+    }
+    if (SEED_MODE && !datasheet) gap(sku, url ? "data sheet could not be fetched" : "no data sheet linked");
+
+    // Per-finish photographs, seed mode only. Taken only when the photo's
+    // own name carries the finish's code: the old site's variations point at
+    // the parent photo, at a paired product's code, and in one case at a
+    // different product altogether, and none of those is a finish photo.
+    if (SEED_MODE) {
+      for (const variation of raw.variations ?? []) {
+        const finishSlug = variation.attributes?.["attribute_pa_colors"];
+        const title = variation.image?.title ?? "";
+        const code = finishSlug ? parseFinish(finishSlug)?.code : undefined;
+        if (!finishSlug || !code || !title.toLowerCase().endsWith(`-${code.toLowerCase()}`)) continue;
+        if (!title.toLowerCase().startsWith(sku.toLowerCase())) continue;
+        if (finishImages.some((f) => f.product === slug && f.finish === finishSlug)) continue;
+
+        const out = path.join(PUBLIC_DIR, "finish-images", `${slug}--${finishSlug}.webp`);
+        let from = files
+          .filter((f) => f.toLowerCase().startsWith(title.toLowerCase()))
+          .sort((a, b) => b.length - a.length)
+          .map((f) => path.join(imagesDir, f))
+          .find(Boolean);
+        if (!from && variation.image?.url) {
+          const temp = path.join(PUBLIC_DIR, ".download", path.basename(new URL(variation.image.url).pathname));
+          await fs.mkdir(path.dirname(temp), { recursive: true });
+          const response = await fetch(variation.image.url, {
+            headers: { "user-agent": "Mozilla/5.0 (elayabath-ingest)" },
+          }).catch(() => null);
+          if (response?.ok) {
+            await fs.writeFile(temp, Buffer.from(await response.arrayBuffer()));
+            from = temp;
+          }
+          await sleep(250);
+        }
+        if (!from) continue;
+        try {
+          const result = await toWebp(from, out, PRODUCT_IMAGE_WIDTH);
+          finishImages.push({
+            product: slug,
+            finish: finishSlug,
+            src: `/finish-images/${slug}--${finishSlug}.webp`,
+            width: result.width,
+            height: result.height,
+          });
+        } catch {
+          /* not a usable image; the finish simply has no photo of its own */
+        }
+      }
     }
 
     const finishes = parseFinishSlugs(raw);
@@ -246,7 +337,8 @@ async function main(): Promise<void> {
       dimensions,
       description,
       features: parseFeatures(description),
-      image,
+      // Null only in seed mode, where a missing photo is a gap to fill.
+      image: image as Product["image"],
       finishes,
       materials,
       datasheet,
@@ -322,6 +414,13 @@ async function main(): Promise<void> {
   };
 
   validate(products, categories, finishes);
+
+  if (SEED_MODE) {
+    await fs.rm(path.join(PUBLIC_DIR, ".download"), { recursive: true, force: true });
+    await write("finish-images.json", finishImages);
+    await write("gaps.json", gaps);
+    console.log(`seed mode: ${gaps.length} gap(s) recorded, ${finishImages.length} per-finish photo(s)`);
+  }
 
   if (problems.length > 0) {
     console.error(`\n${problems.length} problem(s):`);
@@ -441,9 +540,21 @@ function validate(
     if (slugs.has(p.slug)) fail(`duplicate product slug "${p.slug}"`);
     slugs.add(p.slug);
     if (!p.name) fail(`${p.sku}: empty name`);
-    if (!p.description) fail(`${p.sku}: empty description`);
-    if (!p.image.src || p.image.width < 200) fail(`${p.sku}: image too small or missing`);
-    if (!p.image.alt) fail(`${p.sku}: no alt text`);
+    // In seed mode a missing description or photo is a gap staff will fill,
+    // already recorded; for the site's own slice it is a failure.
+    if (!p.description) {
+      if (SEED_MODE) gap(p.sku, "no description");
+      else fail(`${p.sku}: empty description`);
+    }
+    if (p.image) {
+      if (!p.image.src || p.image.width < 200) {
+        if (SEED_MODE) gap(p.sku, "photograph too small");
+        else fail(`${p.sku}: image too small or missing`);
+      }
+      if (!p.image.alt) fail(`${p.sku}: no alt text`);
+    } else if (!SEED_MODE) {
+      fail(`${p.sku}: image missing`);
+    }
     if (!categorySlugs.has(p.categorySlug)) {
       fail(`${p.sku}: category "${p.categorySlug}" has no entry`);
     }
