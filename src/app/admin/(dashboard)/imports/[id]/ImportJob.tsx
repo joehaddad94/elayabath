@@ -8,6 +8,7 @@ import { normaliseHeader } from "@/lib/admin/sheets";
 import admin from "../../../admin.module.css";
 import styles from "../imports.module.css";
 import { applyNext, configureImport, discardImport, publishNext, stageNext } from "../actions";
+import { useConfirm } from "../../ConfirmDialog";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { ImportPreview } from "./ImportPreview";
 
@@ -54,6 +55,7 @@ export function ImportJob({
   presets: Array<{ name: string; mapping: Record<string, string> }>;
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [columns, setColumns] = useState(job.columns);
   const [options, setOptions] = useState(job.options);
   const [presetName, setPresetName] = useState("");
@@ -62,7 +64,7 @@ export function ImportJob({
 
   // A running check, apply or publish stops if the page is left; it can be
   // continued later, but say so first.
-  useUnsavedGuard(progress !== null, "Leaving stops this where it is. You can continue it later from this page. Leave now?");
+  useUnsavedGuard(progress !== null, "Leaving stops this where it is. You can continue it later from this page.");
 
   const fields = FIELDS[job.entity];
   const editable = !job.grouped && ["uploaded", "staging", "staged"].includes(job.status);
@@ -134,7 +136,12 @@ export function ImportJob({
   };
 
   const apply = async () => {
-    if (!window.confirm(`Apply ${plural(toApply, "change", "changes")} as drafts? Nothing goes live until it is published.`)) return;
+    const go = await confirm({
+      title: `Apply ${plural(toApply, "change", "changes")}?`,
+      body: "They are saved as drafts. Nothing goes live until it is published.",
+      confirmLabel: "Apply",
+    });
+    if (!go) return;
     let refused = 0;
     const ok = await loop(
       "Applying",
@@ -155,14 +162,25 @@ export function ImportJob({
   };
 
   const publish = async () => {
-    if (!window.confirm("Publish everything this import changed? The site shows it straight away.")) return;
+    const go = await confirm({
+      title: "Publish everything from this import?",
+      body: "The site shows every change straight away.",
+      confirmLabel: "Publish",
+    });
+    if (!go) return;
     const total = job.entity === "products" || job.entity === "product_finishes" ? job.tagged : toApply;
     await loop("Publishing", async () => publishNext({ id: job.id }), total);
     router.refresh();
   };
 
   const discard = async () => {
-    if (!window.confirm("Discard this import's drafts? New rows it created are deleted, and everything it changed goes back to its live version, including any edits made to those rows since.")) return;
+    const go = await confirm({
+      title: "Discard this import's drafts?",
+      body: "New rows it created are deleted, and everything it changed goes back to its live version, including any edits made to those rows since.",
+      confirmLabel: "Discard",
+      danger: true,
+    });
+    if (!go) return;
     const result = await discardImport({ id: job.id });
     if (!result.ok) return setNotice({ text: result.error, error: true });
     router.refresh();

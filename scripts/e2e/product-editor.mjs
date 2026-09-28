@@ -3,6 +3,13 @@ import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
+/** Answers the dashboard's confirmation dialog: its last button confirms. */
+const confirmModal = async (p) => {
+  const dialog = p.getByRole("alertdialog");
+  await dialog.waitFor({ timeout: 10000 });
+  await dialog.getByRole("button").last().click();
+  await dialog.waitFor({ state: "hidden" });
+};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -157,8 +164,8 @@ try {
   check("the editor fits a phone screen", overflow <= 0, `${overflow}px over`);
   await page.setViewportSize({ width: 1440, height: 1000 });
 
-  page.once("dialog", (d) => d.accept());
-  await Promise.all([page.waitForURL(`${BASE}/admin/products`), page.click("button:has-text('Delete this draft')")]);
+  await page.click("button:has-text('Delete this draft')");
+  await Promise.all([page.waitForURL(`${BASE}/admin/products`), confirmModal(page)]);
   const { data: gone } = await admin.from("products").select("id").eq("sku", "C7-TEST-0001").maybeSingle();
   check("a never-published draft can be deleted", gone === null);
   const { error: refused } = await admin.rpc("delete_draft_product", { p_id: original.id });

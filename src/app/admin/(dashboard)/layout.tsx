@@ -6,6 +6,7 @@ import { requireStaff } from "@/lib/admin/session";
 import { signOut } from "../sign-in/actions";
 import styles from "../admin.module.css";
 import { AdminNav, type AdminNavItem } from "./AdminNav";
+import { ConfirmProvider } from "./ConfirmDialog";
 
 /** Sections appear here as they are built, never as dead links. */
 const SECTIONS: AdminNavItem[] = [
@@ -40,7 +41,7 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
   const { email } = await requireStaff();
 
   return (
-    <>
+    <ConfirmProvider>
       <header className={styles.bar}>
         <Link href="/admin" className={styles.brand}>
           <Image src="/logo.png" alt="" width={74} height={36} className="invert-on-dark" />
@@ -63,6 +64,6 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
       <main id="main" className={styles.main}>
         {children}
       </main>
-    </>
+    </ConfirmProvider>
   );
 }

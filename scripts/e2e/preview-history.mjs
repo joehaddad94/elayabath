@@ -3,6 +3,13 @@ import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
+/** Answers the dashboard's confirmation dialog: its last button confirms. */
+const confirmModal = async (p) => {
+  const dialog = p.getByRole("alertdialog");
+  await dialog.waitFor({ timeout: 10000 });
+  await dialog.getByRole("button").last().click();
+  await dialog.waitFor({ state: "hidden" });
+};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -80,8 +87,8 @@ try {
   await versions.nth(1).click();
   const diffText = await page.locator("table").last().textContent();
   check("choosing a version shows how it differs", diffText.includes("Description") && diffText.includes("C9 draft description."));
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: /Restore version \d+ as a draft/ }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=/is restored as a draft/");
   check("restore puts that version back in the editor", (await page.getByLabel("Description").inputValue()) !== "C9 draft description.");
   const { data: afterRestore } = await admin.from("products").select("description, version, published_version").eq("id", ace.id).single();

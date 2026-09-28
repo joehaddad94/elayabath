@@ -1,20 +1,28 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import styles from "../../admin.module.css";
+import { useConfirm } from "../ConfirmDialog";
 import { removeUnusedMedia, type CleanupState } from "./actions";
 
 export function CleanupButton({ count }: { count: number }) {
   const [state, action, pending] = useActionState<CleanupState>(removeUnusedMedia, {});
+  const confirm = useConfirm();
+
+  const remove = async () => {
+    const go = await confirm({
+      title: `Remove ${count} unused file${count === 1 ? "" : "s"}?`,
+      body: "Nothing uses them: no product, the live site or any published version. This can't be undone.",
+      confirmLabel: "Remove",
+      danger: true,
+    });
+    if (go) startTransition(() => action());
+  };
+
   return (
-    <form
-      action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(`Remove ${count} unused file${count === 1 ? "" : "s"}? This can't be undone.`)) e.preventDefault();
-      }}
-    >
+    <div>
       {count > 0 && (
-        <button type="submit" className="btn btn-secondary" disabled={pending}>
+        <button type="button" className="btn btn-secondary" disabled={pending} onClick={() => void remove()}>
           {pending ? "Removing" : "Remove unused files"}
         </button>
       )}
@@ -23,6 +31,6 @@ export function CleanupButton({ count }: { count: number }) {
           {state.ok ?? state.error}
         </p>
       )}
-    </form>
+    </div>
   );
 }

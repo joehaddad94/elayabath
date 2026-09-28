@@ -120,6 +120,27 @@ const checks: Check[] = [
   },
 
   {
+    name: "no browser alert, confirm or prompt dialogs",
+    why: "the browser's own dialogs can't be styled and look foreign to the site; questions go through the dashboard's ConfirmDialog",
+    run: () => {
+      const found: Finding[] = [];
+      for (const file of codeFiles()) {
+        read(file).split("\n").forEach((line, i) => {
+          const t = line.trimStart();
+          if (t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")) return;
+          const m = /(?:\bwindow\.|(?<![\w.$]))(alert|confirm|prompt)\s*\(/.exec(line);
+          // `confirm(` alone is also the name the dashboard gives useConfirm()'s
+          // function, which is the right one; only flag it on `window.`.
+          if (m && (line.includes(`window.${m[1]}`) || m[1] !== "confirm")) {
+            found.push({ where: `${rel(file)}:${i + 1}`, detail: m[0] });
+          }
+        });
+      }
+      return found;
+    },
+  },
+
+  {
     name: "client components never reach the catalogue",
     why: "lib/catalogue.ts imports every catalogue JSON at module scope; importing it from a client component ships the whole catalogue to the browser",
     run: () => {

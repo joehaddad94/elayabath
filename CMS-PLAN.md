@@ -1121,6 +1121,18 @@ No new features; what exists made safer and lighter.
 Checked: 88 unit tests, 139 database tests, 135 end-to-end checks run back
 to back, 16 checks for this round, both audits.
 
+### No browser dialogs (28 September 2026)
+
+Every `confirm()` in the dashboard (ten of them) is now the dashboard's own
+dialog (`ConfirmDialog.tsx`, on Radix AlertDialog): styled like the rest,
+focus kept inside it and starting on the safe choice, Escape to cancel,
+destructive actions in the warning style. The unsaved-changes guard holds
+the click, asks in the dialog, and follows the link itself on "Leave". The
+static audit fails the build on any `alert`, `confirm` or `prompt`, so they
+can't come back. The one browser prompt left is the leave-site question on
+closing or reloading a tab with unsaved work: browsers allow no custom
+dialog there.
+
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
 machine, and the switch is configuration when it happens.

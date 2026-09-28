@@ -4,6 +4,13 @@ import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
+/** Answers the dashboard's confirmation dialog: its last button confirms. */
+const confirmModal = async (p) => {
+  const dialog = p.getByRole("alertdialog");
+  await dialog.waitFor({ timeout: 10000 });
+  await dialog.getByRole("button").last().click();
+  await dialog.waitFor({ state: "hidden" });
+};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -114,8 +121,8 @@ try {
   sql(`update storage.objects set created_at = now() - interval '2 days' where bucket_id = 'product-media' and name = '${stray}'`);
   await page.reload({ waitUntil: "load" });
   check("a day later it is listed as unused", (await page.getByText(/^1 file,/).count()) === 1);
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Remove unused files" }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=unused file removed");
   const after = (await listFolder()).map((o) => `${folder}/${o.name}`);
   check("removing unused files takes only the unused one", !after.includes(stray) && saved.filter((s) => s.path.startsWith(folder)).every((s) => after.includes(s.path)), `${after.length} left`);

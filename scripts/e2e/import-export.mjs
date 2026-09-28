@@ -4,6 +4,13 @@ import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
+/** Answers the dashboard's confirmation dialog: its last button confirms. */
+const confirmModal = async (p) => {
+  const dialog = p.getByRole("alertdialog");
+  await dialog.waitFor({ timeout: 10000 });
+  await dialog.getByRole("button").last().click();
+  await dialog.waitFor({ state: "hidden" });
+};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -96,8 +103,8 @@ try {
 
   // Someone edits the product between the check and the apply.
   await admin.from("products").update({ description: target.description + " " }).eq("id", target.id);
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: /^Apply 2 changes/ }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=3. Publish or discard", { timeout: 60000 });
   const { data: t1 } = await admin.from("products").select("dimensions").eq("id", target.id).single();
   check("a row changed after the check is left alone, not overwritten", t1.dimensions === target.dimensions, t1.dimensions);
@@ -105,8 +112,8 @@ try {
   check("the new product is created as a draft, tagged with the import", fresh.status === "draft" && fresh.import_job_id === mixed.id);
   check("and the site is unchanged", (await fetch(`${BASE}/product/c11-new-1`)).status === 404);
 
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Publish everything from this import" }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=Published. The site shows everything this import changed.", { timeout: 60000 });
   check("publishing the import puts it live", (await fetch(`${BASE}/product/c11-new-1`)).status === 200);
 
@@ -115,13 +122,13 @@ try {
   await admin.rpc("publish_product", { p_id: target.id, p_note: "c11 verify" });
   const change = ["Item code,Dimensions,Featured", `${target.sku},777 x 111 mm,Yes`, `${target2.sku},666 x 111 mm,`].join("\r\n");
   await importFile("products", "discard.csv", Buffer.from(change));
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: /^Apply 2 changes/ }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=3. Publish or discard", { timeout: 60000 });
   const { data: t2 } = await admin.from("products").select("dimensions, featured").eq("id", target.id).single();
   check("the changes are applied as drafts", t2.dimensions === "777 x 111 mm" && t2.featured === true);
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Discard this import's drafts" }).click();
+  await confirmModal(page);
   await page.waitForSelector("text=Discarded.", { timeout: 60000 });
   const { data: t3 } = await admin.from("admin_products").select("dimensions, featured, has_changes").eq("id", target.id).single();
   check("discarding puts them back exactly as live", t3.dimensions === target.dimensions && t3.featured === target.featured && t3.has_changes === false, JSON.stringify(t3));

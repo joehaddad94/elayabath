@@ -19,7 +19,7 @@ export function OrderBar({
   onUndo: () => void;
 }) {
   const [busy, setBusy] = useState(false);
-  useUnsavedGuard(changed, "The new order isn't published yet. Leave without publishing it?");
+  useUnsavedGuard(changed, "The new order isn't published yet. Visitors keep seeing the old one.");
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
 
   return (

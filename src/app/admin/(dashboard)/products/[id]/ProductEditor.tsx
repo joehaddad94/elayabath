@@ -7,6 +7,7 @@ import { productForm, slugFromSku, type ProductForm } from "@/lib/admin/product-
 import admin from "../../../admin.module.css";
 import { deleteDraftProduct, publishProduct, restoreVersion, saveProduct } from "./actions";
 import styles from "./editor.module.css";
+import { useConfirm } from "../../ConfirmDialog";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { FinishPicker } from "./FinishPicker";
 import { History, type Comparable, type Revision } from "./History";
@@ -91,6 +92,7 @@ export function ProductEditor({
   revisions: Revision[];
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const ids = useId();
   const [form, setForm] = useState<FormState>(() => toState(product.form));
   const [base, setBase] = useState<FormState>(() => toState(product.form));
@@ -201,8 +203,13 @@ export function ProductEditor({
   };
 
   const restore = async (revision: Revision) => {
-    const warning = dirty ? " Your unsaved changes will be lost." : "";
-    if (!window.confirm(`Replace the draft with version ${revision.version}?${warning} The site is unchanged until you publish.`)) return;
+    const go = await confirm({
+      title: `Restore version ${revision.version}?`,
+      body: `It replaces the draft, photos and data sheet included.${dirty ? " Your unsaved changes are lost." : ""} The site is unchanged until you publish.`,
+      confirmLabel: "Restore",
+      danger: dirty,
+    });
+    if (!go) return;
     setBusy("restore");
     setNotice(null);
     const result = await restoreVersion({ id: product.id, revisionId: revision.id, version });
@@ -239,7 +246,13 @@ export function ProductEditor({
   }, [form, categories, types, library]);
 
   const remove = async () => {
-    if (!window.confirm(`Delete ${form.sku} for good? It has never been published, so nothing on the site links to it.`)) return;
+    const go = await confirm({
+      title: `Delete ${form.sku}?`,
+      body: "It has never been published, so nothing on the site links to it. This can't be undone.",
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!go) return;
     setBusy("delete");
     const result = await deleteDraftProduct({ id: product.id });
     setBusy(null);

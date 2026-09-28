@@ -10,6 +10,7 @@ import { storageUrl } from "@/lib/supabase/config";
 import { FINISH_FAMILY_NAMES } from "@/lib/types";
 import admin from "../../admin.module.css";
 import editor from "../products/[id]/editor.module.css";
+import { useConfirm } from "../ConfirmDialog";
 import { useUnsavedGuard } from "../useUnsavedGuard";
 import styles from "./finishes.module.css";
 import { createFinish, deleteFinish, publishFinishNow, saveFinish, type NewFinishState } from "./actions";
@@ -42,6 +43,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
   const [only, setOnly] = useState<(typeof ONLY)[number]>(
     ONLY.includes(initialOnly as (typeof ONLY)[number]) ? (initialOnly as (typeof ONLY)[number]) : "",
   );
+  const confirm = useConfirm();
   const [chosenId, setChosenId] = useState<string | null>(selected ?? null);
   // Choosing another finish replaces the editor, so unsaved edits ask first.
   const [editing, setEditing] = useState(false);
@@ -61,9 +63,18 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
   }, [finishes, query, family, only]);
   const chosen = finishes.find((f) => f.id === chosenId) ?? null;
 
-  const choose = (id: string) => {
+  const choose = async (id: string) => {
     if (id === chosenId) return;
-    if (editing && !window.confirm("The finish you are editing has unsaved changes. Leave without saving them?")) return;
+    if (editing) {
+      const go = await confirm({
+        title: "Leave this finish?",
+        body: "The finish you are editing has unsaved changes. They are lost if you open another.",
+        confirmLabel: "Leave",
+        cancelLabel: "Stay",
+        danger: true,
+      });
+      if (!go) return;
+    }
     setEditing(false);
     setChosenId(id);
     router.replace(`/admin/finishes?finish=${id}`, { scroll: false });
@@ -94,7 +105,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
         <ul className={styles.rows}>
           {shown.map((f) => (
             <li key={f.id}>
-              <button type="button" className={`${styles.row} ${f.id === chosenId ? styles.chosen : ""}`} aria-pressed={f.id === chosenId} onClick={() => choose(f.id)}>
+              <button type="button" className={`${styles.row} ${f.id === chosenId ? styles.chosen : ""}`} aria-pressed={f.id === chosenId} onClick={() => void choose(f.id)}>
                 {f.swatchUrl ? (
                   <Image src={f.swatchUrl} alt="" width={32} height={32} className={styles.swatch} />
                 ) : (
@@ -125,7 +136,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
         ) : (
           <p className={admin.muted}>Choose a finish to edit it.</p>
         )}
-        <NewFinish onCreated={choose} />
+        <NewFinish onCreated={(id) => void choose(id)} />
       </div>
     </div>
   );
@@ -135,6 +146,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
   const router = useRouter();
   const ids = useId();
   const upload = useRef<HTMLInputElement>(null);
+  const confirm = useConfirm();
   const [form, setForm] = useState(finish.form);
   const [base, setBase] = useState(finish.form);
   const [version, setVersion] = useState(finish.version);
@@ -318,7 +330,13 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
           className="btn btn-secondary"
           disabled={busy !== null}
           onClick={async () => {
-            if (!window.confirm(`Delete ${form.name} for good? No product uses it and it has never been published.`)) return;
+            const go = await confirm({
+              title: `Delete ${form.name}?`,
+              body: "No product uses it and it has never been published. This can't be undone.",
+              confirmLabel: "Delete",
+              danger: true,
+            });
+            if (!go) return;
             setBusy("delete");
             const result = await deleteFinish({ id: finish.id });
             setBusy(null);

@@ -31,6 +31,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GridState } from "@/lib/admin/grid-state";
 import type { GridRow } from "@/lib/admin/grid-types";
 import styles from "../../admin.module.css";
+import { useConfirm } from "../ConfirmDialog";
 import grid from "./grid.module.css";
 import { bulkUpdate, deleteView, saveView, updateProductField } from "./actions";
 
@@ -185,6 +186,7 @@ export function ProductsGrid({
   const [toolbar, setToolbar] = useState<Toolbar>(EMPTY_TOOLBAR);
   const toolbarRef = useRef(toolbar);
   const generationRef = useRef(0);
+  const confirm = useConfirm();
   const [total, setTotal] = useState<number | null>(null);
   const [selected, setSelected] = useState<GridRow[]>([]);
   const [scope, setScope] = useState<"selected" | "matching">("selected");
@@ -390,15 +392,22 @@ export function ProductsGrid({
       // products in one click, so it always asks first, with the count.
       if (matching) {
         const target = action === "category" ? categories.find((c) => c.id === moveTo)?.name ?? "" : "";
-        const question: Record<typeof action, string> = {
-          publish: `Publish all ${count} matching products to the live site?`,
-          discontinue: `Discontinue all ${count} matching products? They leave the listings once published.`,
-          activate: `Make all ${count} matching products live? It takes effect once published.`,
-          feature: `Feature all ${count} matching products on the homepage? It takes effect once published.`,
-          unfeature: `Take all ${count} matching products off the homepage? It takes effect once published.`,
-          category: `Move all ${count} matching products to ${target}? Their product types are cleared.`,
+        const what: Record<typeof action, [string, string, string]> = {
+          publish: ["Publish", `Publish all ${count} matching products?`, "The site shows them straight away."],
+          discontinue: ["Discontinue", `Discontinue all ${count} matching products?`, "They leave the listings once published; their pages stay."],
+          activate: ["Make live", `Make all ${count} matching products live?`, "It takes effect once they are published."],
+          feature: ["Feature", `Feature all ${count} matching products?`, "They join the homepage's featured products once published."],
+          unfeature: ["Unfeature", `Unfeature all ${count} matching products?`, "They leave the homepage once published."],
+          category: ["Move", `Move all ${count} matching products to ${target}?`, "Their product types are cleared, since types belong to a category."],
         };
-        if (!window.confirm(question[action])) return;
+        const [verb, title, effect] = what[action];
+        const go = await confirm({
+          title,
+          body: `${effect} This acts on every product the current filters match, not only the rows on screen.`,
+          confirmLabel: `${verb} ${count}`,
+          danger: action !== "publish",
+        });
+        if (!go) return;
       }
       setBusy(true);
       const result = await bulkUpdate({
@@ -410,7 +419,7 @@ export function ProductsGrid({
       setNotice(result.ok ? { text: result.message } : { text: result.error, error: true });
       if (result.ok) refresh();
     },
-    [scope, total, selected, currentState, moveTo, refresh, categories],
+    [scope, total, selected, currentState, moveTo, refresh, categories, confirm],
   );
 
   const toggleColumns = useMemo(

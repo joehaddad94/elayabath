@@ -3,6 +3,13 @@ import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
+/** Answers the dashboard's confirmation dialog: its last button confirms. */
+const confirmModal = async (p) => {
+  const dialog = p.getByRole("alertdialog");
+  await dialog.waitFor({ timeout: 10000 });
+  await dialog.getByRole("button").last().click();
+  await dialog.waitFor({ state: "hidden" });
+};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -162,8 +169,8 @@ try {
   await page.locator("form select[name=family]").selectOption("resin");
   await page.getByRole("button", { name: "Add to the library" }).click();
   await page.waitForSelector("text=Added, unpublished.");
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Delete this finish" }).click();
+  await confirmModal(page);
   await page.waitForFunction(() => !document.body.textContent.includes("C10 Delete me"), null, { timeout: 10000 });
   check("an unused, never-published finish can be deleted", (await admin.from("finishes").select("id").eq("code", "C10D")).data.length === 0);
 
