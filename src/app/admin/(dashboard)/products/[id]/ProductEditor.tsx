@@ -7,6 +7,7 @@ import { productForm, slugFromSku, type ProductForm } from "@/lib/admin/product-
 import admin from "../../../admin.module.css";
 import { deleteDraftProduct, publishProduct, restoreVersion, saveProduct } from "./actions";
 import styles from "./editor.module.css";
+import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { FinishPicker } from "./FinishPicker";
 import { History, type Comparable, type Revision } from "./History";
 import { Datasheet, Gallery } from "./Media";
@@ -262,13 +263,8 @@ export function ProductEditor({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Leaving or reloading with unsaved changes asks first.
-  useEffect(() => {
-    if (!dirty) return;
-    const onLeave = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", onLeave);
-    return () => window.removeEventListener("beforeunload", onLeave);
-  }, [dirty]);
+  // Leaving, reloading or following a link with unsaved changes asks first.
+  useUnsavedGuard(dirty);
 
   const checks = [
     { label: "Photograph", ok: form.images.length > 0 },

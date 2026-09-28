@@ -129,7 +129,8 @@ byte for byte the same, and every browser check and both audits passed.
    node --env-file=.env.target scripts/move/import.ts ../elaya-move
    ```
    It refuses a project that already has products, and ends by checking
-   every count against the export.
+   every count against the export. The new site builds its pages from the
+   database when it deploys in the next step, so no cache refresh is needed.
 5. **Switch Vercel** to the new project's three variables and redeploy.
 6. **Switch the backup** to the new project's secrets in GitHub.
 7. **Staff sign in again.** Sign-in accounts are not moved; the staff list is,
@@ -162,7 +163,14 @@ dashboard does this automatically.
 
 **Anything that changes the database outside the dashboard does not**: the
 seed, `move:import`, a script using the secret key, or SQL run by hand. After
-any of those, redeploy on Vercel so every page is rebuilt from the database.
+any of those, refresh every cached page from the database:
+
+```bash
+curl -X POST https://<the site's domain>/api/admin/revalidate -H "Authorization: Bearer <secret key>"
+```
+
+It answers with how many pages it refreshed. A signed-in staff member can
+call it too. Redeploying on Vercel does the same, more slowly.
 
 ## Backups
 
@@ -191,7 +199,7 @@ any of those, redeploy on Vercel so every page is rebuilt from the database.
 | "That address can't sign in to the dashboard." | It isn't on the staff list, or it is an address published on the site. The message is the same for both on purpose |
 | Sent back to the sign-in page mid-session | The person was taken off the staff list |
 | "Someone saved this product while you were editing it" | Two people edited at once. Choose "Load their version" or "Keep mine and overwrite" |
-| A page shows old content after a script or SQL | The cache: redeploy (see above) |
+| A page shows old content after a script or SQL | The cache: call `/api/admin/revalidate` (see above) |
 | "Rows couldn't be loaded" in the grid | The connection to Supabase dropped. Reload; if it persists, check the project isn't paused |
 | An import row says it was "left alone" | Someone changed that row after the import was checked. Check the file again to include it |
 | An import says a code "belongs to" two finishes | The client's data has codes shared by two finishes (P08, RT10, RT13). Use the finish's web address instead of its code |

@@ -472,3 +472,68 @@ a.stat:hover {
     overflow-x: auto;
   }
 }
+
+/* ── loading and problem screens ─────────────────────────────────────── */
+.skeleton {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.skeletonTitle,
+.skeletonLine,
+.skeletonBlock {
+  display: block;
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  width: 14rem;
+  height: 2.2rem;
+}
+
+.skeletonLine {
+  width: min(36rem, 100%);
+  height: 1rem;
+}
+
+.skeletonBlock {
+  height: 9rem;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonTitle,
+  .skeletonLine,
+  .skeletonBlock {
+    animation: none;
+  }
+}
+
+.problem {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40rem;
+  padding-block: var(--space-8);
+}
+
+.problem h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  text-transform: uppercase;
+}
+
+.problem p {
+  margin: 0;
+}
+
+.problemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

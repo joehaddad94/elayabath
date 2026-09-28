@@ -122,6 +122,9 @@ try {
     await admin.rpc("publish_product", { p_id: id, p_note: "c9 verify restore" });
   }
   await admin.from("sign_in_log").delete().neq("id", 0);
+  // The data was put back directly, so refresh the site's cached pages too;
+  // otherwise the next run (or a person) would see what the test left.
+  await fetch(`${BASE}/api/admin/revalidate`, { method: "POST", headers: { Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY}` } }).catch(() => {});
   await b.close();
 }
 console.log(results.join("\n"));

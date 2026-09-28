@@ -1080,6 +1080,47 @@ fixed:
 
 Checked: 139 database tests, 135 browser checks, both audits.
 
+### Robustness pass (28 September 2026)
+
+No new features; what exists made safer and lighter.
+
+- **Unsaved work asks before it is lost.** The editors used to warn only on
+  closing the tab; a click on any dashboard link threw edits away without a
+  word. One shared guard (`useUnsavedGuard`) now asks on link clicks too, in
+  the product, category and finish editors, for any order not yet
+  published, when switching finishes with unsaved edits, and while an import
+  is mid-run. Several unsaved parts of one screen ask once, and a screen
+  left behind stops asking. The browser's back button is the one route it
+  can't ask about.
+- **Every screen has a loading state** (`(dashboard)/loading.tsx`), shown the
+  moment a link is followed, so a click never looks dead.
+- **Errors have a screen with "Try again"** (`(dashboard)/error.tsx`, and
+  `admin/error.tsx` for the frame, since a boundary only catches what is
+  below it), and a missing product or category has a not-found screen
+  inside the dashboard.
+- **Found in testing, fixed:**
+  - a failed staff check (the database unreachable for a moment) signed
+    people out as "removed from the staff list"; it now shows the error
+    screen;
+  - a stalled database held pages open indefinitely, because Supabase's
+    client has no time limit; every server-side call now gives up after
+    15 seconds, so the error screen appears (tested: 15 s, then "Try again"
+    recovers).
+- **Public pages are lighter.** Colour swatches listed every image width up
+  to 2048px; as fixed-size tiles they now list two. The washbasins page
+  went from 488 KB to 303 KB. The slow first loads seen right after the
+  production deploy could not be reproduced: every page answers in 0.2 to
+  0.7 s from Vercel's cache.
+- **`POST /api/admin/revalidate`** refreshes every cached page from the
+  database, with the service key or a staff session. It replaces "redeploy"
+  after scripts in the runbook, and the end-to-end tests call it after
+  putting data back, so they now run back to back without restarting the
+  server. This is a third use of the service key, alongside sign-in and the
+  magic-link route.
+
+Checked: 88 unit tests, 139 database tests, 135 end-to-end checks run back
+to back, 16 checks for this round, both audits.
+
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
 machine, and the switch is configuration when it happens.

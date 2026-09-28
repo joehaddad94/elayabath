@@ -8,6 +8,7 @@ import { normaliseHeader } from "@/lib/admin/sheets";
 import admin from "../../../admin.module.css";
 import styles from "../imports.module.css";
 import { applyNext, configureImport, discardImport, publishNext, stageNext } from "../actions";
+import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { ImportPreview } from "./ImportPreview";
 
 interface JobView {
@@ -58,6 +59,10 @@ export function ImportJob({
   const [presetName, setPresetName] = useState("");
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(job.error ? { text: job.error, error: true } : null);
+
+  // A running check, apply or publish stops if the page is left; it can be
+  // continued later, but say so first.
+  useUnsavedGuard(progress !== null, "Leaving stops this where it is. You can continue it later from this page. Leave now?");
 
   const fields = FIELDS[job.entity];
   const editable = !job.grouped && ["uploaded", "staging", "staged"].includes(job.status);

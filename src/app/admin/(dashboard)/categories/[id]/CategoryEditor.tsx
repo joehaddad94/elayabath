@@ -8,6 +8,7 @@ import { blurbFromText, blurbToText, categoryForm, type CategoryForm } from "@/l
 import admin from "../../../admin.module.css";
 import editor from "../../products/[id]/editor.module.css";
 import { OrderBar } from "../../OrderBar";
+import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { SortableList } from "../../SortableList";
 import { publishCategoryNow, publishProductOrder, saveCategory } from "../actions";
 
@@ -95,6 +96,7 @@ export function CategoryEditor({
     setReloading(null);
   }
   const unpublished = publishedVersion === null || version !== publishedVersion;
+  useUnsavedGuard(dirty);
   const locked = publishedVersion !== null;
   const liveProducts = products.filter((p) => p.status === "active").length;
 

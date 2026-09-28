@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { publicConfig } from "./config";
+import { fetchWithTimeout, publicConfig } from "./config";
 import type { Database } from "./database.types";
 
 /**
@@ -18,6 +18,7 @@ export function publicClient(): SupabaseClient<Database> {
     const { url, publishableKey } = publicConfig();
     client = createClient<Database>(url, publishableKey, {
       auth: { persistSession: false, autoRefreshToken: false },
+      global: { fetch: fetchWithTimeout },
     });
   }
   return client;

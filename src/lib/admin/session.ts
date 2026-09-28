@@ -24,7 +24,11 @@ export async function requireStaff() {
   if (!user?.email) redirect("/admin/sign-in");
 
   const { data: isStaff, error } = await supabase.rpc("is_staff");
-  if (error || !isStaff) redirect("/admin/sign-in?reason=removed");
+  // A check that failed (the database unreachable for a moment) is not an
+  // answer: it shows the error screen with "Try again", rather than telling
+  // someone they were taken off the staff list.
+  if (error) throw new Error(`The staff check couldn't be made: ${error.message}`);
+  if (!isStaff) redirect("/admin/sign-in?reason=removed");
 
   return { supabase, email: user.email.toLowerCase() };
 }

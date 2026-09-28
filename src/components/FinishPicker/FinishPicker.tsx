@@ -91,7 +91,9 @@ export function FinishPicker({
                     alt=""
                     width={96}
                     height={96}
-                    sizes="5rem"
+                    // A fixed-size tile: without `sizes`, Next lists a 1x and a 2x file
+                    // rather than every width up to 2048px, which on a shelf of sixty
+                    // swatches was most of the page's weight.
                   />
                 ) : (
                   <span className={styles.missing} aria-hidden="true">

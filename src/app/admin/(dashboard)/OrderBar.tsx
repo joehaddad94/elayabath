@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "../admin.module.css";
+import { useUnsavedGuard } from "./useUnsavedGuard";
 
 /**
  * The bar above an orderable list: says whether the order on screen differs
@@ -18,6 +19,7 @@ export function OrderBar({
   onUndo: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  useUnsavedGuard(changed, "The new order isn't published yet. Leave without publishing it?");
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
 
   return (

@@ -105,7 +105,9 @@ try {
   const stray = (await listFolder()).map((o) => `${folder}/${o.name}`).find((p) => !saved.some((s) => s.path === p));
 
   await page.goto(`${BASE}/admin/media`, { waitUntil: "load" });
-  check("the storage meter shows usage against the allowance", /of 1\.00 GB/.test(await page.locator("main").textContent()));
+  // The page streams in behind the loading screen, so wait for its text.
+  const meter = await page.getByText(/of 1\.00 GB/).first().waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
+  check("the storage meter shows usage against the allowance", meter);
   check("a fresh upload isn't counted as unused yet", (await page.getByRole("button", { name: "Remove unused files" }).count()) === 0);
 
   // Age it past the grace period, as if a day had gone by.
@@ -147,6 +149,9 @@ try {
   const sheets = (await admin.storage.from("datasheets").list(folder)).data ?? [];
   if (sheets.length) await admin.storage.from("datasheets").remove(sheets.map((o) => `${folder}/${o.name}`));
   await admin.from("sign_in_log").delete().neq("id", 0);
+  // The data was put back directly, so refresh the site's cached pages too;
+  // otherwise the next run (or a person) would see what the test left.
+  await fetch(`${BASE}/api/admin/revalidate`, { method: "POST", headers: { Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY}` } }).catch(() => {});
   await b.close();
 }
 console.log(results.join("\n"));

@@ -10,6 +10,7 @@ import { storageUrl } from "@/lib/supabase/config";
 import { FINISH_FAMILY_NAMES } from "@/lib/types";
 import admin from "../../admin.module.css";
 import editor from "../products/[id]/editor.module.css";
+import { useUnsavedGuard } from "../useUnsavedGuard";
 import styles from "./finishes.module.css";
 import { createFinish, deleteFinish, publishFinishNow, saveFinish, type NewFinishState } from "./actions";
 
@@ -42,6 +43,8 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
     ONLY.includes(initialOnly as (typeof ONLY)[number]) ? (initialOnly as (typeof ONLY)[number]) : "",
   );
   const [chosenId, setChosenId] = useState<string | null>(selected ?? null);
+  // Choosing another finish replaces the editor, so unsaved edits ask first.
+  const [editing, setEditing] = useState(false);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -59,6 +62,9 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
   const chosen = finishes.find((f) => f.id === chosenId) ?? null;
 
   const choose = (id: string) => {
+    if (id === chosenId) return;
+    if (editing && !window.confirm("The finish you are editing has unsaved changes. Leave without saving them?")) return;
+    setEditing(false);
     setChosenId(id);
     router.replace(`/admin/finishes?finish=${id}`, { scroll: false });
   };
@@ -115,7 +121,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
 
       <div className={styles.side}>
         {chosen ? (
-          <FinishEditor key={chosen.id} finish={chosen} onDeleted={() => setChosenId(null)} />
+          <FinishEditor key={chosen.id} finish={chosen} onDeleted={() => setChosenId(null)} onDirty={setEditing} />
         ) : (
           <p className={admin.muted}>Choose a finish to edit it.</p>
         )}
@@ -125,7 +131,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
   );
 }
 
-function FinishEditor({ finish, onDeleted }: { finish: LibraryFinish; onDeleted: () => void }) {
+function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; onDeleted: () => void; onDirty: (dirty: boolean) => void }) {
   const router = useRouter();
   const ids = useId();
   const upload = useRef<HTMLInputElement>(null);
@@ -216,12 +222,8 @@ function FinishEditor({ finish, onDeleted }: { finish: LibraryFinish; onDeleted:
   const field = (key: string) => ({ id: `${ids}-${key}`, "aria-invalid": errors[key] ? true : undefined });
   const error = (key: string) => (errors[key] ? <span className={editor.error}>{errors[key]}</span> : null);
 
-  useEffect(() => {
-    if (!dirty) return;
-    const onLeave = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", onLeave);
-    return () => window.removeEventListener("beforeunload", onLeave);
-  }, [dirty]);
+  useUnsavedGuard(dirty);
+  useEffect(() => onDirty(dirty), [dirty, onDirty]);
 
   return (
     <section className={editor.panel} aria-labelledby={`${ids}-title`}>

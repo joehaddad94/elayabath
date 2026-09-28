@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { publicConfig } from "./config";
+import { fetchWithTimeout, publicConfig } from "./config";
 import type { Database } from "./database.types";
 
 /**
@@ -17,6 +17,7 @@ export async function serverClient() {
   const { url, publishableKey } = publicConfig();
 
   return createServerClient<Database>(url, publishableKey, {
+    global: { fetch: fetchWithTimeout },
     cookies: {
       getAll() {
         return cookieStore.getAll();

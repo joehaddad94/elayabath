@@ -43,3 +43,18 @@ export function storageUrl(bucket: string, path: string): string {
   const clean = path.replace(/^\/+/, "");
   return `${url}/storage/v1/object/public/${bucket}/${clean}`;
 }
+
+/**
+ * `fetch` with a time limit, for every server-side client. Supabase's client
+ * has none of its own, so a database that stalls (rather than refusing)
+ * would hold a page open until the platform gave up. With this, a stalled
+ * query fails after 15 seconds and the page shows its error screen with
+ * "Try again". Normal queries take well under a second.
+ */
+const REQUEST_TIMEOUT_MS = 15_000;
+
+export const fetchWithTimeout: typeof fetch = (input, init) => {
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  const signal = init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+  return fetch(input, { ...init, signal });
+};

@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import { publicConfig } from "./config";
+import { fetchWithTimeout, publicConfig } from "./config";
 import type { Database } from "./database.types";
 
 /**
@@ -24,5 +24,6 @@ export function adminClient() {
   if (!key) throw new Error("SUPABASE_SECRET_KEY is not set.");
   return createClient<Database>(publicConfig().url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: fetchWithTimeout },
   });
 }
