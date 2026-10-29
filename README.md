@@ -29,8 +29,8 @@ Node 20 or newer. Next 16 uses Turbopack by default. The full setup, including
 
 **Cached pages over a database.** The catalogue is 596 products with no prices, no stock and
 no personalisation, so visitors never need a live query. It lives in Supabase (Postgres, Auth,
-Storage), where staff edit drafts and publish them. Each page is built once from the published
-copy and cached, and publishing refreshes only the pages it touches. Visitors get static pages;
+Storage), where staff edit it; saving a change puts it live. Each page is built once from the
+published copy and cached, and a save refreshes only the pages it touches. Visitors get static pages;
 staff get a dashboard; nothing is redeployed to change a product.
 
 **The design system is CSS, not a framework.** The two palettes were contrast-audited before

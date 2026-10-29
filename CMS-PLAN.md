@@ -1133,6 +1133,31 @@ can't come back. The one browser prompt left is the leave-site question on
 closing or reloading a tab with unsaved work: browsers allow no custom
 dialog there.
 
+### Simpler dashboard (29 October 2026)
+
+Built for tens of thousands of products and many staff, the dashboard was
+more than 596 products and a few people need. Removed: saved and shared grid
+views, AND/OR column filters, bulk actions on "all matching", the Media
+cleanup page, the Activity log, version history and restore, import mapping
+presets and the import's Publish and Discard steps, and the Discontinued
+status. The code is in git history if any of it is wanted back.
+
+- **Save goes live.** There is no draft-then-publish. Saving a product calls
+  `sync_product`, which publishes a visible product and takes a hidden one off
+  the site entirely. Categories go live when saved; a finish already on the
+  site likewise, and a new one with the first visible product that uses it.
+  A new order (menu, shelf, homepage) saves itself a moment after the last
+  move. `publish_product` and the revisions it writes are unchanged, so the
+  read model and redirects work as before.
+- **Visible or hidden.** One switch per product; new products start hidden.
+  Discontinued products moved to hidden (recorded in
+  `discontinued_products_2026_10`), and a check holds products to the two
+  values. A product can be deleted only while it has never been on the site.
+- **Imports** check every row as soon as the file is in, show what would
+  change, and Apply saves and publishes in one go. Exports write
+  Visible/Hidden; imports also accept the older Live/Draft/Discontinued.
+- **Staff** is the owner's page alone (`staff.role = 'owner'`, `is_owner()`).
+
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development
 machine, and the switch is configuration when it happens.
