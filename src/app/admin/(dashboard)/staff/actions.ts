@@ -2,19 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireStaff } from "@/lib/admin/session";
+import { requireOwner } from "@/lib/admin/session";
 
 export type StaffState = { ok?: string; error?: string };
 
 /**
- * Adding and removing staff. Both act as the signed-in staff member, so
- * row-level security and the table's own guards decide: an address the site
- * publishes cannot be added, and the last member cannot be removed. The
- * messages here only translate those refusals into plain English.
+ * Adding and removing staff, for the owner only. Both act as the signed-in
+ * owner, so row-level security and the table's own guards decide: an
+ * address the site publishes cannot be added, and neither the owner nor the
+ * last member can be removed. The messages here only translate those
+ * refusals into plain English.
  */
 
 export async function addStaff(_prev: StaffState, formData: FormData): Promise<StaffState> {
-  const { supabase } = await requireStaff();
+  const { supabase } = await requireOwner();
   const parsed = z.email().safeParse(String(formData.get("email") ?? "").trim().toLowerCase());
   if (!parsed.success) return { error: "Enter a full email address." };
 
@@ -29,7 +30,7 @@ export async function addStaff(_prev: StaffState, formData: FormData): Promise<S
 }
 
 export async function removeStaff(_prev: StaffState, formData: FormData): Promise<StaffState> {
-  const { supabase, email: me } = await requireStaff();
+  const { supabase } = await requireOwner();
   const email = String(formData.get("email") ?? "").toLowerCase();
 
   const { error, count } = await supabase.from("staff").delete({ count: "exact" }).eq("email", email);
@@ -40,10 +41,5 @@ export async function removeStaff(_prev: StaffState, formData: FormData): Promis
   if (!count) return { error: `${email} was not on the list.` };
 
   revalidatePath("/admin/staff");
-  return {
-    ok:
-      email === me
-        ? "You removed yourself. You'll be signed out on your next page."
-        : `${email} can no longer sign in.`,
-  };
+  return { ok: `${email} can no longer sign in.` };
 }

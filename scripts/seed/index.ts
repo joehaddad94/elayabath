@@ -122,7 +122,7 @@ async function main() {
   // two can never drift apart.
   const reserved = [...new Set(Object.values(dictionary.contactAddresses).map((e) => e.toLowerCase()))];
   must(await db.from("reserved_addresses").upsert(reserved.map((email) => ({ email }))), "reserved addresses");
-  must(await db.from("staff").upsert({ email: bootstrap, invited_by: "seed" }), "bootstrap staff");
+  must(await db.from("staff").upsert({ email: bootstrap, invited_by: "seed", role: "owner" }), "bootstrap staff");
   console.log(`staff: ${bootstrap} · reserved addresses: ${reserved.length}`);
 
   must(

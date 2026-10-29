@@ -925,6 +925,7 @@ export type Database = {
       delete_unused_finish: { Args: { p_id: string }; Returns: undefined }
       discard_import: { Args: { p_job: string }; Returns: Json }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
+      is_owner: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       media_in_use: {
         Args: never
