@@ -1157,6 +1157,7 @@ status. The code is in git history if any of it is wanted back.
   change, and Apply saves and publishes in one go. Exports write
   Visible/Hidden; imports also accept the older Live/Draft/Discontinued.
 - **Staff** is the owner's page alone (`staff.role = 'owner'`, `is_owner()`).
+- **Homepage** screen and the Featured tick removed too. The homepage's products are a fixed list in `src/content/homepage.ts` (the seeded featured set, by name); edit it to change them. The `featured` and `featured_rank` columns are left in the database, unused.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

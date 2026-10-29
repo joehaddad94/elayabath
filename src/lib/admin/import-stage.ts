@@ -39,8 +39,6 @@ const split = (value: string) =>
 
 const norm = (v: string) => v.trim().toLowerCase().replace(/\s+/g, " ");
 
-const YES = new Set(["yes", "y", "true", "1", "featured", "x"]);
-const NO = new Set(["no", "n", "false", "0", ""]);
 const STATUS_LABEL: Record<string, string> = { active: "Visible", draft: "Hidden" };
 
 /** Reads the mapped cells of a row: field key → trimmed text. */
@@ -236,13 +234,6 @@ async function stageProducts(supabase: Client, job: Job, rows: RawRow[]): Promis
           if (!status) errors.push(`Status "${raw}" isn't Visible or Hidden.`);
           else if (!current) break; // new products start hidden
           else if (current.status !== status) take("status", def.label, status, STATUS_LABEL[current.status] ?? current.status, STATUS_LABEL[status] ?? status);
-          break;
-        }
-        case "featured": {
-          const v = norm(raw);
-          const featured = YES.has(v) ? true : NO.has(v) ? false : null;
-          if (featured === null) errors.push(`Featured "${raw}" isn't Yes or No.`);
-          else if ((current?.featured ?? false) !== featured) take("featured", def.label, featured, current?.featured ? "Yes" : "No", featured ? "Yes" : "No");
           break;
         }
       }

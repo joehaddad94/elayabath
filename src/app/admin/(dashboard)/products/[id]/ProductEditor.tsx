@@ -405,10 +405,6 @@ export function ProductEditor({
                 Hidden: not on the site at all
               </label>
             </div>
-            <label className={styles.check}>
-              <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} />
-              Featured on the homepage
-            </label>
 
             <div className={styles.buttons}>
               <button type="submit" className="btn btn-primary" disabled={busy !== null}>

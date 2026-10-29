@@ -101,7 +101,7 @@ async function* exportRows(supabase: Client, request: ExportRequest): AsyncGener
 async function workingProducts(supabase: Client, ids: string[] | null, page: number): Promise<Array<Record<string, string>>> {
   let query = supabase
     .from("products")
-    .select("id, sku, slug, name, description, dimensions, features, status, featured, published_version, categories(name), product_types(name), product_finishes(position, finishes(slug))");
+    .select("id, sku, slug, name, description, dimensions, features, status, published_version, categories(name), product_types(name), product_finishes(position, finishes(slug))");
   query = ids ? query.in("id", ids) : query.order("sku").range(page * PAGE, page * PAGE + PAGE - 1);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
@@ -117,12 +117,11 @@ async function workingProducts(supabase: Client, ids: string[] | null, page: num
     features: p.features.join(LIST_SEPARATOR),
     finishes: [...p.product_finishes].sort((a, b) => a.position - b.position).map((l) => l.finishes?.slug ?? "").join(LIST_SEPARATOR),
     status: STATUS[p.status] ?? p.status,
-    featured: p.featured ? "Yes" : "No",
   }));
 }
 
 async function publishedProducts(supabase: Client, ids: string[] | null, page: number): Promise<Array<Record<string, string>>> {
-  let query = supabase.from("published_products").select("product_id, featured, snapshot");
+  let query = supabase.from("published_products").select("product_id, snapshot");
   query = ids ? query.in("product_id", ids) : query.order("sku").range(page * PAGE, page * PAGE + PAGE - 1);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
@@ -143,7 +142,6 @@ async function publishedProducts(supabase: Client, ids: string[] | null, page: n
       features: s.features.join(LIST_SEPARATOR),
       finishes: s.finishes.join(LIST_SEPARATOR),
       status: STATUS[s.status] ?? s.status,
-      featured: row.featured ? "Yes" : "No",
     };
   });
 }

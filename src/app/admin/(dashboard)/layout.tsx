@@ -14,7 +14,6 @@ const SECTIONS: AdminNavItem[] = [
   { href: "/admin/products", label: "Products" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/finishes", label: "Finishes" },
-  { href: "/admin/homepage", label: "Homepage" },
   { href: "/admin/imports", label: "Import" },
 ];
 

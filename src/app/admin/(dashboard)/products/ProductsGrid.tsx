@@ -103,7 +103,6 @@ const EXPORT_FIELD: Record<string, string> = {
   category: "category",
   type: "type",
   status: "status",
-  featured: "featured",
   dimensions: "dimensions",
   finishes: "finishes",
 };
@@ -334,7 +333,6 @@ export function ProductsGrid({
         cellEditor: "agSelectCellEditor",
         cellEditorParams: { values: ["active", "draft"], formatValue: (v: GridRow["status"]) => STATUS_LABEL[v] },
       },
-      { field: "featured", colId: "featured", headerName: "Featured", width: 110, editable: true, cellEditor: "agCheckboxCellEditor", cellRenderer: "agCheckboxCellRenderer" },
       { field: "dimensions", colId: "dimensions", headerName: "Dimensions", width: 190, editable: true, filter: "agTextColumnFilter", filterParams: COLUMN_FILTER },
       { field: "finish_count", colId: "finishes", headerName: "Finishes", width: 110, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, type: "rightAligned" },
       { field: "completeness", colId: "completeness", headerName: "Complete", width: 190, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, cellRenderer: Completeness },
@@ -352,7 +350,7 @@ export function ProductsGrid({
   );
 
   const runBulk = useCallback(
-    async (action: "show" | "hide" | "feature" | "unfeature" | "category") => {
+    async (action: "show" | "hide" | "category") => {
       if (action === "category" && !moveTo) {
         setNotice({ text: "Choose the category to move them to.", error: true });
         return;
@@ -537,12 +535,6 @@ export function ProductsGrid({
             </button>
             <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("hide")}>
               Hide
-            </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("feature")}>
-              Feature
-            </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("unfeature")}>
-              Unfeature
             </button>
             <span className={grid.move}>
               <select className="input" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} aria-label="Move to category">

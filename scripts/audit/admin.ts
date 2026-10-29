@@ -63,7 +63,6 @@ const ROUTES = [
   "/admin/categories",
   `/admin/categories/${category}`,
   `/admin/finishes?finish=${finish}`,
-  "/admin/homepage",
   "/admin/imports",
   "/admin/staff",
 ];
