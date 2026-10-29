@@ -6,6 +6,7 @@ import { ADMIN_PRODUCT_COLUMNS } from "@/lib/admin/product-query";
 import { productFields } from "@/lib/admin/product-schema";
 import { syncProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
+import { storageUrl } from "@/lib/supabase/config";
 import type { TablesUpdate } from "@/lib/supabase/database.types";
 
 type ProductPatch = TablesUpdate<"products">;
@@ -131,4 +132,29 @@ export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<Bulk
     return { ok: false, error: `${changed.length - failed.length} updated on the site; ${failed.length} failed: ${failed[0]!.message}` };
   }
   return { ok: true, count: changed.length, message: `${changed.length} changed. The site shows the change now.` };
+}
+
+/* ── photos ───────────────────────────────────────────────────────────── */
+
+export interface Photo {
+  url: string;
+  alt: string;
+  width: number | null;
+  height: number | null;
+}
+
+/** One product's gallery, in its order, for the photo viewer on the list.
+ *  Read when the viewer opens rather than with every row, so scrolling the
+ *  grid stays one query per block. */
+export async function productPhotos(id: string): Promise<Photo[]> {
+  const { supabase } = await requireStaff();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return [];
+  const { data, error } = await supabase
+    .from("product_images")
+    .select("path, alt, width, height")
+    .eq("product_id", id)
+    .order("position")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((i) => ({ url: storageUrl("product-media", i.path), alt: i.alt, width: i.width, height: i.height }));
 }

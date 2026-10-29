@@ -1,0 +1,173 @@
+/* ── the thumbnail button in the grid ────────────────────────────────── */
+.thumbButton {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── the viewer ──────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  /* Solid, so nothing of the list competes with the photo. */
+  background: var(--color-neutral-900);
+}
+
+/* The whole screen, so a phone gets every pixel for the photo. The dark
+   space around the photo is the stage: tapping it closes. */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 91;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  color: var(--color-neutral-100);
+}
+
+.viewer:focus {
+  outline: none;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  padding-top: max(var(--space-2), env(safe-area-inset-top));
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sku {
+  margin-inline-start: var(--space-2);
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.counter {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.edit {
+  font-size: 0.9rem;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.close,
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:focus-visible,
+.arrow:focus-visible,
+.edit:focus-visible {
+  outline: 2px solid var(--color-accent-300);
+  outline-offset: 2px;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  /* One cell with a definite size, so the photo's max-height: 100% means
+     "the space between the bar and the bottom", not its own height. */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--space-2) 56px var(--space-6);
+  /* Sideways drags are ours (swipes); up and down and pinching stay the
+     browser's. */
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+
+.photo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: var(--color-neutral-100);
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 64px;
+  font-size: 2.6rem;
+  background: color-mix(in srgb, var(--color-neutral-900) 45%, transparent);
+}
+
+.prev {
+  left: var(--space-1);
+}
+
+.next {
+  right: var(--space-1);
+}
+
+.note {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* On a phone the photo gets the full width; the arrows sit over it and a
+   swipe does the same job. */
+@media (max-width: 640px) {
+  .stage {
+    padding-inline: 0;
+  }
+
+  .edit {
+    display: none;
+  }
+}
+
+/* ── the hover preview ───────────────────────────────────────────────── */
+.preview {
+  position: fixed;
+  z-index: 80;
+  pointer-events: none;
+  background: var(--color-neutral-100);
+  border: var(--rule);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-neutral-900) 30%, transparent);
+}
+
+.previewPhoto {
+  object-fit: contain;
+}
