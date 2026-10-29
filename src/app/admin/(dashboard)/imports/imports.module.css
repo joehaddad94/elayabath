@@ -45,9 +45,7 @@
   border: 0;
 }
 
-.rules label,
-.actions label,
-.presetPick {
+.rules label {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

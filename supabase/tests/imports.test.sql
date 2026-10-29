@@ -1,4 +1,4 @@
--- Applying and discarding an import. Run with `npx supabase test db`.
+-- Applying an import, then putting it on the site. Run with `npx supabase test db`.
 
 begin;
 select plan(10);
@@ -53,11 +53,14 @@ select ok((select status = 'draft' and import_job_id is not null from public.pro
   'a new row becomes a tagged draft');
 select is((select status from public.import_jobs), 'applied', 'the job is applied once nothing is left');
 
-select public.discard_import('00000000-0000-0000-0000-0000000000a1');
-select is((select count(*) from public.products where sku = 'T-3')::int, 0, 'discarding deletes what it created');
-select is((select dimensions from public.products where sku = 'T-1'), '100 mm', 'and puts back what it changed');
-select ok((select version = published_version and import_job_id is null from public.products where sku = 'T-1'),
-  'leaving it matching the live version, untagged');
+-- What the dashboard does next, for each product still tagged.
+select public.sync_product(id) from public.products where import_job_id is not null;
+select is((select snapshot ->> 'dimensions' from public.published_products where sku = 'T-1'), '111 mm',
+  'a visible product goes live with the change');
+select ok(not exists (select 1 from public.published_products where sku = 'T-3'),
+  'a new product stays off the site, hidden');
+select is((select count(*) from public.products where import_job_id is not null)::int, 0,
+  'and nothing is left tagged');
 
 select * from finish();
 rollback;

@@ -15,14 +15,14 @@ const ENTITIES = ["products", "categories", "finishes", "product_finishes"] as c
 // them all; 200 keeps it well inside what the API accepts.
 const STAGE_CHUNK = 200;
 const APPLY_CHUNK = 200;
-const PUBLISH_CHUNK = 60;
+const SYNC_CHUNK = 60;
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
 /**
  * Starts an import from a file the browser has already put in the private
- * imports bucket: reads it once, stores its rows as they are, and suggests
- * a mapping from its headers (or from a saved preset that fits them).
+ * imports bucket: reads it once, stores its rows as they are, and maps its
+ * columns from their headers. The page then checks the rows straight away.
  */
 export async function startImport(input: { entity: string; path: string; fileName: string }): Promise<Result<{ id: string }>> {
   const { supabase } = await requireStaff();
@@ -43,18 +43,11 @@ export async function startImport(input: { entity: string; path: string; fileNam
   if (!headers || body.length === 0) return { ok: false, error: "The file has no rows under its headers." };
   if (body.length > MAX_IMPORT_ROWS) return { ok: false, error: `The file has ${body.length.toLocaleString("en")} rows; the limit is ${MAX_IMPORT_ROWS.toLocaleString("en")}. Split it in two.` };
 
-  // A preset whose headers are all in this file maps it the same way again.
-  const { data: presets } = await supabase.from("mapping_presets").select("name, mapping").eq("entity", entity.data);
-  const present = new Set(headers.map(normaliseHeader));
-  const preset = (presets ?? []).find((p) => Object.keys(p.mapping as Record<string, string>).every((h) => present.has(h)));
-  const columns = preset
-    ? Object.fromEntries(
-        headers.flatMap((h, i) => {
-          const key = (preset.mapping as Record<string, string>)[normaliseHeader(h)];
-          return key ? [[String(i), key]] : [];
-        }),
-      )
-    : suggestMapping(entity.data, headers, normaliseHeader);
+  const columns = suggestMapping(entity.data, headers, normaliseHeader);
+  const options = DEFAULT_OPTIONS(entity.data);
+  // Checking needs the column that finds each row; without it the page asks
+  // for the mapping first.
+  const ready = Object.values(columns).includes(options.identity) && (entity.data !== "product_finishes" || Object.values(columns).includes("finish"));
 
   const { data: job, error } = await supabase
     .from("import_jobs")
@@ -62,9 +55,9 @@ export async function startImport(input: { entity: string; path: string; fileNam
       entity: entity.data,
       file_path: input.path,
       file_name: input.fileName.slice(0, 200),
-      mapping: { headers, columns, preset: preset?.name ?? null },
-      options: DEFAULT_OPTIONS(entity.data) as never,
-      status: "uploaded",
+      mapping: { headers, columns },
+      options: options as never,
+      status: ready ? "staging" : "uploaded",
       counts: { total: body.length },
     })
     .select("id")
@@ -91,15 +84,10 @@ const optionsSchema = z.object({
 });
 
 /**
- * Saves the mapping and the rules, optionally as a named preset, and clears
- * any earlier staging so the rows are checked again under the new rules.
+ * Saves a changed mapping and rules, and clears any earlier check so the
+ * rows are checked again under them.
  */
-export async function configureImport(input: {
-  id: string;
-  columns: Record<string, string>;
-  options: ImportOptions;
-  presetName?: string;
-}): Promise<Result> {
+export async function configureImport(input: { id: string; columns: Record<string, string>; options: ImportOptions }): Promise<Result> {
   const { supabase } = await requireStaff();
   const { data: job } = await supabase.from("import_jobs").select("id, entity, mapping, status").eq("id", input.id).maybeSingle();
   if (!job) return { ok: false, error: "This import no longer exists." };
@@ -117,15 +105,10 @@ export async function configureImport(input: {
   }
   if (entity === "product_finishes" && !mapped.has("finish")) return { ok: false, error: "Map a column to Finish." };
 
-  const { headers, preset: usedPreset } = job.mapping as { headers: string[]; preset: string | null };
-  if (input.presetName?.trim()) {
-    const mapping = Object.fromEntries(Object.entries(columns).map(([i, key]) => [normaliseHeader(headers[Number(i)] ?? ""), key]));
-    await supabase.from("mapping_presets").upsert({ entity, name: input.presetName.trim().slice(0, 60), mapping }, { onConflict: "entity,name" });
-  }
-
+  const { headers } = job.mapping as { headers: string[] };
   await supabase
     .from("import_jobs")
-    .update({ mapping: { headers, columns, preset: input.presetName?.trim() || usedPreset || null }, options: options.data, status: "staging", counts: { total: (await countRows(supabase, input.id)) } })
+    .update({ mapping: { headers, columns }, options: options.data, status: "staging", counts: { total: (await countRows(supabase, input.id)) } })
     .eq("id", input.id);
   await supabase.from("import_rows").update({ outcome: null, parsed: null, diff: null, errors: [], key: null, base_version: null }).eq("job_id", input.id);
   return { ok: true };
@@ -240,7 +223,8 @@ async function finishStaging(supabase: Awaited<ReturnType<typeof requireStaff>>[
   await supabase.from("import_jobs").update({ status: "staged", counts }).eq("id", id);
 }
 
-/** Applies the next batch of checked rows as drafts, in one transaction. */
+/** Saves the next batch of checked rows, in one transaction. syncNext then
+ *  puts them on the site. */
 export async function applyNext(input: { id: string }): Promise<Result<{ remaining: number; refused: number }>> {
   const { supabase } = await requireStaff();
   const { data: job } = await supabase.from("import_jobs").select("status, counts").eq("id", input.id).maybeSingle();
@@ -257,21 +241,22 @@ export async function applyNext(input: { id: string }): Promise<Result<{ remaini
 }
 
 /**
- * Publishes what the import changed, a batch at a time. Products carry the
- * import's tag until published, so the next batch is simply the ones still
- * tagged; categories and finishes are the rows the import wrote.
+ * Makes the site match what the import saved, a batch at a time. Products
+ * carry the import's tag until synced, so the next batch is simply the ones
+ * still tagged; categories and finishes are the rows the import wrote (a
+ * finish not yet on the site waits for the first visible product using it).
  */
-export async function publishNext(input: { id: string }): Promise<Result<{ remaining: number }>> {
+export async function syncNext(input: { id: string }): Promise<Result<{ remaining: number }>> {
   const { supabase } = await requireStaff();
   const { data: job } = await supabase.from("import_jobs").select("entity, status").eq("id", input.id).maybeSingle();
-  if (!job || !["applied", "published"].includes(job.status)) return { ok: false, error: "Apply the import before publishing it." };
+  if (!job || !["applied", "published"].includes(job.status)) return { ok: false, error: "This import hasn't been applied yet." };
 
   if (job.entity === "products" || job.entity === "product_finishes") {
-    const { data: batch } = await supabase.from("products").select("id").eq("import_job_id", input.id).limit(PUBLISH_CHUNK);
+    const { data: batch } = await supabase.from("products").select("id").eq("import_job_id", input.id).limit(SYNC_CHUNK);
     const ids = (batch ?? []).map((p) => p.id);
     if (ids.length) {
-      const { failed } = await syncProducts(supabase, ids, "Published from an import");
-      if (failed.length) return { ok: false, error: `${failed.length} couldn't be published: ${failed[0]!.message}` };
+      const { failed } = await syncProducts(supabase, ids, "From an import");
+      if (failed.length) return { ok: false, error: `${failed.length} couldn't be put on the site: ${failed[0]!.message}` };
     }
     const { count } = await supabase.from("products").select("id", { count: "exact", head: true }).eq("import_job_id", input.id);
     if (!count) await supabase.from("import_jobs").update({ status: "published" }).eq("id", input.id);
@@ -281,29 +266,19 @@ export async function publishNext(input: { id: string }): Promise<Result<{ remai
   const targets = await fetchAll((from, to) =>
     supabase.from("import_rows").select("target_id").eq("job_id", input.id).eq("applied", true).in("outcome", ["new", "changed"]).range(from, to),
   );
-  for (const t of targets) {
-    if (!t.target_id) continue;
-    const { error } = job.entity === "categories" ? await publishCategory(supabase, t.target_id, "Published from an import") : await publishFinish(supabase, t.target_id, "Published from an import");
+  const ids = targets.flatMap((t) => (t.target_id ? [t.target_id] : []));
+  // Left alone: a finish not on the site yet, and a category never on the
+  // site and not made visible (publishing would show it).
+  const onSite = !ids.length
+    ? null
+    : job.entity === "finishes"
+      ? new Set((await supabase.from("finishes").select("id").in("id", ids).not("published_version", "is", null)).data?.map((f) => f.id))
+      : new Set((await supabase.from("categories").select("id").in("id", ids).neq("status", "draft")).data?.map((c) => c.id));
+  for (const id of ids) {
+    if (onSite && !onSite.has(id)) continue;
+    const { error } = job.entity === "categories" ? await publishCategory(supabase, id, "From an import") : await publishFinish(supabase, id, "From an import");
     if (error) return { ok: false, error };
   }
   await supabase.from("import_jobs").update({ status: "published" }).eq("id", input.id);
   return { ok: true, remaining: 0 };
-}
-
-/** Undoes the import's unpublished drafts: new rows deleted, changed rows
- *  back to their live version. */
-export async function discardImport(input: { id: string }): Promise<Result<{ deleted: number; reverted: number }>> {
-  const { supabase } = await requireStaff();
-  const { data: job } = await supabase.from("import_jobs").select("status").eq("id", input.id).maybeSingle();
-  if (!job || !["applied", "applying"].includes(job.status)) return { ok: false, error: "Only an applied, unpublished import can be discarded." };
-  const { data, error } = await supabase.rpc("discard_import", { p_job: input.id });
-  if (error) return { ok: false, error: `Discarding stopped: ${error.message}` };
-  revalidatePath("/admin/imports");
-  return { ok: true, ...(data as { deleted: number; reverted: number }) };
-}
-
-export async function deletePreset(input: { entity: string; name: string }): Promise<Result> {
-  const { supabase } = await requireStaff();
-  const { error } = await supabase.from("mapping_presets").delete().eq("entity", input.entity).eq("name", input.name);
-  return error ? { ok: false, error: "It couldn't be deleted." } : { ok: true };
 }

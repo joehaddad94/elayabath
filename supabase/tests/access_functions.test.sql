@@ -3,7 +3,7 @@
 -- the staff list. Run with `npx supabase test db`.
 
 begin;
-select plan(31);
+select plan(29);
 
 delete from public.import_jobs;
 delete from public.mapping_presets;
@@ -40,7 +40,6 @@ select throws_ok($$ select public.set_product_order('00000000-0000-0000-0000-000
 select throws_ok($$ select public.set_category_order('{}') $$, '42501', null, 'anon: set_category_order');
 select throws_ok($$ select public.set_featured_order('{}') $$, '42501', null, 'anon: set_featured_order');
 select throws_ok($$ select public.apply_import('00000000-0000-0000-0000-0000000000a1') $$, '42501', null, 'anon: apply_import');
-select throws_ok($$ select public.discard_import('00000000-0000-0000-0000-0000000000a1') $$, '42501', null, 'anon: discard_import');
 select throws_ok($$ select public.delete_unused_finish('00000000-0000-0000-0000-00000000f001') $$, '42501', null, 'anon: delete_unused_finish');
 select throws_ok($$ select * from public.storage_usage() $$, '42501', null, 'anon: storage_usage');
 select throws_ok($$ select * from public.unused_media() $$, '42501', null, 'anon: unused_media');
@@ -60,7 +59,6 @@ select throws_ok($$ select * from public.unused_media() $$, '42501', null, 'non-
 select throws_ok($$ select public.publish_product('00000000-0000-0000-0000-00000000d001') $$, '42501', null, 'non-staff: publish_product');
 select is(public.product_snapshot('00000000-0000-0000-0000-00000000d001'), null, 'non-staff: product_snapshot reads nothing');
 select throws_ok($$ select public.apply_import('00000000-0000-0000-0000-0000000000a1') $$, 'P0002', null, 'non-staff: apply_import finds no job');
-select throws_ok($$ select public.discard_import('00000000-0000-0000-0000-0000000000a1') $$, 'P0002', null, 'non-staff: discard_import finds no job');
 select throws_ok($$ select public.save_category('00000000-0000-0000-0000-00000000c001', 1, '{"name":"X"}') $$, 'P0002', null, 'non-staff: save_category finds no category');
 select throws_ok($$ select public.delete_unused_finish('00000000-0000-0000-0000-00000000f001') $$, 'P0002', null, 'non-staff: delete_unused_finish finds no finish');
 select is((select count(*) from public.admin_products)::int, 0, 'non-staff: admin_products is empty');

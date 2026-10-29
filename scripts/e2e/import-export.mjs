@@ -1,4 +1,4 @@
-// End-to-end check: export, import round trips, apply, publish, discard.
+// End-to-end check: export, import round trips, and apply, which puts an import live.
 import ExcelJS from "exceljs";
 import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
@@ -33,7 +33,8 @@ page.on("pageerror", (e) => errors.push("pageerror " + e.message.slice(0, 200)))
 const go = (path) => page.goto(`${BASE}${path}`, { waitUntil: "load" });
 const download = async (path) => Buffer.from(await (await page.request.get(`${BASE}${path}`)).body());
 
-/** Imports a file through the page and checks it; returns the job's counts. */
+/** Imports a file through the page, which checks it by itself unless its
+ *  columns need choosing (then `before` chooses them); returns the job. */
 async function importFile(entity, name, buffer, before) {
   await go("/admin/imports");
   await page.getByLabel("The file holds").selectOption(entity);
@@ -41,10 +42,12 @@ async function importFile(entity, name, buffer, before) {
   await page.getByRole("button", { name: "Choose a file" }).click();
   await (await chooser).setFiles({ name, mimeType: "application/octet-stream", buffer });
   await page.waitForURL("**/admin/imports/*", { timeout: 60000 });
-  await page.waitForSelector("text=1. Columns and rules");
-  if (before) await before();
-  await page.getByRole("button", { name: /^Check the rows/ }).click();
-  await page.waitForSelector("text=2. What it changes", { timeout: 120000 });
+  await page.waitForSelector("h2:text-is('Columns')");
+  if (before) {
+    await before();
+    await page.getByRole("button", { name: /^Check the rows/ }).click();
+  }
+  await page.waitForSelector("h2:text-is('What it changes')", { timeout: 120000 });
   const id = page.url().split("/").pop();
   const { data: job } = await admin.from("import_jobs").select("id, counts, status").eq("id", id).single();
   return job;
@@ -105,47 +108,34 @@ try {
   await admin.from("products").update({ description: target.description + " " }).eq("id", target.id);
   await page.getByRole("button", { name: /^Apply 2 changes/ }).click();
   await confirmModal(page);
-  await page.waitForSelector("text=3. Publish or discard", { timeout: 60000 });
+  await page.waitForSelector("text=Applied. The site shows everything this import changed.", { timeout: 60000 });
   const { data: t1 } = await admin.from("products").select("dimensions").eq("id", target.id).single();
   check("a row changed after the check is left alone, not overwritten", t1.dimensions === target.dimensions, t1.dimensions);
   const { data: fresh } = await admin.from("products").select("id, status, import_job_id").eq("sku", "C11-NEW-1").single();
-  check("the new product is created as a draft, tagged with the import", fresh.status === "draft" && fresh.import_job_id === mixed.id);
-  check("and the site is unchanged", (await fetch(`${BASE}/product/c11-new-1`)).status === 404);
+  check("the new product is created hidden, with nothing left waiting", fresh.status === "draft" && fresh.import_job_id === null);
+  check("so it is not on the site", (await fetch(`${BASE}/product/c11-new-1`)).status === 404);
 
-  await page.getByRole("button", { name: "Publish everything from this import" }).click();
-  await confirmModal(page);
-  await page.waitForSelector("text=Published. The site shows everything this import changed.", { timeout: 60000 });
-  check("publishing the import puts it live", (await fetch(`${BASE}/product/c11-new-1`)).status === 200);
-
-  // ── discard: an import of changes to live products, undone ──
+  // ── an import of changes to visible products goes live at once ──
   await admin.from("products").update({ description: target.description }).eq("id", target.id);
   await admin.rpc("publish_product", { p_id: target.id, p_note: "c11 verify" });
   const change = ["Item code,Dimensions,Featured", `${target.sku},777 x 111 mm,Yes`, `${target2.sku},666 x 111 mm,`].join("\r\n");
-  await importFile("products", "discard.csv", Buffer.from(change));
+  await importFile("products", "live.csv", Buffer.from(change));
   await page.getByRole("button", { name: /^Apply 2 changes/ }).click();
   await confirmModal(page);
-  await page.waitForSelector("text=3. Publish or discard", { timeout: 60000 });
-  const { data: t2 } = await admin.from("products").select("dimensions, featured").eq("id", target.id).single();
-  check("the changes are applied as drafts", t2.dimensions === "777 x 111 mm" && t2.featured === true);
-  await page.getByRole("button", { name: "Discard this import's drafts" }).click();
-  await confirmModal(page);
-  await page.waitForSelector("text=Discarded.", { timeout: 60000 });
-  const { data: t3 } = await admin.from("admin_products").select("dimensions, featured, has_changes").eq("id", target.id).single();
-  check("discarding puts them back exactly as live", t3.dimensions === target.dimensions && t3.featured === target.featured && t3.has_changes === false, JSON.stringify(t3));
-  check("no products are left with unpublished changes by the imports", (await drafts()) === draftsBefore, `${await drafts()} vs ${draftsBefore}`);
+  await page.waitForSelector("text=Applied. The site shows everything this import changed.", { timeout: 60000 });
+  const { data: live } = await admin.from("published_products").select("snapshot, featured").eq("product_id", target.id).single();
+  check("the changes are live", live.snapshot.dimensions === "777 x 111 mm" && live.featured === true, JSON.stringify(live.snapshot.dimensions));
+  check("no products are left with changes waiting", (await drafts()) === draftsBefore, `${await drafts()} vs ${draftsBefore}`);
 
-  // A saved mapping maps the next file by itself.
-  await go("/admin/imports");
+  // A file whose headers match nothing asks for its columns first.
   const oddHeaders = ["Ref,Size", `${target.sku},123 x 45 mm`].join("\r\n");
-  await importFile("products", "preset.csv", Buffer.from(oddHeaders), async () => {
+  await importFile("products", "odd.csv", Buffer.from(oddHeaders), async () => {
     await page.getByLabel("Field for Ref").selectOption("sku");
     await page.getByLabel("Field for Size").selectOption("dimensions");
-    await page.getByPlaceholder("optional name").fill("C11 preset");
   });
-  await importFile("products", "preset2.csv", Buffer.from(oddHeaders));
-  const again = page.url().split("/").pop();
-  const { data: remembered } = await admin.from("import_jobs").select("mapping").eq("id", again).single();
-  check("a saved mapping maps a matching file by itself", remembered.mapping.preset === "C11 preset" && Object.values(remembered.mapping.columns).includes("dimensions"));
+  const odd = page.url().split("/").pop();
+  const { data: oddJob } = await admin.from("import_jobs").select("counts").eq("id", odd).single();
+  check("chosen columns are used", oddJob.counts.changed === 1, JSON.stringify(oddJob.counts));
 
   await page.setViewportSize({ width: 390, height: 844 });
   await go(`/admin/imports/${mixed.id}`);
@@ -168,7 +158,6 @@ try {
     await admin.from("products").update({ ...fields, import_job_id: null }).eq("id", id);
     await admin.rpc("publish_product", { p_id: id, p_note: "c11 verify restore" });
   }
-  await admin.from("mapping_presets").delete().eq("name", "C11 preset");
   const { data: jobs } = await admin.from("import_jobs").select("id, file_path");
   if (jobs?.length) {
     await admin.storage.from("imports").remove(jobs.map((j) => j.file_path));

@@ -21,7 +21,7 @@ const TYPES: Record<string, string> = {
 /**
  * Choose what the file holds, pick the file: it goes straight to the private
  * imports bucket from the browser, then the server reads it once and the
- * mapping screen opens.
+ * import opens, already checking its rows.
  */
 export function NewImport() {
   const router = useRouter();
@@ -76,7 +76,7 @@ export function NewImport() {
           e.target.value = "";
         }}
       />
-      <span className={styles.muted}>Excel, CSV or TSV. Nothing changes until you have checked and applied it.</span>
+      <span className={styles.muted}>Excel, CSV or TSV. You see what would change before anything does.</span>
       {error && (
         <p className={`${styles.message} ${styles.messageError}`} role="alert">
           {error}
