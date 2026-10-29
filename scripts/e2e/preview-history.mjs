@@ -1,15 +1,8 @@
-// End-to-end check: preview, history and restore, activity, sitemap.
+// End-to-end check: preview and the sitemap.
 import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
-/** Answers the dashboard's confirmation dialog: its last button confirms. */
-const confirmModal = async (p) => {
-  const dialog = p.getByRole("alertdialog");
-  await dialog.waitFor({ timeout: 10000 });
-  await dialog.getByRole("button").last().click();
-  await dialog.waitFor({ state: "hidden" });
-};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
@@ -75,35 +68,6 @@ try {
   check("while visitors get a 404", (await fetch(`${BASE}/product/c9-test-0001`)).status === 404);
   await page.getByRole("button", { name: "Leave preview" }).click();
   await page.waitForURL(`**/admin/products/${newId}`);
-
-  // ── history and restore ──
-  await editor(ace.id);
-  await publishNow();
-  await page.reload({ waitUntil: "load" });
-  await page.getByRole("tab", { name: /History/ }).click();
-  const versions = page.getByRole("list", { name: "Published versions" }).getByRole("button");
-  check("the history lists each published version", (await versions.count()) >= 2, `${await versions.count()} versions`);
-  // The version before the C9 description.
-  await versions.nth(1).click();
-  const diffText = await page.locator("table").last().textContent();
-  check("choosing a version shows how it differs", diffText.includes("Description") && diffText.includes("C9 draft description."));
-  await page.getByRole("button", { name: /Restore version \d+ as a draft/ }).click();
-  await confirmModal(page);
-  await page.waitForSelector("text=/is restored as a draft/");
-  check("restore puts that version back in the editor", (await page.getByLabel("Description").inputValue()) !== "C9 draft description.");
-  const { data: afterRestore } = await admin.from("products").select("description, version, published_version").eq("id", ace.id).single();
-  check("as a draft, with the site unchanged", afterRestore.version !== afterRestore.published_version && (await (await fetch(`${BASE}/product/${ace.slug}`)).text()).includes("C9 draft description."));
-  await publishNow();
-  check("publishing the restored version puts it live", !(await (await fetch(`${BASE}/product/${ace.slug}`)).text()).includes("C9 draft description."));
-
-  // ── activity ──
-  await page.goto(`${BASE}/admin/activity`, { waitUntil: "load" });
-  const firstRow = await page.locator("section:has(h2:text-is('Published')) tbody tr").first().textContent();
-  check("the activity feed leads with the latest publish", firstRow.includes(ace.sku) && firstRow.includes(process.env.BOOTSTRAP_STAFF_EMAIL), firstRow.slice(0, 80));
-  check("and lists what is waiting to be published", (await page.getByText(/Waiting to be published \(\d+\)/).count()) === 1);
-  await page.getByRole("link", { name: "Earlier" }).click();
-  await page.waitForURL("**/admin/activity?before=*");
-  check("earlier publishes page back", (await page.locator("section:has(h2:text-is('Published')) tbody tr").count()) > 0);
 
   // ── sitemap ──
   const inSitemap = async () => (await (await fetch(`${BASE}/sitemap.xml`)).text()).includes(`/product/${other.slug}<`);

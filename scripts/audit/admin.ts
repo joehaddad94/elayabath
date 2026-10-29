@@ -65,8 +65,6 @@ const ROUTES = [
   `/admin/finishes?finish=${finish}`,
   "/admin/homepage",
   "/admin/imports",
-  "/admin/media",
-  "/admin/activity",
   "/admin/staff",
 ];
 

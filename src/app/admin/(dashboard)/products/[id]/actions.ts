@@ -224,30 +224,3 @@ export async function deleteDraftProduct(input: { id: string }): Promise<{ ok: f
   }
   redirect("/admin/products");
 }
-
-export type RestoreResult = { ok: true; version: number } | { ok: false; error: string };
-
-/**
- * Copies a published version back into the working copy as a draft, through
- * `public.restore_product`, version-checked like any other save. It goes
- * live only when published again.
- */
-export async function restoreVersion(input: { id: string; revisionId: number; version: number }): Promise<RestoreResult> {
-  const { supabase } = await requireStaff();
-  const id = z.uuid().safeParse(input.id);
-  const revision = z.int().positive().safeParse(input.revisionId);
-  const version = z.int().positive().safeParse(input.version);
-  if (!id.success || !revision.success || !version.success) return { ok: false, error: "That restore isn't valid. Reload the page." };
-
-  const { data, error } = await supabase.rpc("restore_product", {
-    p_id: id.data,
-    p_revision: revision.data,
-    p_version: version.data,
-  });
-  if (error?.code === "PT409") {
-    return { ok: false, error: "Someone saved this product since you opened it. Reload it, then restore." };
-  }
-  if (error?.code === "PT422") return { ok: false, error: error.message };
-  if (error || data === null) return { ok: false, error: describeWriteError(error ?? { message: "" }) };
-  return { ok: true, version: data };
-}

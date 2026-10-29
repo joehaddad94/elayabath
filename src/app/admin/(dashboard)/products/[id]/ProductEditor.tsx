@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { productForm, slugFromSku, type ProductForm } from "@/lib/admin/product-schema";
 import admin from "../../../admin.module.css";
-import { deleteDraftProduct, publishProduct, restoreVersion, saveProduct } from "./actions";
+import { deleteDraftProduct, publishProduct, saveProduct } from "./actions";
 import styles from "./editor.module.css";
 import { useConfirm } from "../../ConfirmDialog";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { FinishPicker } from "./FinishPicker";
-import { History, type Comparable, type Revision } from "./History";
 import { Datasheet, Gallery } from "./Media";
 
 export interface FinishOption {
@@ -81,7 +80,6 @@ export function ProductEditor({
   categories,
   types,
   library,
-  revisions,
 }: {
   product: EditorProduct;
   me: string;
@@ -89,7 +87,6 @@ export function ProductEditor({
   categories: Array<Option & { slug: string; draft: boolean }>;
   types: Array<Option & { slug: string; categoryId: string }>;
   library: FinishOption[];
-  revisions: Revision[];
 }) {
   const router = useRouter();
   const confirm = useConfirm();
@@ -105,11 +102,10 @@ export function ProductEditor({
     created ? { text: "Created as a draft. Fill in the rest, then publish when it's ready." } : null,
   );
   const [conflict, setConflict] = useState<{ by: string | null; at: string; version: number } | null>(null);
-  const [busy, setBusy] = useState<"save" | "publish" | "delete" | "restore" | null>(null);
+  const [busy, setBusy] = useState<"save" | "publish" | "delete" | null>(null);
   // Set when the server's copy has been asked for, with what to say once it
   // arrives.
   const [reloading, setReloading] = useState<string | null>(null);
-  const [tab, setTab] = useState<"edit" | "history">("edit");
 
   // The server sends this product again whenever the page refreshes: after a
   // publish (which refreshes the route) or when "Load their version" asks
@@ -201,49 +197,6 @@ export function ProductEditor({
     }
     setNotice({ text: result.message });
   };
-
-  const restore = async (revision: Revision) => {
-    const go = await confirm({
-      title: `Restore version ${revision.version}?`,
-      body: `It replaces the draft, photos and data sheet included.${dirty ? " Your unsaved changes are lost." : ""} The site is unchanged until you publish.`,
-      confirmLabel: "Restore",
-      danger: dirty,
-    });
-    if (!go) return;
-    setBusy("restore");
-    setNotice(null);
-    const result = await restoreVersion({ id: product.id, revisionId: revision.id, version });
-    setBusy(null);
-    if (!result.ok) {
-      setNotice({ text: result.error, error: true });
-      return;
-    }
-    setReloading(`Version ${revision.version} is restored as a draft. Check it, then publish to put it live.`);
-    setTab("edit");
-    router.refresh();
-  };
-
-  // What is on screen, in the shape a published version is compared in.
-  const finishBySlug = useMemo(() => new Map(library.map((f) => [f.slug, f.name])), [library]);
-  const finishName = useCallback((slug: string) => finishBySlug.get(slug) ?? slug, [finishBySlug]);
-  const current = useMemo<Comparable>(() => {
-    const finishById = new Map(library.map((f) => [f.id, f.name]));
-    return {
-      name: form.name.trim(),
-      sku: form.sku.trim(),
-      slug: form.slug.trim(),
-      category: categories.find((c) => c.id === form.category_id)?.name ?? "",
-      type: types.find((t) => t.id === form.type_id)?.name ?? "Not set",
-      description: form.description.trim(),
-      dimensions: form.dimensions.trim(),
-      features: form.featuresText.split("\n").map((f) => f.trim()).filter(Boolean),
-      finishes: form.finishes.map((id) => finishById.get(id) ?? id),
-      photos: form.images.map((i) => i.path),
-      alts: form.images.map((i) => i.alt.trim()),
-      datasheet: form.datasheet_path,
-      status: form.status === "discontinued" ? "Discontinued" : form.status === "draft" ? "Draft" : "Live",
-    };
-  }, [form, categories, types, library]);
 
   const remove = async () => {
     const go = await confirm({
@@ -356,25 +309,6 @@ export function ProductEditor({
 
       <div className={styles.columns}>
         <div className={styles.main}>
-          <div className={styles.tabs} role="tablist" aria-label="Product">
-            <button type="button" role="tab" aria-selected={tab === "edit"} className={styles.tab} onClick={() => setTab("edit")}>
-              Details
-            </button>
-            <button type="button" role="tab" aria-selected={tab === "history"} className={styles.tab} onClick={() => setTab("history")}>
-              History ({revisions.length})
-            </button>
-          </div>
-          {tab === "history" ? (
-            <History
-              revisions={revisions}
-              publishedVersion={publishedVersion}
-              current={current}
-              finishName={finishName}
-              busy={busy !== null}
-              onRestore={(r) => void restore(r)}
-            />
-          ) : (
-          <>
           <fieldset className={styles.section}>
             <legend>Basics</legend>
             <div className={styles.grid2}>
@@ -489,8 +423,6 @@ export function ProductEditor({
             <FinishPicker library={library} value={form.finishes} onChange={(next) => set("finishes", next)} />
             {error("finishes")}
           </fieldset>
-          </>
-          )}
         </div>
 
         <aside className={styles.side}>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { authorLabel, gridLink } from "@/lib/admin/links";
+import { gridLink } from "@/lib/admin/links";
 import { STORAGE_QUOTA_BYTES, formatBytes } from "@/lib/admin/media";
 import { requireStaff } from "@/lib/admin/session";
 import styles from "../admin.module.css";
@@ -28,14 +28,7 @@ export default async function Overview() {
     ])
   ).map((r) => r.count ?? 0) as [number, number, number, number, number, number, number, number];
 
-  const [{ data: recent }, { data: usage }] = await Promise.all([
-    supabase
-      .from("revisions")
-      .select("entity_type, version, note, published_by, published_at, snapshot")
-      .order("published_at", { ascending: false })
-      .limit(8),
-    supabase.rpc("storage_usage"),
-  ]);
+  const { data: usage } = await supabase.rpc("storage_usage");
   const stored = (usage ?? []).reduce((sum, r) => sum + Number(r.bytes), 0);
 
   // Each card opens what it counts. "Never published" and "waiting to be
@@ -67,12 +60,12 @@ export default async function Overview() {
             <span className={styles.statLabel}>{label}</span>
           </Link>
         ))}
-        <Link href="/admin/media" className={styles.stat}>
+        <div className={styles.stat}>
           <span className={styles.statValue}>{((stored / STORAGE_QUOTA_BYTES) * 100).toFixed(0)}%</span>
           <span className={styles.statLabel}>
             Storage used, {formatBytes(stored)} of {formatBytes(STORAGE_QUOTA_BYTES)}
           </span>
-        </Link>
+        </div>
       </div>
 
       {sharedCodes > 0 && (
@@ -87,36 +80,6 @@ export default async function Overview() {
         </section>
       )}
 
-      <section className={styles.section}>
-        <h2>Recently published</h2>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th scope="col">What</th>
-              <th scope="col">Name</th>
-              <th scope="col">Version</th>
-              <th scope="col">By</th>
-              <th scope="col">When</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(recent ?? []).map((r, i) => {
-              const s = r.snapshot as { name?: string; sku?: string; code?: string };
-              return (
-                <tr key={i}>
-                  <td>{r.entity_type[0]!.toUpperCase() + r.entity_type.slice(1)}</td>
-                  <td>{[s.sku ?? s.code, s.name].filter(Boolean).join(" · ")}</td>
-                  <td>{r.version}</td>
-                  <td className={styles.muted}>{authorLabel(r.published_by)}</td>
-                  <td className={styles.muted}>
-                    {new Date(r.published_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Qatar" })}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </section>
     </>
   );
 }
