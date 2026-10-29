@@ -25,7 +25,7 @@ export interface ExportRequest {
 const PAGE = 500;
 /** Ids travel in the request URL; 150 of them stay well inside its limit. */
 const ID_PAGE = 150;
-const STATUS: Record<string, string> = { active: "Visible", discontinued: "Discontinued", draft: "Hidden" };
+const STATUS: Record<string, string> = { active: "Visible", draft: "Hidden" };
 const CATEGORY_STATUS: Record<string, string> = { active: "Visible", discontinued: "Hidden", draft: "Hidden" };
 const FINISH_STATUS: Record<string, string> = { active: "Active", retired: "Retired" };
 

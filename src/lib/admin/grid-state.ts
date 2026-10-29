@@ -29,7 +29,7 @@ export const gridStateSchema = z.object({
   // The toolbar's own filters, outside the grid's column menus.
   q: z.string().max(100).default(""),
   category: z.string().max(80).default(""),
-  status: z.enum(["", "draft", "active", "discontinued"]).default(""),
+  status: z.enum(["", "draft", "active"]).default(""),
   incomplete: z.boolean().default(false),
   importJob: z.string().uuid().or(z.literal("")).default(""),
 });

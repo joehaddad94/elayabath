@@ -88,7 +88,6 @@ export default async function ProductPage({
   }
 
   const t = getDictionary(locale);
-  const discontinued = product.status === "discontinued";
   const [category, finishes, related] = await Promise.all([
     getCategory(product.categorySlug),
     getFinishesFor(product),
@@ -168,14 +167,6 @@ export default async function ProductPage({
           </div>
 
           <div>
-            {/* Its page stays, so links from catalogues, emails and search
-                results still land somewhere useful: here, pointing at what
-                replaced it. */}
-            {discontinued && (
-              <p className={styles.discontinued} role="status">
-                {t.product.discontinued}
-              </p>
-            )}
             <span className={styles.kicker}>{product.type.name}</span>
             <h1 className={styles.title}>{product.name}</h1>
             <p className={styles.sku}>

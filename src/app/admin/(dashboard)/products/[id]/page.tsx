@@ -68,7 +68,8 @@ export default async function ProductPage({
       description: p.description,
       dimensions: p.dimensions ?? "",
       features: p.features,
-      status: p.status,
+      // Held to visible or hidden by a check in the database.
+      status: p.status === "active" ? "active" : "draft",
       featured: p.featured,
       datasheet_path: p.datasheet_path,
       images: images.data ?? [],

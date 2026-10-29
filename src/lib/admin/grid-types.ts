@@ -9,7 +9,7 @@ export interface GridRow {
   category_name: string;
   type_id: string | null;
   type_name: string | null;
-  status: "draft" | "active" | "discontinued";
+  status: "draft" | "active";
   featured: boolean;
   dimensions: string | null;
   has_datasheet: boolean;

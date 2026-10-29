@@ -2,7 +2,7 @@
 -- copy, and a hidden product is off the site entirely.
 
 begin;
-select plan(13);
+select plan(15);
 
 delete from public.published_products;
 delete from public.redirects;
@@ -73,6 +73,12 @@ select public.save_product('00000000-0000-0000-0000-00000000d001', (select versi
 select public.sync_product('00000000-0000-0000-0000-00000000d001');
 select is((select slug from public.published_products where product_id = '00000000-0000-0000-0000-00000000d001'), 't-1-new',
   'showing it again puts it back under its current address');
+
+-- A product is visible or hidden, nothing else.
+reset role;
+select throws_ok($$ update public.products set status = 'discontinued' where sku = 'T-1' $$, '23514', null,
+  'a product cannot be discontinued any more');
+select has_table('public', 'discontinued_products_2026_10', 'which products were discontinued is kept on record');
 
 select * from finish();
 rollback;

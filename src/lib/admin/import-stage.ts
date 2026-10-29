@@ -41,7 +41,7 @@ const norm = (v: string) => v.trim().toLowerCase().replace(/\s+/g, " ");
 
 const YES = new Set(["yes", "y", "true", "1", "featured", "x"]);
 const NO = new Set(["no", "n", "false", "0", ""]);
-const STATUS_LABEL: Record<string, string> = { active: "Visible", draft: "Hidden", discontinued: "Discontinued" };
+const STATUS_LABEL: Record<string, string> = { active: "Visible", draft: "Hidden" };
 
 /** Reads the mapped cells of a row: field key → trimmed text. */
 function cells(job: Job, raw: string[]): Map<string, string> {
@@ -228,11 +228,10 @@ async function stageProducts(supabase: Client, job: Job, rows: RawRow[]): Promis
         }
         case "status": {
           const v = norm(raw);
-          // Live and Draft are what older exports wrote.
+          // Live, Draft and Discontinued are what older exports wrote.
           const status =
             v === "visible" || v === "live" || v === "active" ? "active"
-            : v === "hidden" || v === "draft" ? "draft"
-            : v === "discontinued" ? "discontinued"
+            : v === "hidden" || v === "draft" || v === "discontinued" ? "draft"
             : null;
           if (!status) errors.push(`Status "${raw}" isn't Visible or Hidden.`);
           else if (!current) break; // new products start hidden

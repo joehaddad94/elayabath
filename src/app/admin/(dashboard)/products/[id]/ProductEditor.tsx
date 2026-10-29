@@ -35,7 +35,7 @@ export interface EditorProduct {
   form: Omit<ProductForm, "dimensions" | "type_id" | "status" | "datasheet_path"> & {
     dimensions: string;
     type_id: string | null;
-    status: "draft" | "active" | "discontinued";
+    status: "draft" | "active";
     datasheet_path: string | null;
   };
 }
@@ -217,7 +217,7 @@ export function ProductEditor({
   ];
   const score = checks.filter((c) => c.ok).length;
 
-  const statusLabel = form.status === "active" ? "Visible" : form.status === "discontinued" ? "Discontinued" : "Hidden";
+  const statusLabel = form.status === "active" ? "Visible" : "Hidden";
 
   const field = (key: string) => ({
     id: `${ids}-${key}`,
@@ -404,12 +404,6 @@ export function ProductEditor({
                 <input type="radio" name="status" checked={form.status === "draft"} onChange={() => set("status", "draft")} />
                 Hidden: not on the site at all
               </label>
-              {product.form.status === "discontinued" && (
-                <label className={styles.check}>
-                  <input type="radio" name="status" checked={form.status === "discontinued"} onChange={() => set("status", "discontinued")} />
-                  Discontinued: hidden from listings, page kept
-                </label>
-              )}
             </div>
             <label className={styles.check}>
               <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} />

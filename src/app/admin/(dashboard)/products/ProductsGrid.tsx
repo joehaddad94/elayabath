@@ -94,7 +94,6 @@ const theme = themeQuartz.withParams({
 const STATUS_LABEL: Record<GridRow["status"], string> = {
   draft: "Hidden",
   active: "Visible",
-  discontinued: "Discontinued",
 };
 
 /** Grid columns that have a spreadsheet column of their own. */
