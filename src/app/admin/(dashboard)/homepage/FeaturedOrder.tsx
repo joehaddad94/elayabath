@@ -6,7 +6,7 @@ import { useState } from "react";
 import styles from "../../admin.module.css";
 import { OrderBar } from "../OrderBar";
 import { SortableList } from "../SortableList";
-import { publishFeaturedOrder } from "./actions";
+import { saveFeaturedOrder } from "./actions";
 
 export interface FeaturedRow {
   id: string;
@@ -24,19 +24,20 @@ export function FeaturedOrder({ products }: { products: FeaturedRow[] }) {
   const [live, setLive] = useState(products);
 
   if (products.length === 0) {
-    return <p className={styles.muted}>No products are featured. Tick Featured in a product&apos;s editor and publish it.</p>;
+    return <p className={styles.muted}>No products are featured. Tick Featured in a product&apos;s editor and save it.</p>;
   }
 
   return (
     <>
       <OrderBar
         changed={order.some((p, i) => p.id !== live[i]?.id)}
-        onPublish={async () => {
-          const result = await publishFeaturedOrder({ ids: order.map((p) => p.id) });
-          if (result.ok) setLive(order);
+        orderKey={order.map((p) => p.id).join()}
+        onSave={async () => {
+          const saving = order;
+          const result = await saveFeaturedOrder({ ids: saving.map((p) => p.id) });
+          if (result.ok) setLive(saving);
           return result;
         }}
-        onUndo={() => setOrder(live)}
       />
       <SortableList
         items={order}
@@ -54,7 +55,7 @@ export function FeaturedOrder({ products }: { products: FeaturedRow[] }) {
             <Link href={`/admin/products/${p.id}`}>{p.sku}</Link>
             <span>{p.name}</span>
             {index >= SHOWN && <span className={styles.muted}>not shown: the homepage shows the first {SHOWN}</span>}
-            {p.pending && <span className={`${styles.badge} ${styles.badgeWarn}`}>Publish the product to feature it</span>}
+            {p.pending && <span className={`${styles.badge} ${styles.badgeWarn}`}>Hidden: show the product to feature it</span>}
           </span>
         )}
       />

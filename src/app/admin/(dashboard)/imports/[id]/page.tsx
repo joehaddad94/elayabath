@@ -15,12 +15,11 @@ export default async function ImportPage({ params }: { params: Promise<{ id: str
 
   const { data: job } = await supabase.from("import_jobs").select("*").eq("id", id).maybeSingle();
   if (!job) notFound();
-  const [{ data: sample }, { data: presets }, { count: tagged }] = await Promise.all([
+  const [{ data: sample }, { count: tagged }] = await Promise.all([
     supabase.from("import_rows").select("raw").eq("job_id", id).order("row_number").limit(3),
-    supabase.from("mapping_presets").select("name, mapping").eq("entity", job.entity).order("name"),
     supabase.from("products").select("id", { count: "exact", head: true }).eq("import_job_id", id),
   ]);
-  const mapping = job.mapping as { headers: string[]; columns: Record<string, string>; preset: string | null; grouped?: boolean; links?: number };
+  const mapping = job.mapping as { headers: string[]; columns: Record<string, string>; grouped?: boolean; links?: number };
 
   return (
     <>
@@ -46,13 +45,11 @@ export default async function ImportPage({ params }: { params: Promise<{ id: str
           headers: mapping.headers,
           columns: mapping.columns,
           grouped: Boolean(mapping.grouped),
-          preset: mapping.preset,
           options: job.options as unknown as ImportOptions,
           error: job.error,
           tagged: tagged ?? 0,
         }}
         sample={(sample ?? []).map((s) => s.raw as string[])}
-        presets={(presets ?? []).map((p) => ({ name: p.name, mapping: p.mapping as Record<string, string> }))}
       />
     </>
   );

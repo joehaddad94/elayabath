@@ -5,14 +5,13 @@ import { useState } from "react";
 import styles from "../../admin.module.css";
 import { SortableList } from "../SortableList";
 import { OrderBar } from "../OrderBar";
-import { publishCategoryOrder } from "./actions";
+import { saveCategoryOrder } from "./actions";
 
 export interface CategoryRow {
   id: string;
   name: string;
   slug: string;
-  status: "Draft" | "Live" | "Hidden";
-  changes: boolean;
+  status: "Visible" | "Hidden";
   products: number;
   live: number;
 }
@@ -26,12 +25,13 @@ export function CategoryOrder({ categories }: { categories: CategoryRow[] }) {
     <>
       <OrderBar
         changed={changed}
-        onPublish={async () => {
-          const result = await publishCategoryOrder({ ids: order.map((c) => c.id) });
-          if (result.ok) setSaved(order);
+        orderKey={order.map((c) => c.id).join()}
+        onSave={async () => {
+          const saving = order;
+          const result = await saveCategoryOrder({ ids: saving.map((c) => c.id) });
+          if (result.ok) setSaved(saving);
           return result;
         }}
-        onUndo={() => setOrder(saved)}
       />
       <SortableList
         items={order}
@@ -42,10 +42,9 @@ export function CategoryOrder({ categories }: { categories: CategoryRow[] }) {
         render={(c) => (
           <span className={styles.orderRow}>
             <Link href={`/admin/categories/${c.id}`}>{c.name}</Link>
-            <span className={`${styles.badge} ${c.status === "Live" ? "" : styles.badgeWarn}`}>{c.status}</span>
-            {c.changes && <span className={`${styles.badge} ${styles.badgeWarn}`}>Unpublished changes</span>}
+            <span className={`${styles.badge} ${c.status === "Visible" ? "" : styles.badgeWarn}`}>{c.status}</span>
             <span className={styles.muted}>
-              {c.live} live of {c.products} product{c.products === 1 ? "" : "s"}
+              {c.live} visible of {c.products} product{c.products === 1 ? "" : "s"}
             </span>
           </span>
         )}

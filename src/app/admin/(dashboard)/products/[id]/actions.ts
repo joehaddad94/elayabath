@@ -4,17 +4,18 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { describeWriteError, productFields, productForm, slugFromSku } from "@/lib/admin/product-schema";
 import { uploadFolder } from "@/lib/admin/media";
-import { publishProducts } from "@/lib/admin/publish";
+import { syncProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 
 export type SaveResult =
-  | { ok: true; version: number; publishedVersion: number | null; updatedAt: string; message: string }
+  | { ok: true; version: number; updatedAt: string; live: { slug: string } | null; message: string }
   | { ok: false; error: string; fields?: Record<string, string> }
   | { ok: false; conflict: { by: string | null; at: string; version: number }; error: string };
 
 /**
- * Saves the whole editor as a draft: fields and finishes together, through
- * `public.save_product`, so a save is all or nothing.
+ * Saves the whole editor and puts it live: fields and finishes together,
+ * through `public.save_product`, so a save is all or nothing; then the site
+ * is made to match, showing the product or, if it is hidden, taking it off.
  *
  * `version` is the one the editor loaded. If someone saved since, nothing is
  * written and the editor is told who and when; it then offers to reload
@@ -37,7 +38,7 @@ export async function saveProduct(input: { id: string; version: number; form: un
   const { finishes, images, ...fields } = parsed.data;
 
   const [{ data: current }, { data: stored }] = await Promise.all([
-    supabase.from("products").select("published_version, datasheet_path").eq("id", id.data).maybeSingle(),
+    supabase.from("products").select("datasheet_path").eq("id", id.data).maybeSingle(),
     supabase.from("product_images").select("path").eq("product_id", id.data),
   ]);
   if (!current) return { ok: false, error: "This product no longer exists." };
@@ -52,13 +53,6 @@ export async function saveProduct(input: { id: string; version: number; form: un
   if (fields.datasheet_path && fields.datasheet_path !== current.datasheet_path && !fields.datasheet_path.startsWith(folder)) {
     return { ok: false, error: "The data sheet didn't come from this product's uploads. Upload it again." };
   }
-
-  // "Draft" means never published. Once a product has been live it is either
-  // live or discontinued; it cannot go back to never having been published.
-  if (current.published_version !== null && fields.status === "draft") {
-    return { ok: false, error: "A published product is live or discontinued.", fields: { status: "Choose live or discontinued." } };
-  }
-  if (current.published_version === null) fields.status = "draft";
 
   // A type belongs to one category, so it must match the category chosen.
   if (fields.type_id) {
@@ -110,45 +104,22 @@ export async function saveProduct(input: { id: string; version: number; form: un
     return { ok: false, error: message, fields: field && error?.code === "23505" ? { [field]: message } : undefined };
   }
 
-  const { data: row } = await supabase.from("products").select("updated_at, published_version").eq("id", id.data).single();
-  const matchesLive = row?.published_version === saved;
+  // Saved; now the site follows. A failure here leaves the save in place and
+  // says so: saving again retries.
+  const { failed } = await syncProducts(supabase, [id.data]);
+  const [{ data: row }, { data: live }] = await Promise.all([
+    supabase.from("products").select("updated_at, status").eq("id", id.data).single(),
+    supabase.from("published_products").select("slug").eq("product_id", id.data).maybeSingle(),
+  ]);
+  if (failed.length) {
+    return { ok: false, error: `Saved, but the site couldn't be updated: ${failed[0]!.message} Save again to retry.` };
+  }
   return {
     ok: true,
     version: saved,
-    publishedVersion: row?.published_version ?? null,
     updatedAt: row?.updated_at ?? new Date().toISOString(),
-    message: matchesLive
-      ? "Saved. It now matches the live version, so there is nothing to publish."
-      : "Saved as a draft. The site changes when you publish.",
-  };
-}
-
-export type PublishResult =
-  | { ok: true; message: string; version: number; live: { slug: string; status: string } | null }
-  | { ok: false; error: string };
-
-/** Publishes the saved draft. The editor saves first if anything is unsaved,
- *  so what goes live is exactly what is on screen. */
-export async function publishProduct(input: { id: string; note?: string }): Promise<PublishResult> {
-  const { supabase } = await requireStaff();
-  const id = z.uuid().safeParse(input.id);
-  if (!id.success) return { ok: false, error: "That product isn't valid." };
-  const note = z.string().trim().max(300).optional().safeParse(input.note);
-
-  const { failed } = await publishProducts(supabase, [id.data], note.success ? note.data || undefined : undefined);
-  if (failed.length) return { ok: false, error: `It couldn't be published: ${failed[0]!.message}` };
-
-  const [{ data }, { data: live }] = await Promise.all([
-    supabase.from("products").select("published_version").eq("id", id.data).single(),
-    supabase.from("published_products").select("slug, status").eq("product_id", id.data).maybeSingle(),
-  ]);
-  return {
-    ok: true,
-    message: live?.status === "discontinued"
-      ? "Published. It stays hidden from listings, and its page shows it as discontinued."
-      : "Published. The site shows it now.",
-    version: data?.published_version ?? 0,
     live,
+    message: row?.status === "draft" ? "Saved. It is hidden, so the site doesn't show it." : "Saved. The site shows it now.",
   };
 }
 
@@ -167,8 +138,9 @@ const createInput = z.object({
   category_id: productFields.category_id,
 });
 
-/** A new product starts as a draft with just enough to be found: its item
- *  code, its name and its category. Everything else is filled in the editor. */
+/** A new product starts hidden, with just enough to be found: its item
+ *  code, its name and its category. Everything else is filled in the
+ *  editor, and it goes on the site when it is made visible there. */
 export async function createProduct(previous: CreateState, formData: FormData): Promise<CreateState> {
   const refused = (state: Omit<CreateState, "attempt">): CreateState => ({ ...state, attempt: (previous.attempt ?? 0) + 1 });
   const { supabase } = await requireStaff();
@@ -209,8 +181,8 @@ export async function createProduct(previous: CreateState, formData: FormData): 
   redirect(`/admin/products/${data.id}?created=1`);
 }
 
-/** Deletes a product that has never been published. Anything that has been
- *  live is discontinued instead, so its page and history survive. */
+/** Deletes a product that has never been on the site. Anything that has
+ *  been is hidden instead, so its history and old links survive. */
 export async function deleteDraftProduct(input: { id: string }): Promise<{ ok: false; error: string }> {
   const { supabase } = await requireStaff();
   const id = z.uuid().safeParse(input.id);
@@ -223,31 +195,4 @@ export async function deleteDraftProduct(input: { id: string }): Promise<{ ok: f
     };
   }
   redirect("/admin/products");
-}
-
-export type RestoreResult = { ok: true; version: number } | { ok: false; error: string };
-
-/**
- * Copies a published version back into the working copy as a draft, through
- * `public.restore_product`, version-checked like any other save. It goes
- * live only when published again.
- */
-export async function restoreVersion(input: { id: string; revisionId: number; version: number }): Promise<RestoreResult> {
-  const { supabase } = await requireStaff();
-  const id = z.uuid().safeParse(input.id);
-  const revision = z.int().positive().safeParse(input.revisionId);
-  const version = z.int().positive().safeParse(input.version);
-  if (!id.success || !revision.success || !version.success) return { ok: false, error: "That restore isn't valid. Reload the page." };
-
-  const { data, error } = await supabase.rpc("restore_product", {
-    p_id: id.data,
-    p_revision: revision.data,
-    p_version: version.data,
-  });
-  if (error?.code === "PT409") {
-    return { ok: false, error: "Someone saved this product since you opened it. Reload it, then restore." };
-  }
-  if (error?.code === "PT422") return { ok: false, error: error.message };
-  if (error || data === null) return { ok: false, error: describeWriteError(error ?? { message: "" }) };
-  return { ok: true, version: data };
 }

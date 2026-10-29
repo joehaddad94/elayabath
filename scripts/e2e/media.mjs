@@ -1,20 +1,11 @@
-// End-to-end check: gallery, data sheet, storage meter and cleanup.
-import { execFileSync } from "node:child_process";
+// End-to-end check: gallery, data sheet and the storage meter.
 import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
 const omit = (row, keys) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)));
-/** Answers the dashboard's confirmation dialog: its last button confirms. */
-const confirmModal = async (p) => {
-  const dialog = p.getByRole("alertdialog");
-  await dialog.waitFor({ timeout: 10000 });
-  await dialog.getByRole("button").last().click();
-  await dialog.waitFor({ state: "hidden" });
-};
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
-const sql = (q) => execFileSync("docker", ["exec", "supabase_db_elayabath", "psql", "-U", "postgres", "-d", "postgres", "-tAc", q], { encoding: "utf8" }).trim();
 
 const results = [];
 const check = (name, ok, detail = "") => results.push(`${ok ? "ok  " : "FAIL"} ${name}${detail !== "" ? "  (" + detail + ")" : ""}`);
@@ -85,8 +76,8 @@ try {
   await page.getByRole("button", { name: /Replace|Upload a PDF/ }).click();
   await (await sheetChooser).setFiles({ name: "sheet.pdf", mimeType: "application/pdf", buffer: pdf });
   await page.waitForSelector("a:has-text('Open the data sheet')");
-  await page.getByRole("button", { name: "Save draft" }).click();
-  await page.waitForSelector("text=Saved as a draft");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=Saved. The site shows it now.");
 
   const { data: saved } = await admin.from("product_images").select("path, alt, caption, width, height").eq("product_id", original.id).order("position");
   const { data: savedProduct } = await admin.from("products").select("datasheet_path").eq("id", original.id).single();
@@ -97,39 +88,10 @@ try {
   const { data: gridRow } = await admin.from("admin_products").select("image_path").eq("id", original.id).single();
   check("the grid's thumbnail follows the main photo", gridRow.image_path === saved[0].path);
 
-  // Publish; the site follows.
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
-  await page.waitForSelector("text=Published. The site shows it now.");
+  // Saved, so the site follows.
   const html = await (await fetch(`${BASE}/product/${original.slug}`)).text();
   check("the live page leads with the new photo", html.includes(encodeURIComponent(saved[0].path)) || html.includes(saved[0].path));
   check("and links the new data sheet", html.includes(savedProduct.datasheet_path));
-
-  // Upload one more and walk away without saving: an unused file.
-  const straySel = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Add photographs" }).click();
-  await (await straySel).setFiles({ name: "stray.jpg", mimeType: "image/jpeg", buffer: photoA });
-  await page.waitForFunction((n) => document.querySelectorAll("ol li img").length >= n, saved.length + 1, { timeout: 30000 });
-  const stray = (await listFolder()).map((o) => `${folder}/${o.name}`).find((p) => !saved.some((s) => s.path === p));
-
-  await page.goto(`${BASE}/admin/media`, { waitUntil: "load" });
-  // The page streams in behind the loading screen, so wait for its text.
-  const meter = await page.getByText(/of 1\.00 GB/).first().waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
-  check("the storage meter shows usage against the allowance", meter);
-  check("a fresh upload isn't counted as unused yet", (await page.getByRole("button", { name: "Remove unused files" }).count()) === 0);
-
-  // Age it past the grace period, as if a day had gone by.
-  sql(`update storage.objects set created_at = now() - interval '2 days' where bucket_id = 'product-media' and name = '${stray}'`);
-  await page.reload({ waitUntil: "load" });
-  check("a day later it is listed as unused", (await page.getByText(/^1 file,/).count()) === 1);
-  await page.getByRole("button", { name: "Remove unused files" }).click();
-  await confirmModal(page);
-  await page.waitForSelector("text=unused file removed");
-  const after = (await listFolder()).map((o) => `${folder}/${o.name}`);
-  check("removing unused files takes only the unused one", !after.includes(stray) && saved.filter((s) => s.path.startsWith(folder)).every((s) => after.includes(s.path)), `${after.length} left`);
-
-  // A file only the history uses is kept: restore needs it.
-  const { data: revision } = await admin.from("revisions").select("snapshot").eq("entity_type", "product").eq("entity_id", original.id).order("published_at", { ascending: false }).limit(1).single();
-  check("files named by a published version count as in use", sql(`select count(*) from public.media_in_use() where name = '${revision.snapshot.image.path}'`) === "1");
 
   await page.goto(`${BASE}/admin`, { waitUntil: "load" });
   check("the overview shows storage used", (await page.getByText("Storage used").count()) === 1);

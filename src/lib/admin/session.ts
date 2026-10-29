@@ -1,5 +1,5 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { serverClient } from "@/lib/supabase/server";
 
 /**
@@ -31,6 +31,19 @@ export async function requireStaff() {
   if (!isStaff) redirect("/admin/sign-in?reason=removed");
 
   return { supabase, email: user.email.toLowerCase() };
+}
+
+/**
+ * The gate for the Staff page and its actions: the owner only. Anyone else
+ * on the staff list is told the page doesn't exist, the same answer as for
+ * any address that isn't there. Row-level security holds the same line.
+ */
+export async function requireOwner() {
+  const staff = await requireStaff();
+  const { data: isOwner, error } = await staff.supabase.rpc("is_owner");
+  if (error) throw new Error(`The owner check couldn't be made: ${error.message}`);
+  if (!isOwner) notFound();
+  return staff;
 }
 
 /** Where to go after signing in: somewhere inside the dashboard, and never an

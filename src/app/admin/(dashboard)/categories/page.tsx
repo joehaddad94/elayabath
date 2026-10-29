@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Categories" };
 export default async function CategoriesPage() {
   const { supabase } = await requireStaff();
   const [{ data: categories }, { data: tallies }] = await Promise.all([
-    supabase.from("categories").select("id, slug, name, status, position, version, published_version").order("position"),
+    supabase.from("categories").select("id, slug, name, status, position, published_version").order("position"),
     supabase.from("category_counts").select("category_id, products, live"),
   ]);
   const counts = new Map((tallies ?? []).map((t) => [t.category_id, { total: t.products, live: t.live }]));
@@ -19,8 +19,7 @@ export default async function CategoriesPage() {
     id: c.id,
     name: c.name,
     slug: c.slug,
-    status: c.published_version === null ? "Draft" : c.status === "discontinued" ? "Hidden" : "Live",
-    changes: c.published_version !== null && c.version !== c.published_version,
+    status: c.published_version !== null && c.status === "active" ? "Visible" : "Hidden",
     products: counts.get(c.id)?.total ?? 0,
     live: counts.get(c.id)?.live ?? 0,
   }));
@@ -31,7 +30,7 @@ export default async function CategoriesPage() {
         <div>
           <h1>Categories</h1>
           <p>
-            In the order the site&apos;s menu shows them. Drag to reorder, then publish the order. Open a category to
+            In the order the site&apos;s menu shows them. Drag to reorder; the new order goes live straight away. Open a category to
             edit its name, description, types and the order of its products.
           </p>
         </div>

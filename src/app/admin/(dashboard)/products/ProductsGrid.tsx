@@ -31,9 +31,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GridState } from "@/lib/admin/grid-state";
 import type { GridRow } from "@/lib/admin/grid-types";
 import styles from "../../admin.module.css";
-import { useConfirm } from "../ConfirmDialog";
 import grid from "./grid.module.css";
-import { bulkUpdate, deleteView, saveView, updateProductField } from "./actions";
+import { bulkUpdate, updateProductField } from "./actions";
 
 /*
  * Only the Community modules the grid uses, so the dashboard downloads no
@@ -64,18 +63,9 @@ export interface Option {
 export interface TypeOption extends Option {
   categoryId: string;
 }
-export interface SavedView {
-  id: string;
-  name: string;
-  owner: string;
-  shared: boolean;
-  column_state: unknown[];
-  filter_model: Partial<GridState>;
-}
+type Toolbar = Pick<GridState, "q" | "category" | "status" | "incomplete" | "importJob">;
 
-type Toolbar = Pick<GridState, "q" | "category" | "status" | "incomplete" | "changes" | "importJob">;
-
-const EMPTY_TOOLBAR: Toolbar = { q: "", category: "", status: "", incomplete: false, changes: false, importJob: "" };
+const EMPTY_TOOLBAR: Toolbar = { q: "", category: "", status: "", incomplete: false, importJob: "" };
 
 /**
  * The grid's look, built from the site's own tokens, so it follows the Ink
@@ -102,9 +92,8 @@ const theme = themeQuartz.withParams({
 });
 
 const STATUS_LABEL: Record<GridRow["status"], string> = {
-  draft: "Draft",
-  active: "Live",
-  discontinued: "Discontinued",
+  draft: "Hidden",
+  active: "Visible",
 };
 
 /** Grid columns that have a spreadsheet column of their own. */
@@ -148,53 +137,40 @@ function Status({ value }: ICellRendererParams<GridRow, GridRow["status"]>) {
   return value ? <span className={`${styles.badge} ${grid.cellBadge} ${grid[value]}`}>{STATUS_LABEL[value]}</span> : null;
 }
 
-function Changes({ value, data }: ICellRendererParams<GridRow, boolean>) {
-  if (!value) return null;
-  return (
-    <span className={`${styles.badge} ${styles.badgeWarn} ${grid.cellBadge}`}>
-      {data?.published_version == null ? "Never published" : "Unpublished changes"}
-    </span>
-  );
-}
+/** Column filters hold one condition each. A link made before that rule
+ *  may carry a two-condition filter, which is dropped rather than refused. */
+const COLUMN_FILTER = { maxNumConditions: 1 };
 
-function readUrlState(): { toolbar: Toolbar; filter: GridState["filter"]; columnState?: unknown[]; view?: string } {
-  const params = new URLSearchParams(window.location.search);
-  const raw = params.get("state");
-  const view = params.get("view") ?? undefined;
-  if (!raw) return { toolbar: EMPTY_TOOLBAR, filter: {}, view };
+function readUrlState(): { toolbar: Toolbar; filter: GridState["filter"]; columnState?: unknown[] } {
+  const raw = new URLSearchParams(window.location.search).get("state");
+  if (!raw) return { toolbar: EMPTY_TOOLBAR, filter: {} };
   try {
-    const parsed = JSON.parse(raw) as { toolbar?: Partial<Toolbar>; filter?: GridState["filter"]; columns?: unknown[] };
-    return { toolbar: { ...EMPTY_TOOLBAR, ...parsed.toolbar }, filter: parsed.filter ?? {}, columnState: parsed.columns, view };
+    const parsed = JSON.parse(raw) as { toolbar?: Partial<Toolbar>; filter?: Record<string, object>; columns?: unknown[] };
+    const filter = Object.fromEntries(
+      Object.entries(parsed.filter ?? {}).filter(([, f]) => !("conditions" in f)),
+    ) as GridState["filter"];
+    return { toolbar: { ...EMPTY_TOOLBAR, ...parsed.toolbar }, filter, columnState: parsed.columns };
   } catch {
-    return { toolbar: EMPTY_TOOLBAR, filter: {}, view };
+    return { toolbar: EMPTY_TOOLBAR, filter: {} };
   }
 }
 
 export function ProductsGrid({
   categories,
   types,
-  views: initialViews,
-  me,
 }: {
   categories: Option[];
   types: TypeOption[];
-  views: SavedView[];
-  me: string;
 }) {
   const router = useRouter();
   const apiRef = useRef<GridApi<GridRow> | null>(null);
   const [toolbar, setToolbar] = useState<Toolbar>(EMPTY_TOOLBAR);
   const toolbarRef = useRef(toolbar);
   const generationRef = useRef(0);
-  const confirm = useConfirm();
   const [total, setTotal] = useState<number | null>(null);
   const [selected, setSelected] = useState<GridRow[]>([]);
-  const [scope, setScope] = useState<"selected" | "matching">("selected");
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [views, setViews] = useState(initialViews);
-  const [viewName, setViewName] = useState("");
-  const [viewShared, setViewShared] = useState(false);
   const [moveTo, setMoveTo] = useState("");
   // Which columns are hidden, as state rather than read off the grid during
   // render, so the menu can never disagree with what the grid shows.
@@ -225,7 +201,6 @@ export function ProductsGrid({
       })),
     };
     const url = new URL(window.location.href);
-    url.searchParams.delete("view");
     url.searchParams.set("state", JSON.stringify(payload));
     window.history.replaceState(null, "", url);
   }, []);
@@ -298,15 +273,12 @@ export function ProductsGrid({
     (event: GridReadyEvent<GridRow>) => {
       apiRef.current = event.api;
       const fromUrl = readUrlState();
-      const saved = fromUrl.view ? views.find((v) => v.id === fromUrl.view) : undefined;
-      if (saved) {
-        applyView({ toolbar: saved.filter_model, filter: saved.filter_model.filter, columns: saved.column_state });
-      } else if (fromUrl.columnState || Object.keys(fromUrl.filter).length || fromUrl.toolbar !== EMPTY_TOOLBAR) {
+      if (fromUrl.columnState || Object.keys(fromUrl.filter).length || fromUrl.toolbar !== EMPTY_TOOLBAR) {
         applyView({ toolbar: fromUrl.toolbar, filter: fromUrl.filter, columns: fromUrl.columnState });
       }
       event.api.setGridOption("datasource", datasource);
     },
-    [applyView, datasource, views],
+    [applyView, datasource],
   );
 
   const onCellValueChanged = useCallback(async (event: CellValueChangedEvent<GridRow>) => {
@@ -321,14 +293,14 @@ export function ProductsGrid({
       // another save.
       event.node.setData({ ...event.data, [field]: event.oldValue });
     }
-    setNotice(result.ok ? { text: `Saved “${result.row.name}” as a draft.` } : { text: result.error, error: true });
+    setNotice(result.ok ? { text: `Saved “${result.row.name}”. The site shows it now.` } : { text: result.error, error: true });
   }, []);
 
   const columnDefs = useMemo<ColDef<GridRow>[]>(
     () => [
       { field: "image_url", colId: "image", headerName: "", width: 64, sortable: false, resizable: false, cellRenderer: Thumb },
-      { field: "sku", colId: "sku", headerName: "Item code", filter: "agTextColumnFilter", width: 170, pinned: "left", cellRenderer: Sku },
-      { field: "name", colId: "name", headerName: "Name", editable: true, filter: "agTextColumnFilter", flex: 1, minWidth: 180 },
+      { field: "sku", colId: "sku", headerName: "Item code", filter: "agTextColumnFilter", filterParams: COLUMN_FILTER, width: 170, pinned: "left", cellRenderer: Sku },
+      { field: "name", colId: "name", headerName: "Name", editable: true, filter: "agTextColumnFilter", filterParams: COLUMN_FILTER, flex: 1, minWidth: 180 },
       {
         field: "category_id",
         colId: "category",
@@ -355,18 +327,17 @@ export function ProductsGrid({
       {
         field: "status",
         colId: "status",
-        headerName: "Status",
+        headerName: "On the site",
         width: 150,
         editable: true,
         cellRenderer: Status,
         cellEditor: "agSelectCellEditor",
-        cellEditorParams: { values: ["active", "discontinued"], formatValue: (v: GridRow["status"]) => STATUS_LABEL[v] },
+        cellEditorParams: { values: ["active", "draft"], formatValue: (v: GridRow["status"]) => STATUS_LABEL[v] },
       },
       { field: "featured", colId: "featured", headerName: "Featured", width: 110, editable: true, cellEditor: "agCheckboxCellEditor", cellRenderer: "agCheckboxCellRenderer" },
-      { field: "dimensions", colId: "dimensions", headerName: "Dimensions", width: 190, editable: true, filter: "agTextColumnFilter" },
-      { field: "finish_count", colId: "finishes", headerName: "Finishes", width: 110, filter: "agNumberColumnFilter", type: "rightAligned" },
-      { field: "completeness", colId: "completeness", headerName: "Complete", width: 190, filter: "agNumberColumnFilter", cellRenderer: Completeness },
-      { field: "has_changes", colId: "changes", headerName: "Publishing", width: 180, cellRenderer: Changes },
+      { field: "dimensions", colId: "dimensions", headerName: "Dimensions", width: 190, editable: true, filter: "agTextColumnFilter", filterParams: COLUMN_FILTER },
+      { field: "finish_count", colId: "finishes", headerName: "Finishes", width: 110, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, type: "rightAligned" },
+      { field: "completeness", colId: "completeness", headerName: "Complete", width: 190, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, cellRenderer: Completeness },
       {
         field: "updated_at",
         colId: "updated",
@@ -381,45 +352,22 @@ export function ProductsGrid({
   );
 
   const runBulk = useCallback(
-    async (action: "publish" | "discontinue" | "activate" | "feature" | "unfeature" | "category") => {
+    async (action: "show" | "hide" | "feature" | "unfeature" | "category") => {
       if (action === "category" && !moveTo) {
         setNotice({ text: "Choose the category to move them to.", error: true });
         return;
-      }
-      const matching = scope === "matching";
-      const count = matching ? total ?? 0 : selected.length;
-      // Acting on everything matching the filter can touch hundreds of
-      // products in one click, so it always asks first, with the count.
-      if (matching) {
-        const target = action === "category" ? categories.find((c) => c.id === moveTo)?.name ?? "" : "";
-        const what: Record<typeof action, [string, string, string]> = {
-          publish: ["Publish", `Publish all ${count} matching products?`, "The site shows them straight away."],
-          discontinue: ["Discontinue", `Discontinue all ${count} matching products?`, "They leave the listings once published; their pages stay."],
-          activate: ["Make live", `Make all ${count} matching products live?`, "It takes effect once they are published."],
-          feature: ["Feature", `Feature all ${count} matching products?`, "They join the homepage's featured products once published."],
-          unfeature: ["Unfeature", `Unfeature all ${count} matching products?`, "They leave the homepage once published."],
-          category: ["Move", `Move all ${count} matching products to ${target}?`, "Their product types are cleared, since types belong to a category."],
-        };
-        const [verb, title, effect] = what[action];
-        const go = await confirm({
-          title,
-          body: `${effect} This acts on every product the current filters match, not only the rows on screen.`,
-          confirmLabel: `${verb} ${count}`,
-          danger: action !== "publish",
-        });
-        if (!go) return;
       }
       setBusy(true);
       const result = await bulkUpdate({
         action,
         categoryId: action === "category" ? moveTo : undefined,
-        ...(matching ? { state: currentState() } : { ids: selected.map((r) => r.id) }),
+        ids: selected.map((r) => r.id),
       });
       setBusy(false);
       setNotice(result.ok ? { text: result.message } : { text: result.error, error: true });
       if (result.ok) refresh();
     },
-    [scope, total, selected, currentState, moveTo, refresh, categories, confirm],
+    [selected, moveTo, refresh],
   );
 
   const toggleColumns = useMemo(
@@ -430,28 +378,6 @@ export function ProductsGrid({
     const state = apiRef.current?.getColumnState() ?? [];
     setHidden(new Set(state.filter((c) => c.hide).map((c) => c.colId)));
   }, []);
-
-  const saveCurrentView = async () => {
-    const api = apiRef.current;
-    if (!api) return;
-    const result = await saveView({
-      name: viewName,
-      shared: viewShared,
-      columnState: api.getColumnState() as unknown as Record<string, unknown>[],
-      state: currentState(),
-    });
-    if (!result.ok || !result.id) {
-      setNotice({ text: result.error ?? "The view couldn't be saved.", error: true });
-      return;
-    }
-    const state = currentState();
-    setViews((vs) => [
-      ...vs.filter((v) => !(v.owner === me && v.name === viewName.trim())),
-      { id: result.id!, name: viewName.trim(), owner: me, shared: viewShared, column_state: api.getColumnState(), filter_model: state },
-    ]);
-    setNotice({ text: `Saved the view “${viewName.trim()}”.` });
-    setViewName("");
-  };
 
   /**
    * Downloads a spreadsheet through a form post (ticked rows can be too many
@@ -481,8 +407,6 @@ export function ProductsGrid({
     form.remove();
   };
 
-  const selectionCount = scope === "matching" ? total ?? 0 : selected.length;
-
   return (
     <div className={grid.wrap}>
       {/* Toolbar: the filters people reach for first, outside the column menus. */}
@@ -507,25 +431,20 @@ export function ProductsGrid({
           </select>
         </label>
         <label className={grid.field}>
-          <span>Status</span>
+          <span>On the site</span>
           <select
             className="input"
             value={toolbar.status}
             onChange={(e) => setToolbar((t) => ({ ...t, status: e.target.value as Toolbar["status"] }))}
           >
-            <option value="">Any status</option>
-            <option value="active">Live</option>
-            <option value="draft">Draft</option>
-            <option value="discontinued">Discontinued</option>
+            <option value="">Visible or hidden</option>
+            <option value="active">Visible</option>
+            <option value="draft">Hidden</option>
           </select>
         </label>
         <label className={grid.check}>
           <input type="checkbox" checked={toolbar.incomplete} onChange={(e) => setToolbar((t) => ({ ...t, incomplete: e.target.checked }))} />
           Needs attention
-        </label>
-        <label className={grid.check}>
-          <input type="checkbox" checked={toolbar.changes} onChange={(e) => setToolbar((t) => ({ ...t, changes: e.target.checked }))} />
-          Unpublished changes
         </label>
 
         <div className={grid.spacer} />
@@ -553,66 +472,6 @@ export function ProductsGrid({
                   </DropdownMenu.CheckboxItem>
                 );
               })}
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="btn btn-secondary">Views</DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content className={grid.menu} align="end" sideOffset={6}>
-              {views.length === 0 && <div className={grid.menuNote}>No saved views yet.</div>}
-              {views.map((v) => (
-                <DropdownMenu.Item
-                  key={v.id}
-                  className={grid.menuItem}
-                  onSelect={() => {
-                    applyView({ toolbar: v.filter_model, filter: v.filter_model.filter, columns: v.column_state });
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete("state");
-                    url.searchParams.set("view", v.id);
-                    window.history.replaceState(null, "", url);
-                  }}
-                >
-                  <span>{v.name}</span>
-                  <span className={styles.muted}>{v.owner === me ? (v.shared ? "shared" : "mine") : v.owner}</span>
-                </DropdownMenu.Item>
-              ))}
-              <DropdownMenu.Separator className={grid.sep} />
-              <div className={grid.saveView} onKeyDown={(e) => e.stopPropagation()}>
-                <input
-                  className="input"
-                  placeholder="Name this view"
-                  value={viewName}
-                  onChange={(e) => setViewName(e.target.value)}
-                  aria-label="Name for the current view"
-                />
-                <label className={grid.check}>
-                  <input type="checkbox" checked={viewShared} onChange={(e) => setViewShared(e.target.checked)} />
-                  Share with the team
-                </label>
-                <button type="button" className="btn btn-primary" disabled={!viewName.trim()} onClick={() => void saveCurrentView()}>
-                  Save current view
-                </button>
-              </div>
-              {views.some((v) => v.owner === me) && (
-                <>
-                  <DropdownMenu.Separator className={grid.sep} />
-                  {views
-                    .filter((v) => v.owner === me)
-                    .map((v) => (
-                      <DropdownMenu.Item
-                        key={`del-${v.id}`}
-                        className={grid.menuItem}
-                        onSelect={async () => {
-                          if ((await deleteView(v.id)).ok) setViews((vs) => vs.filter((x) => x.id !== v.id));
-                        }}
-                      >
-                        Delete “{v.name}”
-                      </DropdownMenu.Item>
-                    ))}
-                </>
-              )}
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
@@ -662,36 +521,22 @@ export function ProductsGrid({
         </button>
       </div>
 
-      {/* Bulk actions: the ticked rows, or everything matching the filter.
-          One slim line; the actions appear only when there is something to
+      {/* Bulk actions on the ticked rows. One slim line; the actions appear only when there is something to
           act on, so the grid keeps the space the rest of the time. */}
       <div className={grid.bulk} aria-live="polite">
         <span className={grid.count}>
           {total === null ? "Loading" : `${total.toLocaleString("en")} product${total === 1 ? "" : "s"}`}
           {selected.length > 0 && ` · ${selected.length} ticked`}
         </span>
-        <div className={grid.scope} role="radiogroup" aria-label="Apply to">
-          <label className={grid.check}>
-            <input type="radio" name="scope" checked={scope === "selected"} onChange={() => setScope("selected")} />
-            Ticked rows
-          </label>
-          <label className={grid.check}>
-            <input type="radio" name="scope" checked={scope === "matching"} onChange={() => setScope("matching")} />
-            All {total?.toLocaleString("en") ?? ""} matching
-          </label>
-        </div>
-        {selectionCount === 0 ? (
-          <span className={styles.muted}>Tick rows to act on them, or choose all matching.</span>
+        {selected.length === 0 ? (
+          <span className={styles.muted}>Tick rows to act on them.</span>
         ) : (
           <div className={grid.actions}>
-            <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void runBulk("publish")}>
-              Publish
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("show")}>
+              Show on site
             </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("discontinue")}>
-              Discontinue
-            </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("activate")}>
-              Make live
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("hide")}>
+              Hide
             </button>
             <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("feature")}>
               Feature

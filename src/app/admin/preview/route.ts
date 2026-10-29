@@ -4,7 +4,7 @@ import { routes } from "@/lib/routes";
 import { serverClient } from "@/lib/supabase/server";
 
 /**
- * Opens a product's saved draft on the real product page.
+ * Opens a hidden product's saved copy on the real product page.
  *
  * Staff only: the proxy has already turned away anyone signed out, and this
  * checks the staff list again before switching draft mode on. The address

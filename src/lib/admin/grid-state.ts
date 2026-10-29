@@ -17,26 +17,20 @@ const numberCondition = z.object({
   filter: z.number().nullish(),
   filterTo: z.number().nullish(),
 });
+// One condition per column: the grid offers no AND/OR combinations.
 export const condition = z.union([textCondition, numberCondition]);
-const combined = z.object({
-  filterType: z.enum(["text", "number"]),
-  operator: z.enum(["AND", "OR"]),
-  conditions: z.array(condition).max(4),
-});
-const columnFilter = z.union([combined, condition]);
 
 export const gridStateSchema = z.object({
   sort: z
     .array(z.object({ colId: z.string(), sort: z.enum(["asc", "desc"]) }))
     .max(4)
     .default([]),
-  filter: z.record(z.string(), columnFilter).default({}),
+  filter: z.record(z.string(), condition).default({}),
   // The toolbar's own filters, outside the grid's column menus.
   q: z.string().max(100).default(""),
   category: z.string().max(80).default(""),
-  status: z.enum(["", "draft", "active", "discontinued"]).default(""),
+  status: z.enum(["", "draft", "active"]).default(""),
   incomplete: z.boolean().default(false),
-  changes: z.boolean().default(false),
   importJob: z.string().uuid().or(z.literal("")).default(""),
 });
 export type GridState = z.infer<typeof gridStateSchema>;

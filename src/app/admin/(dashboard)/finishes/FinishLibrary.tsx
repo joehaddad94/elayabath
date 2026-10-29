@@ -13,7 +13,7 @@ import editor from "../products/[id]/editor.module.css";
 import { useConfirm } from "../ConfirmDialog";
 import { useUnsavedGuard } from "../useUnsavedGuard";
 import styles from "./finishes.module.css";
-import { createFinish, deleteFinish, publishFinishNow, saveFinish, type NewFinishState } from "./actions";
+import { createFinish, deleteFinish, saveFinish, type NewFinishState } from "./actions";
 
 export interface LibraryFinish {
   id: string;
@@ -26,15 +26,14 @@ export interface LibraryFinish {
   form: FinishForm & { family: (typeof FINISH_FAMILIES)[number]; status: "active" | "retired" };
 }
 
-const stateOf = (f: LibraryFinish) =>
-  f.publishedVersion === null ? "Not published" : f.version !== f.publishedVersion ? "Unpublished changes" : null;
+const stateOf = (f: LibraryFinish) => (f.publishedVersion === null ? "Not on the site yet" : null);
 
 /**
  * The library on the left, filterable; the chosen finish's editor on the
- * right. Saved as a draft and published like everything else; the swatch is
+ * right. Saving changes the site straight away; the swatch is
  * reduced in the browser and uploaded straight to Storage.
  */
-const ONLY = ["", "shared", "unpublished", "retired", "unused"] as const;
+const ONLY = ["", "shared", "offsite", "retired", "unused"] as const;
 
 export function FinishLibrary({ finishes, selected, only: initialOnly }: { finishes: LibraryFinish[]; selected?: string; only?: string }) {
   const router = useRouter();
@@ -56,7 +55,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
         (family === "" || f.form.family === family) &&
         (only === "" ||
           (only === "shared" && f.sharedCode) ||
-          (only === "unpublished" && stateOf(f) !== null) ||
+          (only === "offsite" && stateOf(f) !== null) ||
           (only === "retired" && f.form.status === "retired") ||
           (only === "unused" && f.products === 0)),
     );
@@ -94,7 +93,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
           <select className="input" aria-label="Show only" value={only} onChange={(e) => setOnly(e.target.value as typeof only)}>
             <option value="">All finishes</option>
             <option value="shared">Codes shared with another finish</option>
-            <option value="unpublished">Unpublished</option>
+            <option value="offsite">Not on the site yet</option>
             <option value="unused">Used by no product</option>
             <option value="retired">Retired</option>
           </select>
@@ -150,7 +149,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
   const [form, setForm] = useState(finish.form);
   const [base, setBase] = useState(finish.form);
   const [version, setVersion] = useState(finish.version);
-  const [publishedVersion, setPublishedVersion] = useState(finish.publishedVersion);
+  const publishedVersion = finish.publishedVersion;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<{ text: string; error?: boolean; reload?: boolean } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -158,7 +157,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
   const [reloading, setReloading] = useState<string | null>(null);
   const dirty = JSON.stringify(form) !== JSON.stringify(base);
 
-  // The page refreshes after every save and publish. Take the server's copy
+  // The page refreshes after every save. Take the server's copy
   // only when it is newer and was asked for, or nothing here is unsaved.
   const [received, setReceived] = useState(finish);
   if (finish !== received) {
@@ -167,14 +166,12 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
       setForm(finish.form);
       setBase(finish.form);
       setVersion(finish.version);
-      setPublishedVersion(finish.publishedVersion);
       setErrors({});
       setNotice(reloading !== null ? { text: reloading } : null);
     }
     setReloading(null);
   }
 
-  const unpublished = publishedVersion === null || version !== publishedVersion;
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((f) => ({ ...f, [key]: value }));
 
   const save = async (): Promise<boolean> => {
@@ -199,16 +196,6 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
     setErrors({});
     setNotice({ text: result.message });
     return true;
-  };
-
-  const publish = async () => {
-    if (dirty && !(await save())) return;
-    setBusy("publish");
-    setNotice(null);
-    const result = await publishFinishNow({ id: finish.id });
-    setBusy(null);
-    if (result.ok) setPublishedVersion(result.version ?? null);
-    setNotice(result.ok ? { text: result.message ?? "Published." } : { text: result.error ?? "It couldn't be published.", error: true });
   };
 
   const uploadSwatch = async (file: File | undefined) => {
@@ -241,7 +228,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
     <section className={editor.panel} aria-labelledby={`${ids}-title`}>
       <h2 id={`${ids}-title`}>
         {form.name || "Untitled finish"}
-        <span className={admin.muted}>{finish.products} products, {finish.liveProducts} live</span>
+        <span className={admin.muted}>{finish.products} products, {finish.liveProducts} visible</span>
       </h2>
       {finish.sharedCode && (
         <p className={`${admin.message} ${admin.messageError}`}>
@@ -285,7 +272,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
         <label htmlFor={`${ids}-slug`} className={editor.label}>Web address</label>
         <input {...field("slug")} className="input" value={form.slug} readOnly={publishedVersion !== null} onChange={(e) => set("slug", e.target.value)} />
         {error("slug")}
-        {publishedVersion !== null && <span className={editor.hint}>Fixed once published: the site&apos;s colour filters link to it.</span>}
+        {publishedVersion !== null && <span className={editor.hint}>Fixed once it is on the site: the site&apos;s colour filters link to it.</span>}
       </div>
       <label className={editor.check}>
         <input type="checkbox" checked={form.status === "retired"} onChange={(e) => set("status", e.target.checked ? "retired" : "active")} />
@@ -293,15 +280,12 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
       </label>
       {retiring && (
         <p className={editor.hint}>
-          Its {finish.liveProducts} live products keep showing it. Remove it from them to take it off their pages.
+          Its {finish.liveProducts} visible products keep showing it. Remove it from them to take it off their pages.
         </p>
       )}
       <div className={editor.buttons}>
-        <button type="button" className="btn btn-secondary" disabled={busy !== null || !dirty} onClick={() => void save()}>
-          {busy === "save" ? "Saving" : "Save draft"}
-        </button>
-        <button type="button" className="btn btn-primary" disabled={busy !== null || (!dirty && !unpublished)} onClick={() => void publish()}>
-          {busy === "publish" ? "Publishing" : dirty ? "Save and publish" : "Publish"}
+        <button type="button" className="btn btn-primary" disabled={busy !== null || !dirty} onClick={() => void save()}>
+          {busy === "save" ? "Saving" : "Save"}
         </button>
       </div>
       {notice && (
@@ -332,7 +316,7 @@ function FinishEditor({ finish, onDeleted, onDirty }: { finish: LibraryFinish; o
           onClick={async () => {
             const go = await confirm({
               title: `Delete ${form.name}?`,
-              body: "No product uses it and it has never been published. This can't be undone.",
+              body: "No product uses it and it has never been on the site. This can't be undone.",
               confirmLabel: "Delete",
               danger: true,
             });
@@ -394,7 +378,7 @@ function NewFinish({ onCreated }: { onCreated: (id: string) => void }) {
       )}
       {state.created && (
         <p className={admin.message} role="status">
-          Added, unpublished. It goes live when you publish it, or with the first product that uses it.
+          Added. It goes on the site with the first visible product that uses it.
           {state.note && ` ${state.note}`}
         </p>
       )}

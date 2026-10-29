@@ -8,12 +8,12 @@ import { NewImport } from "./NewImport";
 export const metadata: Metadata = { title: "Import and export" };
 
 const STATUS: Record<string, string> = {
-  uploaded: "Mapping",
+  uploaded: "Needs its columns",
   staging: "Checking",
   staged: "Checked, not applied",
   applying: "Applying",
-  applied: "Applied as drafts",
-  published: "Published",
+  applied: "Applied, site not updated",
+  published: "Applied",
   discarded: "Discarded",
   failed: "Failed",
 };
@@ -39,8 +39,8 @@ export default async function ImportsPage() {
         <div>
           <h1>Import and export</h1>
           <p>
-            Bring in a spreadsheet of products, categories, finishes or product finishes, check every row before
-            anything changes, and apply it as drafts. Exports import back unchanged.
+            Bring in a spreadsheet of products, categories, finishes or product finishes. Every row is checked and
+            you see what would change before anything does; Apply puts it on the site. Exports import back unchanged.
           </p>
         </div>
       </div>
@@ -53,8 +53,8 @@ export default async function ImportsPage() {
       <section className={styles.section} aria-labelledby="exports">
         <h2 id="exports">Export</h2>
         <p className={styles.muted}>
-          The working copy, drafts included, unless it says live. For a filtered set of products, use Export on the
-          Products grid.
+          Everything, hidden rows included, unless it says as on the site. For a filtered set of products, use Export
+          on the Products grid.
         </p>
         <table className={styles.table}>
           <thead>
@@ -72,7 +72,7 @@ export default async function ImportsPage() {
                   <span className={styles.linkRow}>
                   <a href={exportLink(e, "xlsx")}>Excel</a>
                   <a href={exportLink(e, "csv")}>CSV</a>
-                  {(e === "products" || e === "categories") && <a href={exportLink(e, "xlsx", "&source=published")}>Live, Excel</a>}
+                  {(e === "products" || e === "categories") && <a href={exportLink(e, "xlsx", "&source=published")}>As on the site, Excel</a>}
                 </span>
                 </td>
                 <td>

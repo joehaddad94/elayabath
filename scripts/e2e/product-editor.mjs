@@ -50,7 +50,7 @@ try {
 
   // Validation: nothing is sent while a field is wrong.
   await label("Name").fill("");
-  await page.click("button:has-text('Save draft')");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.waitForTimeout(400);
   const nameInvalid = await label("Name").getAttribute("aria-invalid");
   const { data: v0 } = await admin.from("products").select("version").eq("id", original.id).single();
@@ -70,7 +70,7 @@ try {
   const unsavedBadge = await page.locator("text=Unsaved changes").count();
   check("unsaved changes are flagged", unsavedBadge === 1);
   await page.keyboard.press("Control+s");
-  await page.waitForSelector("text=Saved as a draft");
+  await page.waitForSelector("text=Saved. The site shows it now.");
 
   const { data: s1 } = await admin.from("products").select("description, dimensions, features, version, published_version").eq("id", original.id).single();
   const { data: l1 } = await admin.from("product_finishes").select("finish_id, position").eq("product_id", original.id).order("position");
@@ -82,27 +82,27 @@ try {
     const { data: stillThere } = await admin.from("product_finishes").select("image_path").eq("product_id", original.id).eq("finish_id", kept.finish_id).single();
     check("a kept finish keeps its own photo", stillThere.image_path === kept.image_path);
   }
-  const { data: liveBefore } = await admin.from("published_products").select("snapshot").eq("product_id", original.id).single();
-  check("the site is unchanged until publish", liveBefore.snapshot.description === original.description);
+  const { data: liveNow } = await admin.from("published_products").select("snapshot").eq("product_id", original.id).single();
+  check("saving puts the change live", liveNow.snapshot.description === "C7 test description.");
   const badges = await page.locator("[class*=badges]").textContent();
-  check("the badge moves to unpublished changes", badges.includes("Unpublished changes") && !badges.includes("Unsaved"), badges);
+  check("the unsaved badge clears", !badges.includes("Unsaved"), badges);
 
   // Conflict, overwrite.
   await admin.from("products").update({ dimensions: "Their dimensions" }).eq("id", original.id);
   await label("Dimensions").fill("My dimensions");
-  await page.click("button:has-text('Save draft')");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.waitForSelector("text=while you were editing it");
   const { data: c1 } = await admin.from("products").select("dimensions").eq("id", original.id).single();
   check("a stale save is refused and names who saved", c1.dimensions === "Their dimensions" && (await page.locator("[role=alert] strong").textContent()) !== "");
   await page.click("button:has-text('Keep mine and overwrite')");
-  await page.waitForSelector("text=Saved as a draft");
+  await page.waitForSelector("text=Saved. The site shows it now.");
   const { data: c2 } = await admin.from("products").select("dimensions").eq("id", original.id).single();
   check("'keep mine' overwrites deliberately", c2.dimensions === "My dimensions");
 
   // Conflict, load theirs.
   await admin.from("products").update({ dimensions: "Theirs again" }).eq("id", original.id);
   await label("Dimensions").fill("Mine again");
-  await page.click("button:has-text('Save draft')");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.waitForSelector("text=while you were editing it");
   await page.click("button:has-text('Load their version')");
   await page.waitForFunction(() => [...document.querySelectorAll("input")].some((i) => i.value === "Theirs again"), null, { timeout: 8000 });
@@ -118,43 +118,42 @@ try {
   await label("Category").selectOption(original.category_id);
   await label("Type").selectOption(original.type_id);
 
-  // Publish; the site follows.
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
-  await page.waitForSelector("text=Published. The site shows it now.");
+  // Save; the site follows.
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=Saved. The site shows it now.");
   const html = await (await fetch(`${BASE}/product/${original.slug}`)).text();
-  check("publishing puts the saved draft live", html.includes("Theirs again"));
+  check("the product page shows the saved copy", html.includes("Theirs again"));
   check("and the score reflects the added finish", (await page.locator("h2:has-text('Completeness') span").textContent()) >= scoreBefore, `${scoreBefore} -> ${await page.locator("h2:has-text('Completeness') span").textContent()}`);
-  check("nothing left to publish", await page.getByRole("button", { name: "Publish", exact: true }).isDisabled());
 
   // A new address leaves a redirect.
   const newSlug = `${original.slug}-c7`;
   await page.getByLabel("Web address").fill(newSlug);
   check("the editor warns that the old address will redirect", (await page.getByText(`/product/${original.slug} will redirect here`).count()) === 1);
-  await page.click("button:has-text('Save and publish')");
-  await page.waitForSelector("text=Published. The site shows it now.");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=Saved. The site shows it now.");
   const old = await fetch(`${BASE}/product/${original.slug}`, { redirect: "manual" });
   check("the old address redirects to the new one", [307, 308].includes(old.status) && (old.headers.get("location") ?? "").endsWith(`/product/${newSlug}`), `${old.status} ${old.headers.get("location")}`);
 
-  // Discontinue.
-  await page.getByLabel("Discontinued: hidden from listings, page kept").check();
-  await page.click("button:has-text('Save and publish')");
-  await page.waitForSelector("text=stays hidden from listings");
-  const disc = await (await fetch(`${BASE}/product/${newSlug}`)).text();
-  check("a discontinued product keeps its page, marked", /discontinued/i.test(disc));
+  // Hide: off the site entirely.
+  await page.getByLabel("Hidden: not on the site at all").check();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=Saved. It is hidden");
+  check("a hidden product has no page", (await fetch(`${BASE}/product/${newSlug}`)).status === 404);
+  check("and cannot be deleted, having been on the site", (await page.getByRole("button", { name: "Delete this product" }).count()) === 0);
 
   // New product: a duplicate code is refused and the form keeps what was typed.
   await page.goto(`${BASE}/admin/products/new`, { waitUntil: "networkidle" });
   await page.getByLabel("Item code").fill(original.sku);
   await page.getByLabel("Name").fill("Duplicate");
   await page.getByLabel("Category").selectOption(original.category_id);
-  await page.click("button:has-text('Create draft')");
+  await page.click("button:has-text('Create product, hidden')");
   await page.waitForSelector("text=Another product already has this item code");
   check("a duplicate item code is refused, form kept", (await page.getByLabel("Name").inputValue()) === "Duplicate" && (await page.getByLabel("Category").inputValue()) === original.category_id);
   await page.getByLabel("Item code").fill("C7-TEST-0001");
-  await Promise.all([page.waitForURL("**/admin/products/*?created=1"), page.click("button:has-text('Create draft')")]);
-  await page.waitForSelector("text=Created as a draft");
+  await Promise.all([page.waitForURL("**/admin/products/*?created=1"), page.click("button:has-text('Create product, hidden')")]);
+  await page.waitForSelector("text=Created, and hidden from the site");
   const { data: made } = await admin.from("products").select("id, slug, status").eq("sku", "C7-TEST-0001").single();
-  check("a new product is created as a draft", made.status === "draft" && made.slug === "c7-test-0001");
+  check("a new product is created hidden", made.status === "draft" && made.slug === "c7-test-0001");
   check("the new product is not on the site", (await fetch(`${BASE}/product/c7-test-0001`)).status === 404);
 
   // Phone width: nothing wider than the screen.
@@ -164,12 +163,12 @@ try {
   check("the editor fits a phone screen", overflow <= 0, `${overflow}px over`);
   await page.setViewportSize({ width: 1440, height: 1000 });
 
-  await page.click("button:has-text('Delete this draft')");
+  await page.click("button:has-text('Delete this product')");
   await Promise.all([page.waitForURL(`${BASE}/admin/products`), confirmModal(page)]);
   const { data: gone } = await admin.from("products").select("id").eq("sku", "C7-TEST-0001").maybeSingle();
-  check("a never-published draft can be deleted", gone === null);
+  check("a product never on the site can be deleted", gone === null);
   const { error: refused } = await admin.rpc("delete_draft_product", { p_id: original.id });
-  check("a published product cannot be deleted", refused?.code === "PT409", refused?.message);
+  check("a product that has been on the site cannot be deleted", refused?.code === "PT409", refused?.message);
 
   check("no errors in the browser console", errors.length === 0, errors[0] ?? "");
 } catch (e) {

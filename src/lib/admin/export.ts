@@ -25,12 +25,13 @@ export interface ExportRequest {
 const PAGE = 500;
 /** Ids travel in the request URL; 150 of them stay well inside its limit. */
 const ID_PAGE = 150;
-const STATUS: Record<string, string> = { active: "Live", discontinued: "Discontinued", draft: "Draft", retired: "Retired" };
-const CATEGORY_STATUS: Record<string, string> = { active: "Live", discontinued: "Hidden", draft: "Draft" };
+const STATUS: Record<string, string> = { active: "Visible", draft: "Hidden" };
+const CATEGORY_STATUS: Record<string, string> = { active: "Visible", discontinued: "Hidden", draft: "Hidden" };
+const FINISH_STATUS: Record<string, string> = { active: "Active", retired: "Retired" };
 
 /**
  * The rows of an export, header first, a page at a time. Every cell holds
- * what an import accepts back (names, web addresses, Live or Discontinued,
+ * what an import accepts back (names, web addresses, Visible or Hidden,
  * Yes or No), so an exported sheet can be edited and imported unchanged.
  */
 async function* exportRows(supabase: Client, request: ExportRequest): AsyncGenerator<string[]> {
@@ -84,7 +85,7 @@ async function* exportRows(supabase: Client, request: ExportRequest): AsyncGener
     }
     const { data } = await supabase.from("categories").select("id, slug, name, blurb, status, published_version").order("position");
     for (const c of data ?? []) {
-      yield pick({ id: c.id, slug: c.slug, name: c.name, blurb: c.blurb.join("\n\n"), status: c.published_version === null ? "Draft" : (CATEGORY_STATUS[c.status] ?? c.status) });
+      yield pick({ id: c.id, slug: c.slug, name: c.name, blurb: c.blurb.join("\n\n"), status: c.published_version === null ? "Hidden" : (CATEGORY_STATUS[c.status] ?? c.status) });
     }
     return;
   }
@@ -92,7 +93,7 @@ async function* exportRows(supabase: Client, request: ExportRequest): AsyncGener
   if (request.entity === "finishes") {
     const { data } = await supabase.from("finishes").select("id, slug, code, name, family, status").order("family").order("code");
     for (const f of data ?? []) {
-      yield pick({ id: f.id, slug: f.slug, code: f.code, name: f.name, family: FINISH_FAMILY_NAMES[f.family as keyof typeof FINISH_FAMILY_NAMES] ?? f.family, status: STATUS[f.status] ?? f.status });
+      yield pick({ id: f.id, slug: f.slug, code: f.code, name: f.name, family: FINISH_FAMILY_NAMES[f.family as keyof typeof FINISH_FAMILY_NAMES] ?? f.family, status: FINISH_STATUS[f.status] ?? f.status });
     }
   }
 }
@@ -115,7 +116,7 @@ async function workingProducts(supabase: Client, ids: string[] | null, page: num
     dimensions: p.dimensions ?? "",
     features: p.features.join(LIST_SEPARATOR),
     finishes: [...p.product_finishes].sort((a, b) => a.position - b.position).map((l) => l.finishes?.slug ?? "").join(LIST_SEPARATOR),
-    status: p.published_version === null ? "Draft" : (STATUS[p.status] ?? p.status),
+    status: STATUS[p.status] ?? p.status,
     featured: p.featured ? "Yes" : "No",
   }));
 }

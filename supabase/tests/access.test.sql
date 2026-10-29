@@ -28,7 +28,7 @@ delete from public.reserved_addresses;
 -- ── fixtures, as the table owner ───────────────────────────────────────────
 
 insert into public.reserved_addresses (email) values ('info@example.test');
-insert into public.staff (email) values ('owner@example.test');
+insert into public.staff (email, role) values ('owner@example.test', 'owner');
 
 insert into public.categories (id, slug, name, status)
 values ('00000000-0000-0000-0000-00000000c001', 'basins', 'Basins', 'active');

@@ -48,7 +48,7 @@ export const productFields = {
     .regex(STORAGE_PATH, "That data sheet isn't a stored file.")
     .refine((p) => p.endsWith(".pdf"), "A data sheet must be a PDF.")
     .nullable(),
-  status: z.enum(["draft", "active", "discontinued"]),
+  status: z.enum(["draft", "active"]),
   featured: z.boolean(),
 };
 

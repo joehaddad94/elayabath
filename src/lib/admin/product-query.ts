@@ -29,7 +29,6 @@ const COLUMNS = {
   dimensions: "dimensions",
   finishes: "finish_count",
   completeness: "completeness",
-  changes: "has_changes",
   updated: "updated_at",
   updatedBy: "updated_by",
 } as const;
@@ -109,19 +108,13 @@ export function applyGridState<Q extends Filterable>(
   if (state.category) q = q.eq("category_slug", state.category);
   if (state.status) q = q.eq("status", state.status);
   if (state.incomplete) q = q.lt("completeness", 6);
-  if (state.changes) q = q.eq("has_changes", true);
   if (state.importJob) q = q.eq("import_job_id", state.importJob);
 
+  // One condition per column; columns combine with AND.
   for (const [colId, f] of Object.entries(state.filter)) {
     if (!isColumn(colId)) continue;
-    const column = COLUMNS[colId];
-    const parts = "conditions" in f ? f.conditions : [f];
-    const exprs = parts.map((c) => expression(column, c)).filter((e): e is string => e !== null);
-    if (exprs.length === 0) continue;
-    // Each column's filter is one group; groups combine with AND, like the
-    // grid's own semantics.
-    const operator = "operator" in f ? f.operator : "AND";
-    q = operator === "OR" ? q.or(exprs.join(",")) : q.or(`and(${exprs.join(",")})`);
+    const expr = expression(COLUMNS[colId], f);
+    if (expr) q = q.or(`and(${expr})`);
   }
 
   if (withSort) {
@@ -138,7 +131,7 @@ export function applyGridState<Q extends Filterable>(
 export const ADMIN_PRODUCT_COLUMNS =
   "id, sku, slug, name, category_id, category_slug, category_name, type_id, type_name, status, " +
   "featured, position, dimensions, has_datasheet, image_path, finish_count, completeness, missing, " +
-  "has_changes, published_version, version, updated_at, updated_by";
+  "published_version, version, updated_at, updated_by";
 
 /** Every id matching the state, for bulk actions. Paged, so a very large
  *  catalogue is read in slices rather than one unbounded request. */

@@ -12,8 +12,9 @@ is the list of things to do.
 | Database, sign-in, files | Supabase: Postgres, Auth, Storage | The catalogue (working copy, live copy, history), staff list, photos, data sheets |
 | Nightly backup | GitHub Actions, `.github/workflows/catalogue-backup.yml` | Every table as JSON on the `catalogue-backup` branch |
 
-Nothing reaches the public site except through Publish. Everything staff edit
-is a draft until then.
+Saving in the dashboard puts a change on the public site straight away. A
+product or category is either visible or hidden; hidden is off the site
+entirely. The owner (the first staff member) alone sees the Staff page.
 
 ## Environment variables
 
@@ -102,7 +103,7 @@ need a login or a secret are for Joe (or Elaya) to run, not to paste anywhere.
    secrets `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, then run "Catalogue
    backup" once by hand from the Actions tab. Scheduled runs only happen from
    the default branch (`main`).
-8. **Check it**: sign in at `/admin`, publish a small change to one product,
+8. **Check it**: sign in at `/admin`, save a small change to one product,
    open its page, then `BASE=https://<domain> npm run audit:browser`.
 
 ## Moving to Elaya's account
@@ -157,8 +158,8 @@ a secret key and a full copy of the catalogue.
 
 ## Publishing and the site's cache
 
-Pages are built once and kept until something they show is published; then
-only those pages are rebuilt, on their next visit. Publishing from the
+Pages are built once and kept until something they show is saved from the
+dashboard; then only those pages are rebuilt, on their next visit. The
 dashboard does this automatically.
 
 **Anything that changes the database outside the dashboard does not**: the

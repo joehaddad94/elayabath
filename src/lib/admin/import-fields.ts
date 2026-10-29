@@ -44,7 +44,7 @@ export const FIELDS: Record<Entity, FieldDef[]> = {
     { key: "dimensions", label: "Dimensions", aliases: ["size", "sizes", "measurements"] },
     { key: "features", label: "Features", aliases: ["feature list"], help: "Separated by | or one per line." },
     { key: "finishes", label: "Finishes", aliases: ["colours", "colors", "finish"], help: "Web addresses or codes, separated by | or one per line." },
-    { key: "status", label: "Status", aliases: ["state"], help: "Live or Discontinued." },
+    { key: "status", label: "Status", aliases: ["state"], help: "Visible or Hidden. New products always start hidden." },
     { key: "featured", label: "Featured", aliases: ["homepage"], help: "Yes or No." },
   ],
   categories: [
@@ -52,7 +52,7 @@ export const FIELDS: Record<Entity, FieldDef[]> = {
     { key: "slug", label: "Web address", aliases: ["slug", "url"], help: "Made from the name when left out.", required: true },
     { key: "name", label: "Name", aliases: ["category", "title"], requiredForNew: true, required: true },
     { key: "blurb", label: "Description", aliases: ["blurb", "text"], help: "Paragraphs separated by a blank line." },
-    { key: "status", label: "Status", aliases: ["state"], help: "Live or Hidden." },
+    { key: "status", label: "Status", aliases: ["state"], help: "Visible or Hidden. New categories always start hidden." },
   ],
   finishes: [
     { key: "id", label: "ID", aliases: ["internal id", "uuid"] },

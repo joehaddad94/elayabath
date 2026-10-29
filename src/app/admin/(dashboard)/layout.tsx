@@ -16,10 +16,10 @@ const SECTIONS: AdminNavItem[] = [
   { href: "/admin/finishes", label: "Finishes" },
   { href: "/admin/homepage", label: "Homepage" },
   { href: "/admin/imports", label: "Import" },
-  { href: "/admin/media", label: "Media" },
-  { href: "/admin/activity", label: "Activity" },
-  { href: "/admin/staff", label: "Staff" },
 ];
+
+/** The owner's own section, shown to nobody else. */
+const OWNER_SECTIONS: AdminNavItem[] = [{ href: "/admin/staff", label: "Staff" }];
 
 /**
  * The signed-in frame. Knowing who is signed in means reading the session
@@ -38,7 +38,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 }
 
 async function SignedIn({ children }: { children: React.ReactNode }) {
-  const { email } = await requireStaff();
+  const { supabase, email } = await requireStaff();
+  const { data: isOwner } = await supabase.rpc("is_owner");
 
   return (
     <ConfirmProvider>
@@ -47,7 +48,7 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
           <Image src="/logo.png" alt="" width={74} height={36} className="invert-on-dark" />
           Dashboard
         </Link>
-        <AdminNav items={SECTIONS} />
+        <AdminNav items={isOwner ? [...SECTIONS, ...OWNER_SECTIONS] : SECTIONS} />
         <div className={styles.who}>
           <span className={styles.whoEmail}>{email}</span>
           <ThemeToggle label="Switch to the {theme} palette" />

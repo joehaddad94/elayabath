@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FIELDS, IDENTITIES, type Entity, type ImportOptions } from "@/lib/admin/import-fields";
-import { normaliseHeader } from "@/lib/admin/sheets";
+import { gridLink } from "@/lib/admin/links";
 import admin from "../../../admin.module.css";
 import styles from "../imports.module.css";
-import { applyNext, configureImport, discardImport, publishNext, stageNext } from "../actions";
+import { applyNext, configureImport, stageNext, syncNext } from "../actions";
 import { useConfirm } from "../../ConfirmDialog";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { ImportPreview } from "./ImportPreview";
@@ -20,7 +20,6 @@ interface JobView {
   headers: string[];
   columns: Record<string, string>;
   grouped: boolean;
-  preset: string | null;
   options: ImportOptions;
   error: string | null;
   tagged: number;
@@ -37,32 +36,25 @@ const OUTCOME_LABEL: Record<string, string> = {
 };
 
 /**
- * One import, step by step: map the columns and choose the rules; check
- * every row; look at what would change; apply it as drafts; then publish it
- * or discard it, as one.
+ * One import: the rows are checked as soon as the file is in, the page shows
+ * what would change, and Apply saves it and puts it on the site. The columns
+ * are mapped from the file's headers; they can be changed, which checks the
+ * rows again.
  *
- * Checking, applying and publishing each run as a loop of short requests
- * from here, with progress shown, so no request runs long however big the
- * file is. Leaving the page stops the loop; coming back continues it.
+ * Checking and applying each run as a loop of short requests from here,
+ * with progress shown, so no request runs long however big the file is.
+ * Leaving the page stops the loop; coming back continues it.
  */
-export function ImportJob({
-  job,
-  sample,
-  presets,
-}: {
-  job: JobView;
-  sample: string[][];
-  presets: Array<{ name: string; mapping: Record<string, string> }>;
-}) {
+export function ImportJob({ job, sample }: { job: JobView; sample: string[][] }) {
   const router = useRouter();
   const confirm = useConfirm();
   const [columns, setColumns] = useState(job.columns);
   const [options, setOptions] = useState(job.options);
-  const [presetName, setPresetName] = useState("");
+  const [showColumns, setShowColumns] = useState(job.status === "uploaded");
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(job.error ? { text: job.error, error: true } : null);
 
-  // A running check, apply or publish stops if the page is left; it can be
+  // A running check or apply stops if the page is left; it can be
   // continued later, but say so first.
   useUnsavedGuard(progress !== null, "Leaving stops this where it is. You can continue it later from this page.");
 
@@ -77,19 +69,6 @@ export function ImportJob({
       if (key) next[String(index)] = key;
       return next;
     });
-
-  const applyPreset = (name: string) => {
-    const preset = presets.find((p) => p.name === name);
-    if (!preset) return;
-    setColumns(
-      Object.fromEntries(
-        job.headers.flatMap((h, i) => {
-          const key = preset.mapping[normaliseHeader(h)];
-          return key ? [[String(i), key]] : [];
-        }),
-      ),
-    );
-  };
 
   const loop = async (label: string, step: () => Promise<{ ok: boolean; error?: string; done?: number; total?: number; remaining?: number }>, total: number) => {
     setNotice(null);
@@ -110,7 +89,7 @@ export function ImportJob({
   };
 
   const check = async () => {
-    const saved = await configureImport({ id: job.id, columns, options, presetName: presetName || undefined });
+    const saved = await configureImport({ id: job.id, columns, options });
     if (!saved.ok) return setNotice({ text: saved.error, error: true });
     await loop(
       "Checking rows",
@@ -135,10 +114,25 @@ export function ImportJob({
     router.refresh();
   };
 
+  // A new import is checked straight away, and a check left half done
+  // carries on when the page is opened again.
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current || job.status !== "staging") return;
+    started.current = true;
+    void continueChecking();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const putLive = async () => {
+    const total = job.entity === "products" || job.entity === "product_finishes" ? Math.max(job.tagged, toApply) : toApply;
+    return loop("Updating the site", async () => syncNext({ id: job.id }), total);
+  };
+
   const apply = async () => {
     const go = await confirm({
       title: `Apply ${plural(toApply, "change", "changes")}?`,
-      body: "They are saved as drafts. Nothing goes live until it is published.",
+      body: "They are saved and the site shows them straight away. New rows start hidden.",
       confirmLabel: "Apply",
     });
     if (!go) return;
@@ -152,7 +146,8 @@ export function ImportJob({
       },
       toApply,
     );
-    if (ok && refused) {
+    const live = ok && (await putLive());
+    if (live && refused) {
       setNotice({
         text: `${plural(refused, "row was", "rows were")} left alone because someone changed them after the check. They are listed as errors.`,
         error: true,
@@ -161,28 +156,8 @@ export function ImportJob({
     router.refresh();
   };
 
-  const publish = async () => {
-    const go = await confirm({
-      title: "Publish everything from this import?",
-      body: "The site shows every change straight away.",
-      confirmLabel: "Publish",
-    });
-    if (!go) return;
-    const total = job.entity === "products" || job.entity === "product_finishes" ? job.tagged : toApply;
-    await loop("Publishing", async () => publishNext({ id: job.id }), total);
-    router.refresh();
-  };
-
-  const discard = async () => {
-    const go = await confirm({
-      title: "Discard this import's drafts?",
-      body: "New rows it created are deleted, and everything it changed goes back to its live version, including any edits made to those rows since.",
-      confirmLabel: "Discard",
-      danger: true,
-    });
-    if (!go) return;
-    const result = await discardImport({ id: job.id });
-    if (!result.ok) return setNotice({ text: result.error, error: true });
+  const finish = async () => {
+    await putLive();
     router.refresh();
   };
 
@@ -202,21 +177,22 @@ export function ImportJob({
         </p>
       )}
 
-      {/* ── 1. mapping and rules ── */}
+      {/* ── columns and rules, open only when they need attention ── */}
       <section className={styles.step} aria-labelledby="step-map">
-        <h2 id="step-map">1. Columns and rules</h2>
-        {!editable && <p className={admin.muted}>{job.grouped ? "The rows have been grouped per product; start a new import to map them differently." : "Fixed once applied; start a new import to change them."}</p>}
-        {editable && presets.length > 0 && (
-          <label className={styles.presetPick}>
-            Use a saved mapping{" "}
-            <select className="input" defaultValue={job.preset ?? ""} onChange={(e) => applyPreset(e.target.value)}>
-              <option value="">None</option>
-              {presets.map((p) => (
-                <option key={p.name} value={p.name}>{p.name}</option>
-              ))}
-            </select>
-          </label>
+        <h2 id="step-map">Columns</h2>
+        {job.status === "uploaded" && (
+          <p>Choose which column holds what: at least the one that finds each row. Then check the rows.</p>
         )}
+        {!showColumns && (
+          <p className={admin.muted}>
+            {Object.keys(columns).length} of {job.headers.length} columns are used, matched from their headers.{" "}
+            <button type="button" className={admin.linkButton} onClick={() => setShowColumns(true)}>
+              {editable ? "Change" : "Show"}
+            </button>
+          </p>
+        )}
+        {showColumns && !editable && <p className={admin.muted}>{job.grouped ? "The rows have been grouped per product; start a new import to map them differently." : "Fixed once applied; start a new import to change them."}</p>}
+        {showColumns && (<>
         <div className={styles.scroll}>
           <table className={admin.table}>
             <thead>
@@ -275,7 +251,7 @@ export function ImportJob({
             <label>
               Rows that match nothing{" "}
               <select className="input" value={options.unknown} onChange={(e) => setOptions({ ...options, unknown: e.target.value as ImportOptions["unknown"] })}>
-                <option value="create">are created as new drafts</option>
+                <option value="create">are created, hidden</option>
                 <option value="skip">are skipped</option>
               </select>
             </label>
@@ -286,26 +262,18 @@ export function ImportJob({
         </fieldset>
         {editable && (
           <div className={styles.actions}>
-            <label>
-              Save this mapping as{" "}
-              <input className="input" value={presetName} placeholder="optional name" onChange={(e) => setPresetName(e.target.value)} />
-            </label>
             <button type="button" className="btn btn-primary" disabled={progress !== null} onClick={() => void check()}>
-              {job.status === "staged" ? "Check the rows again" : "Check the rows"}
+              {job.status === "uploaded" ? "Check the rows" : "Check the rows again"}
             </button>
-            {job.status === "staging" && counts.new === undefined && (
-              <button type="button" className="btn btn-secondary" disabled={progress !== null} onClick={() => void continueChecking()}>
-                Continue checking
-              </button>
-            )}
           </div>
         )}
+        </>)}
       </section>
 
-      {/* ── 2. what would change ── */}
+      {/* ── what would change ── */}
       {["staged", "applying", "applied", "published", "discarded"].includes(job.status) && (
         <section className={styles.step} aria-labelledby="step-check">
-          <h2 id="step-check">2. What it changes</h2>
+          <h2 id="step-check">What it changes</h2>
           <p className={styles.counts}>
             {Object.entries(OUTCOME_LABEL).map(([key, label]) => (
               <span key={key} className={key === "error" && counts.error ? styles.bad : undefined}>
@@ -317,13 +285,14 @@ export function ImportJob({
         </section>
       )}
 
-      {/* ── 3. apply, publish, discard ── */}
+      {/* ── apply ── */}
       {(job.status === "staged" || job.status === "applying") && (
         <section className={styles.step} aria-labelledby="step-apply">
-          <h2 id="step-apply">3. Apply as drafts</h2>
+          <h2 id="step-apply">Apply</h2>
           <p>
-            {plural(toApply, "row", "rows")} will be saved as drafts: only the mapped columns change. Rows with errors
-            are left out; fix them in the file and import it again, or apply the rest now.
+            {plural(toApply, "row", "rows")} will be saved and shown on the site straight away; only the mapped
+            columns change, and new rows start hidden. Rows with errors are left out: fix them in the file and import
+            it again, or apply the rest now.
           </p>
           <button type="button" className={`btn btn-primary ${styles.fit}`} disabled={progress !== null || toApply === 0} onClick={() => void apply()}>
             {job.status === "applying" ? "Continue applying" : `Apply ${plural(toApply, "change", "changes")}`}
@@ -331,27 +300,24 @@ export function ImportJob({
         </section>
       )}
       {job.status === "applied" && (
-        <section className={styles.step} aria-labelledby="step-publish">
-          <h2 id="step-publish">3. Publish or discard</h2>
-          <p>
-            Applied as drafts. Nothing is live yet.{" "}
-            {(job.entity === "products" || job.entity === "product_finishes") && (
-              <Link href={`/admin/products?state=${encodeURIComponent(JSON.stringify({ toolbar: { importJob: job.id } }))}`}>
-                See the {plural(job.tagged, "product", "products")} in the grid
-              </Link>
-            )}
-          </p>
-          <div className={styles.actions}>
-            <button type="button" className="btn btn-primary" disabled={progress !== null} onClick={() => void publish()}>
-              Publish everything from this import
-            </button>
-            <button type="button" className="btn btn-secondary" disabled={progress !== null} onClick={() => void discard()}>
-              Discard this import&apos;s drafts
-            </button>
-          </div>
+        <section className={styles.step} aria-labelledby="step-live">
+          <h2 id="step-live">Not on the site yet</h2>
+          <p>Applied, but the site hasn&apos;t caught up with all of it yet.</p>
+          <button type="button" className={`btn btn-primary ${styles.fit}`} disabled={progress !== null} onClick={() => void finish()}>
+            Update the site
+          </button>
         </section>
       )}
-      {job.status === "published" && <p className={admin.message}>Published. The site shows everything this import changed.</p>}
+      {job.status === "published" && (
+        <p className={admin.message}>
+          Applied. The site shows everything this import changed.{" "}
+          {(job.entity === "products" || job.entity === "product_finishes") && (counts.new ?? 0) > 0 && (
+            <Link href={gridLink({ status: "draft" })}>
+              New products start hidden: see the hidden products
+            </Link>
+          )}
+        </p>
+      )}
       {job.status === "discarded" && <p className={admin.message}>Discarded. Its drafts were removed and the rows it changed went back to their live versions.</p>}
     </div>
   );

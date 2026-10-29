@@ -54,7 +54,8 @@ interface ProductSnapshot {
   dimensions: string | null;
   description: string;
   features: string[];
-  status: "active" | "discontinued";
+  /** Only visible products are on the site. */
+  status: "active";
   image: StoredImage | null;
   gallery: StoredImage[];
   finishes: string[];
@@ -161,8 +162,8 @@ function fail(what: string, error: { message: string } | null): never {
 
 /* ── products ───────────────────────────────────────────────────────── */
 
-/** A product by its current slug, live or discontinued. A discontinued
- *  product's page keeps working, so old links do not break. */
+/** A product on the site by its current slug. A hidden product has none;
+ *  an old slug is a redirect, looked up by the page. */
 export async function getProduct(slug: string): Promise<Product | undefined> {
   "use cache";
   cacheLife("max");

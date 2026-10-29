@@ -191,8 +191,6 @@ const en = {
     quoteBody:
       "No prices are published. Send the item code and the finish you want, and we come back with pricing, lead time and availability.",
     related: "Other products in this category",
-    discontinued:
-      "This product has been discontinued. Similar products in the same range are listed below, and we can advise on a replacement.",
     datasheetMissing:
       "Referenced by the live site, but the file could not be retrieved.",
   },

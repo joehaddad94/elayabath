@@ -41,6 +41,7 @@ const norm = (v: string) => v.trim().toLowerCase().replace(/\s+/g, " ");
 
 const YES = new Set(["yes", "y", "true", "1", "featured", "x"]);
 const NO = new Set(["no", "n", "false", "0", ""]);
+const STATUS_LABEL: Record<string, string> = { active: "Visible", draft: "Hidden" };
 
 /** Reads the mapped cells of a row: field key → trimmed text. */
 function cells(job: Job, raw: string[]): Map<string, string> {
@@ -227,14 +228,14 @@ async function stageProducts(supabase: Client, job: Job, rows: RawRow[]): Promis
         }
         case "status": {
           const v = norm(raw);
-          // "Draft" is what export writes for a product never published; it
-          // means nothing to change while the product is still a draft.
-          if (v === "draft" && (!current || current.published_version === null)) break;
-          const status = v === "live" || v === "active" ? "active" : v === "discontinued" ? "discontinued" : null;
-          if (!status) errors.push(`Status "${raw}" isn't Live or Discontinued.`);
-          else if (!current) break; // new products start as drafts
-          else if (current.published_version === null) break; // so do unpublished ones
-          else if (current.status !== status) take("status", def.label, status, current.status, status);
+          // Live, Draft and Discontinued are what older exports wrote.
+          const status =
+            v === "visible" || v === "live" || v === "active" ? "active"
+            : v === "hidden" || v === "draft" || v === "discontinued" ? "draft"
+            : null;
+          if (!status) errors.push(`Status "${raw}" isn't Visible or Hidden.`);
+          else if (!current) break; // new products start hidden
+          else if (current.status !== status) take("status", def.label, status, STATUS_LABEL[current.status] ?? current.status, STATUS_LABEL[status] ?? status);
           break;
         }
         case "featured": {
@@ -336,12 +337,14 @@ async function stageCategories(supabase: Client, job: Job, rows: RawRow[]): Prom
         }
       } else if (def.key === "status") {
         const v = norm(raw);
-        if (v === "draft" && (!current || current.published_version === null)) continue;
-        const status = v === "live" || v === "active" ? "active" : v === "hidden" || v === "discontinued" ? "discontinued" : null;
-        if (!status) errors.push(`Status "${raw}" isn't Live or Hidden.`);
-        else if (current && current.published_version !== null && current.status !== status) {
+        // Hidden is stored as "discontinued"; a category never on the site
+        // is hidden too, whatever it says.
+        const status = v === "visible" || v === "live" || v === "active" ? "active" : v === "hidden" || v === "draft" || v === "discontinued" ? "discontinued" : null;
+        const now = current && current.published_version !== null && current.status === "active" ? "active" : "discontinued";
+        if (!status) errors.push(`Status "${raw}" isn't Visible or Hidden.`);
+        else if (current && now !== status) {
           fields.status = status;
-          diff[def.label] = { from: current.status, to: status };
+          diff[def.label] = { from: now === "active" ? "Visible" : "Hidden", to: status === "active" ? "Visible" : "Hidden" };
         }
       }
     }

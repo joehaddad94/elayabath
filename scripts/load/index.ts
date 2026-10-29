@@ -98,7 +98,6 @@ try {
   await grid("block at row 6,000", 6000, {});
   await grid("search", 0, { q: "load test 04" });
   await grid("needs attention", 0, { incomplete: true });
-  await grid("unpublished changes", 0, { changes: true });
   await grid("column filter", 0, { filter: { dimensions: { filterType: "text", type: "contains", filter: "450" } } });
 
   // Publishing, in the database, for a sample: the per-product cost behind

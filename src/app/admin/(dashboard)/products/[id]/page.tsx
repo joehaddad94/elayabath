@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/admin/session";
 import { storageUrl } from "@/lib/supabase/config";
 import styles from "../../../admin.module.css";
-import type { ProductSnapshotView } from "./History";
 import { ProductEditor, type EditorProduct, type FinishOption } from "./ProductEditor";
 
 export const metadata: Metadata = { title: "Edit product" };
@@ -26,24 +25,17 @@ export default async function ProductPage({
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const { supabase, email } = await requireStaff();
 
-  const [product, links, images, live, categories, types, finishes, duplicates, revisions] = await Promise.all([
+  const [product, links, images, live, categories, types, finishes, duplicates, history] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
     supabase.from("product_finishes").select("finish_id").eq("product_id", id).order("position"),
     supabase.from("product_images").select("path, alt, caption, width, height").eq("product_id", id).order("position").order("created_at"),
-    supabase.from("published_products").select("slug, status").eq("product_id", id).maybeSingle(),
+    supabase.from("published_products").select("slug").eq("product_id", id).maybeSingle(),
     supabase.from("categories").select("id, slug, name, status").order("position"),
     supabase.from("product_types").select("id, slug, name, category_id").order("name"),
     supabase.from("finishes").select("id, slug, code, name, family, swatch_path, status").order("name"),
     supabase.from("duplicate_finish_codes").select("code"),
-    // The last 50 published versions: far more history than anyone reads on
-    // screen, and every one of them stays restorable in the database.
-    supabase
-      .from("revisions")
-      .select("id, version, published_by, published_at, note, snapshot")
-      .eq("entity_type", "product")
-      .eq("entity_id", id)
-      .order("published_at", { ascending: false })
-      .limit(50),
+    // Whether it has ever been on the site: if not, it can be deleted.
+    supabase.from("revisions").select("id", { count: "exact", head: true }).eq("entity_type", "product").eq("entity_id", id),
   ]);
   const p = product.data;
   if (!p) notFound();
@@ -63,10 +55,10 @@ export default async function ProductPage({
   const editorProduct: EditorProduct = {
     id: p.id,
     version: p.version,
-    publishedVersion: p.published_version,
     updatedAt: p.updated_at,
     updatedBy: p.updated_by,
-    live: live.data ? { slug: live.data.slug, status: live.data.status } : null,
+    live: live.data ? { slug: live.data.slug } : null,
+    deletable: !live.data && (history.count ?? 1) === 0,
     form: {
       sku: p.sku,
       slug: p.slug,
@@ -76,7 +68,8 @@ export default async function ProductPage({
       description: p.description,
       dimensions: p.dimensions ?? "",
       features: p.features,
-      status: p.status,
+      // Held to visible or hidden by a check in the database.
+      status: p.status === "active" ? "active" : "draft",
       featured: p.featured,
       datasheet_path: p.datasheet_path,
       images: images.data ?? [],
@@ -98,17 +91,9 @@ export default async function ProductPage({
           id: c.id,
           slug: c.slug,
           name: c.name,
-          draft: c.status === "draft",
+          hidden: c.status !== "active",
         }))}
         types={(types.data ?? []).map((t) => ({ id: t.id, slug: t.slug, name: t.name, categoryId: t.category_id }))}
-        revisions={(revisions.data ?? []).map((r) => ({
-          id: r.id,
-          version: r.version,
-          publishedBy: r.published_by,
-          publishedAt: r.published_at,
-          note: r.note,
-          snapshot: r.snapshot as unknown as ProductSnapshotView,
-        }))}
         library={library}
       />
     </>

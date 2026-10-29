@@ -14,10 +14,10 @@ export function NewCategoryForm() {
           <input id="new-category-name" name="name" className="input" required defaultValue={state.values?.name} autoComplete="off" />
         </div>
         <button type="submit" className="btn btn-primary" disabled={pending}>
-          {pending ? "Creating" : "Create draft category"}
+          {pending ? "Creating" : "Create category, hidden"}
         </button>
       </div>
-      <p className={styles.muted}>It stays off the site until it is published, and only appears in the menu once it has live products.</p>
+      <p className={styles.muted}>It stays hidden until you make it visible, and only appears in the menu once it has visible products.</p>
       {state.error && (
         <p className={`${styles.message} ${styles.messageError}`} role="alert">
           {state.error}

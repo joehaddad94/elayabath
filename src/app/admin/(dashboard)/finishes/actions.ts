@@ -12,9 +12,10 @@ export type FinishSaveResult =
   | { ok: false; error: string; fields?: Record<string, string>; conflict?: boolean };
 
 /**
- * Saves a finish as a draft, if nobody has saved it since it was loaded.
- * A published finish keeps its web address: the site's colour filters put it
- * in links people share.
+ * Saves a finish, if nobody has saved it since it was loaded. A finish on
+ * the site changes there straight away; one not yet on the site goes live
+ * with the first visible product that uses it. A finish on the site keeps
+ * its web address: the site's colour filters put it in links people share.
  */
 export async function saveFinish(input: { id: string; version: number; form: unknown }): Promise<FinishSaveResult> {
   const { supabase } = await requireStaff();
@@ -51,19 +52,14 @@ export async function saveFinish(input: { id: string; version: number; form: unk
     const { data: theirs } = await supabase.from("finishes").select("updated_by").eq("id", id.data).single();
     return { ok: false, conflict: true, error: `${theirs?.updated_by ?? "Someone"} saved this finish while you were editing it. Reload to see their version.` };
   }
+  if (current.published_version === null) {
+    revalidatePath("/admin/finishes");
+    return { ok: true, version: saved.version, message: "Saved. It goes on the site with the first visible product that uses it." };
+  }
+  const { error: liveError } = await publishFinish(supabase, id.data);
   revalidatePath("/admin/finishes");
-  return { ok: true, version: saved.version, message: "Saved as a draft. The site changes when you publish." };
-}
-
-export async function publishFinishNow(input: { id: string }): Promise<{ ok: boolean; error?: string; message?: string; version?: number }> {
-  const { supabase } = await requireStaff();
-  const id = z.uuid().safeParse(input.id);
-  if (!id.success) return { ok: false, error: "That finish isn't valid." };
-  const { error } = await publishFinish(supabase, id.data);
-  if (error) return { ok: false, error: `It couldn't be published: ${error}` };
-  const { data } = await supabase.from("finishes").select("published_version").eq("id", id.data).single();
-  revalidatePath("/admin/finishes");
-  return { ok: true, message: "Published. Product pages and filters show it now.", version: data?.published_version ?? undefined };
+  if (liveError) return { ok: false, error: `Saved, but the site couldn't be updated: ${liveError} Save again to retry.` };
+  return { ok: true, version: saved.version, message: "Saved. Product pages and filters show it now." };
 }
 
 export async function deleteFinish(input: { id: string }): Promise<{ ok: boolean; error?: string }> {
@@ -85,8 +81,8 @@ export type NewFinishState = {
   attempt?: number;
 };
 
-/** A new finish is added unpublished. It goes live when published here, or
- *  with the first product that uses it. */
+/** A new finish is added off the site. It goes live with the first visible
+ *  product that uses it. */
 export async function createFinish(previous: NewFinishState, formData: FormData): Promise<NewFinishState> {
   const attempt = (previous.attempt ?? 0) + 1;
   const { supabase } = await requireStaff();

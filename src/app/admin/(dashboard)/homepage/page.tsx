@@ -9,15 +9,15 @@ export const metadata: Metadata = { title: "Homepage" };
 
 /**
  * The products marked Featured, in the order the homepage shows them.
- * Whether a product is featured is part of the product (set in its editor,
- * published with it); the order is set here and published on its own.
+ * Whether a product is featured is part of the product (set in its editor);
+ * the order is set here and goes live as soon as it changes.
  */
 export default async function HomepagePage() {
   const { supabase } = await requireStaff();
   const products = await fetchAll((from, to) =>
     supabase
       .from("products")
-      .select("id, sku, name, featured_rank, published_version, version, published_products(featured, status)")
+      .select("id, sku, name, featured_rank, published_products(featured, status)")
       .eq("featured", true)
       .order("featured_rank", { ascending: true, nullsFirst: false })
       .order("name")
@@ -37,8 +37,7 @@ export default async function HomepagePage() {
       sku: p.sku,
       name: p.name,
       imageUrl: image.get(p.id) ? storageUrl("product-media", image.get(p.id)!) : null,
-      // Featured in the draft but not yet on the site: its product needs
-      // publishing, not just the order.
+      // Featured but hidden: it shows once the product is made visible.
       pending: !live || !live.featured || live.status !== "active",
     };
   });
@@ -50,7 +49,7 @@ export default async function HomepagePage() {
           <h1>Homepage</h1>
           <p>
             Featured products, in the order the homepage shows them. The homepage shows the first 12. To feature a
-            product, tick Featured in its editor and publish it.
+            product, tick Featured in its editor and save it.
           </p>
         </div>
       </div>

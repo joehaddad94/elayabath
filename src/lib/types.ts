@@ -80,9 +80,8 @@ export interface Product {
   materials: FinishFamily[];
   /** URL of the technical data sheet, or null where there is none. */
   datasheet: string | null;
-  /** Discontinued products keep their page, so old links survive, but leave
-   *  every listing. Absent means active. */
-  status?: "active" | "discontinued";
+  /** Only visible products are on the site. Absent means active. */
+  status?: "active";
 }
 
 export interface ProductImage {

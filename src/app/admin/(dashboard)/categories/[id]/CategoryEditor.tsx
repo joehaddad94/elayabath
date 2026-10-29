@@ -10,7 +10,7 @@ import editor from "../../products/[id]/editor.module.css";
 import { OrderBar } from "../../OrderBar";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
 import { SortableList } from "../../SortableList";
-import { publishCategoryNow, publishProductOrder, saveCategory } from "../actions";
+import { saveCategory, saveProductOrder } from "../actions";
 
 interface Product {
   id: string;
@@ -26,16 +26,16 @@ interface FormState {
   name: string;
   slug: string;
   blurbText: string;
-  status: "draft" | "active" | "discontinued";
+  status: "active" | "discontinued";
   types: TypeEntry[];
 }
 
-const STATUS: Record<string, string> = { active: "Live", discontinued: "Discontinued", draft: "Draft" };
+const STATUS: Record<string, string> = { active: "Visible", discontinued: "Discontinued", draft: "Hidden" };
 
 /**
- * A category: its name, address, description and product types, saved as a
- * draft and published like a product; and the order of its products, which
- * is published on its own.
+ * A category: its name, address, description and product types, which go
+ * live when saved, like a product; and the order of its products, which goes
+ * live as soon as it is changed.
  */
 export function CategoryEditor({
   category,
@@ -48,7 +48,7 @@ export function CategoryEditor({
     publishedVersion: number | null;
     updatedAt: string;
     updatedBy: string | null;
-    form: Omit<CategoryForm, "types"> & { status: FormState["status"]; types: Array<{ id: string; name: string; slug: string }> };
+    form: Omit<CategoryForm, "types"> & { status: "draft" | "active" | "discontinued"; types: Array<{ id: string; name: string; slug: string }> };
   };
   typeUse: Record<string, number>;
   products: Product[];
@@ -59,7 +59,9 @@ export function CategoryEditor({
     name: category.form.name,
     slug: category.form.slug,
     blurbText: blurbToText(category.form.blurb),
-    status: category.form.status,
+    // Hidden is stored as "discontinued"; a category never yet on the site is
+    // hidden too.
+    status: category.form.status === "active" ? "active" : "discontinued",
     types: category.form.types.map((t) => ({ key: t.id, id: t.id, name: t.name })),
   };
   const [form, setForm] = useState(initial);
@@ -68,7 +70,7 @@ export function CategoryEditor({
   const [publishedVersion, setPublishedVersion] = useState(category.publishedVersion);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<{ text: string; error?: boolean; reload?: boolean } | null>(null);
-  const [busy, setBusy] = useState<"save" | "publish" | null>(null);
+  const [busy, setBusy] = useState<"save" | null>(null);
   const [newType, setNewType] = useState("");
   const [order, setOrder] = useState(products);
   const [liveOrder, setLiveOrder] = useState(products);
@@ -95,7 +97,6 @@ export function CategoryEditor({
     }
     setReloading(null);
   }
-  const unpublished = publishedVersion === null || version !== publishedVersion;
   useUnsavedGuard(dirty);
   const locked = publishedVersion !== null;
   const liveProducts = products.filter((p) => p.status === "active").length;
@@ -130,6 +131,8 @@ export function CategoryEditor({
       return false;
     }
     setVersion(result.version);
+    // Saving put it on the site, so its address is now fixed.
+    setPublishedVersion(result.version);
     setErrors({});
     setNotice({ text: result.message });
     // New types now have ids; reload them, so a second save renames rather
@@ -139,27 +142,6 @@ export function CategoryEditor({
       router.refresh();
     } else setBase(form);
     return true;
-  };
-
-  const publish = async () => {
-    if (dirty && !(await save())) return;
-    setBusy("publish");
-    setNotice(null);
-    const result = await publishCategoryNow({ id: category.id });
-    setBusy(null);
-    if (!result.ok) {
-      setNotice({ text: result.error ?? "It couldn't be published.", error: true });
-      return;
-    }
-    setPublishedVersion(result.version ?? null);
-    // A reload for new types may still be on its way; it should not replace
-    // this message when it lands.
-    setReloading((r) => (r ? {} : r));
-    if (form.status === "draft") {
-      setForm((f) => ({ ...f, status: "active" }));
-      setBase((b) => ({ ...b, status: "active" }));
-    }
-    setNotice({ text: result.message ?? "Published." });
   };
 
   const field = (key: string) => ({
@@ -174,18 +156,16 @@ export function CategoryEditor({
       </span>
     ) : null;
 
-  const statusLabel = publishedVersion === null ? "Draft" : form.status === "discontinued" ? "Hidden" : "Live";
+  const statusLabel = base.status === "active" ? "Visible" : "Hidden";
 
   return (
     <div className={editor.editor}>
       <header className={editor.head}>
         <h1>{form.name || "Untitled category"}</h1>
         <p className={editor.badges}>
-          <span className={`${admin.badge} ${statusLabel === "Live" ? "" : admin.badgeWarn}`}>{statusLabel}</span>
-          {(dirty || unpublished) && (
-            <span className={`${admin.badge} ${admin.badgeWarn}`}>{dirty ? "Unsaved changes" : "Unpublished changes"}</span>
-          )}
-          {publishedVersion !== null && statusLabel === "Live" && (
+          <span className={`${admin.badge} ${statusLabel === "Visible" ? "" : admin.badgeWarn}`}>{statusLabel}</span>
+          {dirty && <span className={`${admin.badge} ${admin.badgeWarn}`}>Unsaved changes</span>}
+          {publishedVersion !== null && statusLabel === "Visible" && (
             <Link href={`/products/${form.slug}`} target="_blank" className={admin.linkButton}>
               View on site
             </Link>
@@ -217,7 +197,7 @@ export function CategoryEditor({
                   <input {...field("slug")} className="input" value={form.slug} readOnly={locked} onChange={(e) => set("slug", e.target.value)} />
                 </div>
                 {error("slug")}
-                {locked && <span className={editor.hint}>Fixed once published, so links to it keep working.</span>}
+                {locked && <span className={editor.hint}>Fixed once it has been saved, so links to it keep working.</span>}
               </div>
             </div>
             <div className={editor.field}>
@@ -231,7 +211,7 @@ export function CategoryEditor({
             <legend>Product types</legend>
             <p className={editor.hint}>
               Every product in this category can have one of these. Renaming one changes it on every product page
-              when the category is published.
+              when the category is saved.
             </p>
             <ul className={editor.chosen}>
               {form.types.map((t, index) => {
@@ -284,34 +264,28 @@ export function CategoryEditor({
 
         <aside className={editor.side}>
           <section className={editor.panel}>
-            <h2>Publishing</h2>
-            {publishedVersion === null ? (
-              <p className={editor.hint}>Not on the site yet. Publishing makes it live; it appears in the menu once it has live products.</p>
-            ) : (
-              <div className={editor.field} role="radiogroup" aria-label="Status">
-                <label className={editor.check}>
-                  <input type="radio" name="status" checked={form.status === "active"} onChange={() => set("status", "active")} />
-                  Live
-                </label>
-                <label className={editor.check}>
-                  <input type="radio" name="status" checked={form.status === "discontinued"} onChange={() => set("status", "discontinued")} />
-                  Hidden: no menu entry or category page
-                </label>
-                {form.status === "discontinued" && liveProducts > 0 && (
-                  <span className={editor.hint}>
-                    Its {liveProducts} live products stay live and searchable. Discontinue or move them to take them off the site.
-                  </span>
-                )}
-              </div>
-            )}
+            <h2>On the site</h2>
+            <div className={editor.field} role="radiogroup" aria-label="On the site">
+              <label className={editor.check}>
+                <input type="radio" name="status" checked={form.status === "active"} onChange={() => set("status", "active")} />
+                Visible: in the menu once it has products on the site
+              </label>
+              <label className={editor.check}>
+                <input type="radio" name="status" checked={form.status === "discontinued"} onChange={() => set("status", "discontinued")} />
+                Hidden: no menu entry or category page
+              </label>
+              {form.status === "discontinued" && liveProducts > 0 && (
+                <span className={editor.hint}>
+                  Its {liveProducts} visible products stay on the site and searchable. Hide or move them to take them off.
+                </span>
+              )}
+            </div>
             <div className={editor.buttons}>
-              <button type="button" className="btn btn-secondary" disabled={busy !== null || !dirty} onClick={() => void save()}>
-                {busy === "save" ? "Saving" : "Save draft"}
-              </button>
-              <button type="button" className="btn btn-primary" disabled={busy !== null || (!dirty && !unpublished)} onClick={() => void publish()}>
-                {busy === "publish" ? "Publishing" : dirty ? "Save and publish" : "Publish"}
+              <button type="button" className="btn btn-primary" disabled={busy !== null} onClick={() => void save()}>
+                {busy === "save" ? "Saving" : "Save"}
               </button>
             </div>
+            <p className={editor.hint}>Saving changes the site straight away.</p>
             {notice && (
               <div className={`${admin.message} ${notice.error ? admin.messageError : ""}`} role={notice.error ? "alert" : "status"}>
                 {notice.text}
@@ -346,12 +320,13 @@ export function CategoryEditor({
           <>
             <OrderBar
               changed={order.some((p, i) => p.id !== liveOrder[i]?.id)}
-              onPublish={async () => {
-                const result = await publishProductOrder({ categoryId: category.id, ids: order.map((p) => p.id) });
-                if (result.ok) setLiveOrder(order);
+              orderKey={order.map((p) => p.id).join()}
+              onSave={async () => {
+                const saving = order;
+                const result = await saveProductOrder({ categoryId: category.id, ids: saving.map((p) => p.id) });
+                if (result.ok) setLiveOrder(saving);
                 return result;
               }}
-              onUndo={() => setOrder(liveOrder)}
             />
             <SortableList
               items={order}

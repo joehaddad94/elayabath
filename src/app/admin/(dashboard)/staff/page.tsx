@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireStaff } from "@/lib/admin/session";
+import { requireOwner } from "@/lib/admin/session";
 import styles from "../../admin.module.css";
 import { AddStaffForm, RemoveStaffButton } from "./StaffForms";
 
@@ -9,15 +9,15 @@ const when = (iso: string) =>
   new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Qatar" });
 
 /**
- * Who can sign in, and who has.
+ * Who can sign in, and who has. The owner's page alone: everyone else on
+ * the list edits the catalogue but never sees or changes the list.
  *
- * Everyone listed has equal rights, including adding and removing anyone
- * else. Under direct sign-in an address is the whole credential, so the
- * recent sign-ins are shown here: a sign-in nobody recognises should be
- * visible to the people who can remove it.
+ * Under direct sign-in an address is the whole credential, so the recent
+ * sign-ins are shown here: a sign-in nobody recognises should be visible to
+ * the person who can remove it.
  */
 export default async function StaffPage() {
-  const { supabase, email: me } = await requireStaff();
+  const { supabase, email: me } = await requireOwner();
 
   const [staff, signIns] = await Promise.all([
     supabase.from("staff").select("email, role, invited_by, created_at").order("created_at"),
@@ -34,8 +34,9 @@ export default async function StaffPage() {
         <div>
           <h1>Staff</h1>
           <p>
-            Anyone on this list can sign in and edit everything. Signing in needs only the address,
-            until an email provider is set up, so keep this list to personal addresses.
+            Anyone on this list can sign in and edit the catalogue. Only you see this page. Signing
+            in needs only the address, until an email provider is set up, so keep this list to
+            personal addresses.
           </p>
         </div>
       </div>
@@ -64,9 +65,7 @@ export default async function StaffPage() {
                 </td>
                 <td className={styles.muted}>{s.invited_by ?? "not recorded"}</td>
                 <td className={styles.muted}>{when(s.created_at)}</td>
-                <td>
-                  <RemoveStaffButton email={s.email} />
-                </td>
+                <td>{s.role === "owner" ? <span className={styles.muted}>Owner</span> : <RemoveStaffButton email={s.email} />}</td>
               </tr>
             ))}
           </tbody>

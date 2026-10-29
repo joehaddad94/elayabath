@@ -923,8 +923,8 @@ export type Database = {
       can_publish: { Args: never; Returns: boolean }
       delete_draft_product: { Args: { p_id: string }; Returns: undefined }
       delete_unused_finish: { Args: { p_id: string }; Returns: undefined }
-      discard_import: { Args: { p_job: string }; Returns: Json }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
+      is_owner: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       media_in_use: {
         Args: never
@@ -998,6 +998,10 @@ export type Database = {
           bytes: number
           files: number
         }[]
+      }
+      sync_product: {
+        Args: { p_id: string; p_note?: string }
+        Returns: number
       }
       unused_media: {
         Args: { p_grace?: string }
