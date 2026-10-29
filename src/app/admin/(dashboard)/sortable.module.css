@@ -18,15 +18,16 @@
 }
 
 .handle {
+  display: grid;
+  place-items: center;
   cursor: grab;
   color: color-mix(in srgb, var(--color-text) 72%, transparent);
-  font-size: 1.1rem;
   user-select: none;
 }
 
 .position {
   font-variant-numeric: tabular-nums;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: color-mix(in srgb, var(--color-text) 72%, transparent);
   text-align: end;
 }

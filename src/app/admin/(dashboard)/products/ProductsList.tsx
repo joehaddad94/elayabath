@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ProductRow } from "@/lib/admin/grid-types";
+import { Icon } from "@/components/Icon/Icon";
 import { listLink, type ListFilters } from "@/lib/admin/links";
 import admin from "../../admin.module.css";
 import { useConfirm } from "../ConfirmDialog";
@@ -572,8 +573,8 @@ export function ProductsList({
             </button>
           )}
           {!toast.busy && (
-            <button type="button" className={s.toastClose} aria-label="Dismiss" onClick={() => setToast(null)}>
-              ×
+            <button type="button" className={s.toastClose} aria-label="Dismiss" title="Dismiss" onClick={() => setToast(null)}>
+              <Icon name="close" />
             </button>
           )}
         </div>

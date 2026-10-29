@@ -2,8 +2,8 @@ import type { SVGProps } from "react";
 
 /**
  * Lucide at stroke-width 1.5, which the design system prescribes.
- * Inlined rather than pulled from a package: the site uses seven of them, and
- * an icon dependency would ship thousands.
+ * Inlined rather than pulled from a package: the site and dashboard use a
+ * couple of dozen, and an icon dependency would ship thousands.
  */
 const paths = {
   search: (
@@ -73,6 +73,60 @@ const paths = {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" x2="12" y1="15" y2="3" />
+    </>
+  ),
+  /* The dashboard's set, Lucide's paths unchanged. */
+  arrowUp: (
+    <>
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </>
+  ),
+  arrowDown: (
+    <>
+      <path d="M12 5v14" />
+      <path d="m19 12-7 7-7-7" />
+    </>
+  ),
+  arrowUpToLine: (
+    <>
+      <path d="M5 3h14" />
+      <path d="m18 13-6-6-6 6" />
+      <path d="M12 7v14" />
+    </>
+  ),
+  grip: (
+    <>
+      <circle cx="9" cy="12" r="1" />
+      <circle cx="9" cy="5" r="1" />
+      <circle cx="9" cy="19" r="1" />
+      <circle cx="15" cy="12" r="1" />
+      <circle cx="15" cy="5" r="1" />
+      <circle cx="15" cy="19" r="1" />
+    </>
+  ),
+  chevronLeft: <path d="m15 18-6-6 6-6" />,
+  chevronRight: <path d="m9 18 6-6-6-6" />,
+  externalLink: (
+    <>
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </>
+  ),
+  logOut: (
+    <>
+      <path d="m16 17 5-5-5-5" />
+      <path d="M21 12H9" />
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    </>
+  ),
+  circle: <circle cx="12" cy="12" r="10" />,
+  /* A circle struck through: a finish with no swatch. Lucide's `ban`. */
+  ban: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m4.9 4.9 14.2 14.2" />
     </>
   ),
 } as const;

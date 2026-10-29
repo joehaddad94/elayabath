@@ -35,7 +35,7 @@
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -43,18 +43,20 @@
 
 .sku {
   margin-inline-start: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
   font-weight: 400;
   opacity: 0.75;
 }
 
 .counter {
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .edit {
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   color: inherit;
   white-space: nowrap;
 }
@@ -69,8 +71,6 @@
   border: 0;
   background: none;
   color: inherit;
-  font-size: 2rem;
-  line-height: 1;
   cursor: pointer;
 }
 
@@ -113,7 +113,6 @@
   transform: translateY(-50%);
   width: 48px;
   height: 64px;
-  font-size: 2.6rem;
   background: color-mix(in srgb, var(--color-neutral-900) 45%, transparent);
 }
 
@@ -128,7 +127,7 @@
 .note {
   margin: 0;
   padding: var(--space-2) var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   text-align: center;
 }
 

@@ -30,6 +30,7 @@
   background: var(--color-accent);
   color: var(--color-bg);
   font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
 }

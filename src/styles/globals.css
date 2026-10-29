@@ -22,6 +22,19 @@
   --prose-max: 68ch;
 }
 
+/* ── type scale ───────────────────────────────────────────────────────
+   Six sizes, in rem so they follow browser zoom. The dashboard sets every
+   font-size from these; nothing reads below --text-xs. Uppercase is kept
+   for --text-xs labels (table headers, badges) at 0.08em tracking. */
+:root {
+  --text-xs: 0.75rem; /* 12px: table headers, badges */
+  --text-sm: 0.8125rem; /* 13px: labels, help text, meta */
+  --text-base: 0.9375rem; /* 15px: body, nav, table cells */
+  --text-md: 1.125rem; /* 18px: section and panel headings */
+  --text-lg: 1.5rem; /* 24px: page titles on a phone, dialog titles */
+  --text-xl: 2rem; /* 32px: page titles, stat figures */
+}
+
 *,
 *::before,
 *::after {

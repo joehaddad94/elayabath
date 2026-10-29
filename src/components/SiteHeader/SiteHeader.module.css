@@ -317,6 +317,7 @@
   background: var(--accent-text);
   color: var(--color-bg);
   font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
   text-decoration: none;
 }
 

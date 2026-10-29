@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import { rememberList, useListMemory } from "./listMemory";
 import s from "./list.module.css";
 
@@ -30,7 +31,8 @@ export function ListNav({ id, sku }: { id: string; sku: string }) {
         <p className={s.steps}>
           {prev && (
             <Link href={`/admin/products/${prev}`} rel="prev">
-              ‹ Previous
+              <Icon name="chevronLeft" size={16} />
+              Previous
             </Link>
           )}
           <span className={s.position}>
@@ -38,7 +40,8 @@ export function ListNav({ id, sku }: { id: string; sku: string }) {
           </span>
           {next && (
             <Link href={`/admin/products/${next}`} rel="next">
-              Next ›
+              Next
+              <Icon name="chevronRight" size={16} />
             </Link>
           )}
         </p>

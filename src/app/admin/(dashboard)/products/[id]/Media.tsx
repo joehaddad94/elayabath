@@ -12,6 +12,7 @@ import {
 import type { ProductImage } from "@/lib/admin/product-schema";
 import { browserClient } from "@/lib/supabase/browser";
 import { storageUrl } from "@/lib/supabase/config";
+import { Icon } from "@/components/Icon/Icon";
 import { Spinner } from "../../Spinner";
 import styles from "./editor.module.css";
 
@@ -127,13 +128,13 @@ export function Gallery({
                 )}
                 <span className={styles.rowButtons}>
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === 0} onClick={() => move(index, index - 1)} aria-label={`Move photo ${index + 1} earlier`}>
-                    ↑
+                    <Icon name="arrowUp" />
                   </button>
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === images.length - 1} onClick={() => move(index, index + 1)} aria-label={`Move photo ${index + 1} later`}>
-                    ↓
+                    <Icon name="arrowDown" />
                   </button>
                   <button type="button" className="btn btn-icon btn-secondary" onClick={() => onChange((current) => current.filter((i) => i.path !== image.path))} aria-label={`Remove photo ${index + 1}`}>
-                    ×
+                    <Icon name="close" />
                   </button>
                 </span>
               </div>

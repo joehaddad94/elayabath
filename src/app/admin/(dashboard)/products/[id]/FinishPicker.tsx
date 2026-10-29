@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useId, useMemo, useState } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import styles from "./editor.module.css";
 import type { FinishOption } from "./ProductEditor";
 
@@ -67,13 +68,13 @@ export function FinishPicker({
                 </span>
                 <span className={styles.rowButtons}>
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`Move ${f?.name ?? "finish"} up`}>
-                    ↑
+                    <Icon name="arrowUp" />
                   </button>
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === value.length - 1} onClick={() => move(index, 1)} aria-label={`Move ${f?.name ?? "finish"} down`}>
-                    ↓
+                    <Icon name="arrowDown" />
                   </button>
                   <button type="button" className="btn btn-icon btn-secondary" onClick={() => onChange(value.filter((v) => v !== id))} aria-label={`Remove ${f?.name ?? "finish"}`}>
-                    ×
+                    <Icon name="close" />
                   </button>
                 </span>
               </li>
@@ -112,7 +113,7 @@ export function FinishPicker({
                     {f.sharedCode && <span className={styles.flag}> · code shared</span>}
                   </span>
                 </span>
-                <span aria-hidden="true">+</span>
+                <Icon name="plus" />
               </button>
             </li>
           ))}
@@ -128,9 +129,10 @@ function Swatch({ finish }: { finish: FinishOption | undefined }) {
   return finish?.swatchUrl ? (
     <Image src={finish.swatchUrl} alt="" width={28} height={28} className={styles.swatch} />
   ) : (
-    // No swatch in the client's data: the code, so the tile still says which.
+    // No swatch in the client's data. The code beside the name says which
+    // finish it is, so the tile only has to say "no swatch".
     <span className={`${styles.swatch} ${styles.noSwatch}`} aria-hidden="true">
-      {finish?.code}
+      <Icon name="ban" size={16} />
     </span>
   );
 }
