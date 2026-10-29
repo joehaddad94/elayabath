@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FIELDS, IDENTITIES, type Entity, type ImportOptions } from "@/lib/admin/import-fields";
-import { gridLink } from "@/lib/admin/links";
+import { listLink } from "@/lib/admin/links";
 import admin from "../../../admin.module.css";
 import styles from "../imports.module.css";
 import { applyNext, configureImport, stageNext, syncNext } from "../actions";
@@ -312,7 +312,7 @@ export function ImportJob({ job, sample }: { job: JobView; sample: string[][] })
         <p className={admin.message}>
           Applied. The site shows everything this import changed.{" "}
           {(job.entity === "products" || job.entity === "product_finishes") && (counts.new ?? 0) > 0 && (
-            <Link href={gridLink({ status: "draft" })}>
+            <Link href={listLink({ status: "hidden" })}>
               New products start hidden: see the hidden products
             </Link>
           )}

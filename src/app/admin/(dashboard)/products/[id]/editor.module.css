@@ -18,7 +18,7 @@
 }
 
 /* Form on the left, publishing and completeness on the right; one column on
-   narrow screens, with publishing first so it is never scrolled away. */
+   narrow screens, the form first, with a Save bar that stays in reach. */
 .columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 20rem;
@@ -307,7 +307,29 @@
 
   .side {
     position: static;
-    order: -1;
+  }
+}
+
+/* Save within reach on a narrow screen, where the panel is below the form. */
+.saveBar {
+  display: none;
+}
+
+@media (max-width: 64rem) {
+  .saveBar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+    background: var(--color-surface);
+    border: var(--rule);
+    box-shadow: 0 -6px 18px color-mix(in srgb, var(--color-neutral-900) 14%, transparent);
+    font-size: 0.9rem;
   }
 }
 

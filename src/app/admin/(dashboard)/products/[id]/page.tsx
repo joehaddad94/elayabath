@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/admin/session";
 import { storageUrl } from "@/lib/supabase/config";
-import styles from "../../../admin.module.css";
+import { ListNav } from "../ListNav";
 import { ProductEditor, type EditorProduct, type FinishOption } from "./ProductEditor";
 
 export const metadata: Metadata = { title: "Edit product" };
@@ -79,9 +78,7 @@ export default async function ProductPage({
 
   return (
     <>
-      <p className={styles.crumbs}>
-        <Link href="/admin/products">Products</Link> / {p.sku}
-      </p>
+      <ListNav id={p.id} sku={p.sku} />
       <ProductEditor
         key={p.id}
         product={editorProduct}

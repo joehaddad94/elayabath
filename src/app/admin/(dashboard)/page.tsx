@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { gridLink } from "@/lib/admin/links";
+import { listLink } from "@/lib/admin/links";
 import { STORAGE_QUOTA_BYTES, formatBytes } from "@/lib/admin/media";
 import { requireStaff } from "@/lib/admin/session";
 import styles from "../admin.module.css";
@@ -37,9 +37,9 @@ export default async function Overview() {
 
   // Each card opens what it counts.
   const stats: Array<[string, number, string]> = [
-    ["Products on the site", visible, gridLink({ status: "active" })],
-    ["Products hidden", hidden, gridLink({ status: "draft" })],
-    ["Products missing details", incomplete, gridLink({ incomplete: true })],
+    ["Products on the site", visible, listLink({ status: "visible" })],
+    ["Products hidden", hidden, listLink({ status: "hidden" })],
+    ["Products missing details", incomplete, listLink({ missing: true })],
     ["Categories visible", categoriesVisible, "/admin/categories"],
     ["Categories hidden", categories - categoriesVisible, "/admin/categories"],
     ["Finishes", finishes, "/admin/finishes"],

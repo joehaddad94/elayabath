@@ -6,6 +6,7 @@ import { Dialog } from "radix-ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { productPhotos, type Photo } from "./actions";
+import admin from "../../admin.module.css";
 import styles from "./photos.module.css";
 
 export interface PhotoProduct {
@@ -41,13 +42,22 @@ function Viewer({ product, onClose }: { product: PhotoProduct; onClose: () => vo
   const [photos, setPhotos] = useState<Photo[]>(() => [{ url: product.thumb, alt: "", width: null, height: null }]);
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  // The photos that have arrived; until the one on screen has, a spinner
+  // turns over it.
+  const [arrived, setArrived] = useState<Set<string>>(() => new Set());
+  const markArrived = useCallback(
+    (url: string) => setArrived((current) => (current.has(url) ? current : new Set(current).add(url))),
+    [],
+  );
   const swipe = useRef<{ x: number; y: number; moved: boolean } | null>(null);
 
   useEffect(() => {
     let current = true;
     productPhotos(product.id)
       .then((list) => current && list.length > 0 && setPhotos(list))
-      .catch(() => current && setFailed(true));
+      .catch(() => current && setFailed(true))
+      .finally(() => current && setLoading(false));
     return () => {
       current = false;
     };
@@ -76,11 +86,9 @@ function Viewer({ product, onClose }: { product: PhotoProduct; onClose: () => vo
         <Dialog.Title className={styles.title}>
           {product.name} <span className={styles.sku}>{product.sku}</span>
         </Dialog.Title>
-        {count > 1 && (
-          <span className={styles.counter} aria-live="polite">
-            {index + 1} of {count}
-          </span>
-        )}
+        <span className={styles.counter} aria-live="polite">
+          {loading ? "Loading photos…" : count > 1 ? `${index + 1} of ${count}` : ""}
+        </span>
         <Link href={`/admin/products/${product.id}`} className={styles.edit}>
           Edit product
         </Link>
@@ -127,6 +135,28 @@ function Viewer({ product, onClose }: { product: PhotoProduct; onClose: () => vo
             sizes="(max-width: 1200px) 100vw, 1200px"
             className={styles.photo}
             draggable={false}
+            onLoad={() => markArrived(photo.url)}
+            ref={(img) => {
+              if (img?.complete && img.naturalWidth > 0) markArrived(photo.url);
+            }}
+          />
+        )}
+        {photo && !arrived.has(photo.url) && (
+          <span className={styles.waiting} role="status">
+            <span className={admin.spinner} aria-hidden="true" />
+            <span className="sr-only">Loading the photo</span>
+          </span>
+        )}
+        {/* The next photo, fetched while this one is looked at. */}
+        {count > 1 && (
+          <Image
+            src={photos[(index + 1) % count]!.url}
+            alt=""
+            width={photos[(index + 1) % count]!.width ?? 1200}
+            height={photos[(index + 1) % count]!.height ?? 1200}
+            sizes="(max-width: 1200px) 100vw, 1200px"
+            className={styles.prefetch}
+            aria-hidden="true"
           />
         )}
         {count > 1 && (

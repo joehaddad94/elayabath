@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import styles from "../../../admin.module.css";
+import { Spinner } from "../../Spinner";
 import { createProduct, type CreateState } from "../[id]/actions";
 
 export function NewProductForm({ categories }: { categories: Array<{ id: string; name: string }> }) {
@@ -45,7 +46,7 @@ export function NewProductForm({ categories }: { categories: Array<{ id: string;
       </div>
       <div>
         <button type="submit" className="btn btn-primary" disabled={pending}>
-          {pending ? "Creating" : "Create product, hidden"}
+          {pending ? <><Spinner />Creating</> : "Create product, hidden"}
         </button>
       </div>
       {state.error && (

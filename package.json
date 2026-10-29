@@ -24,7 +24,7 @@
     "load": "node --env-file-if-exists=.env.local scripts/load/index.ts",
     "move:export": "node scripts/move/export.ts",
     "move:import": "node scripts/move/import.ts",
-    "e2e:products-grid": "node --env-file-if-exists=.env.local scripts/e2e/products-grid.mjs",
+    "e2e:products-list": "node --env-file-if-exists=.env.local scripts/e2e/products-list.mjs",
     "e2e:product-editor": "node --env-file-if-exists=.env.local scripts/e2e/product-editor.mjs",
     "e2e:media": "node --env-file-if-exists=.env.local scripts/e2e/media.mjs",
     "e2e:preview-history": "node --env-file-if-exists=.env.local scripts/e2e/preview-history.mjs",
