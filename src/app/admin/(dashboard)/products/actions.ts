@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { toGridRow, type GridRow } from "@/lib/admin/grid-row";
-import { ADMIN_PRODUCT_COLUMNS, gridStateSchema, matchingIds } from "@/lib/admin/product-query";
+import { ADMIN_PRODUCT_COLUMNS } from "@/lib/admin/product-query";
 import { productFields } from "@/lib/admin/product-schema";
 import { publishProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
@@ -93,13 +93,8 @@ export async function updateProductField(input: {
 const bulkInput = z.object({
   action: z.enum(["publish", "discontinue", "activate", "feature", "unfeature", "category"]),
   categoryId: z.uuid().optional(),
-  // Either the ticked rows, or everything matching the grid's filter. The
-  // Infinite Row Model cannot select rows it has not loaded, and a list of
-  // 20,000 ids is the wrong thing to send anyway, so "all matching" travels
-  // as the filter itself and is resolved here, by the same query the grid
-  // pages with.
-  ids: z.array(z.uuid()).max(5000).optional(),
-  state: gridStateSchema.optional(),
+  // The ticked rows.
+  ids: z.array(z.uuid()).min(1).max(5000),
 });
 
 export type BulkResult = { ok: true; count: number; message: string } | { ok: false; error: string };
@@ -107,11 +102,10 @@ export type BulkResult = { ok: true; count: number; message: string } | { ok: fa
 export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<BulkResult> {
   const { supabase } = await requireStaff();
   const parsed = bulkInput.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "That bulk action isn't valid." };
+  if (!parsed.success) return { ok: false, error: "Tick the products to act on first." };
   const { action, categoryId } = parsed.data;
 
-  const ids = parsed.data.state ? await matchingIds(supabase, parsed.data.state) : (parsed.data.ids ?? []);
-  if (ids.length === 0) return { ok: false, error: "Nothing is selected." };
+  const { ids } = parsed.data;
 
   if (action === "publish") {
     const { published, failed } = await publishProducts(supabase, ids, "Bulk publish from the grid");
@@ -139,42 +133,4 @@ export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<Bulk
     count,
     message: `${count} changed, as drafts. Publish them to put the change on the site.`,
   };
-}
-
-/* ── saved views ──────────────────────────────────────────────────────── */
-
-const viewInput = z.object({
-  name: z.string().trim().min(1, "Give the view a name.").max(60),
-  shared: z.boolean(),
-  columnState: z.array(z.record(z.string(), z.unknown())).max(60),
-  state: gridStateSchema,
-});
-
-export async function saveView(input: z.input<typeof viewInput>): Promise<{ ok: boolean; error?: string; id?: string }> {
-  const { supabase, email } = await requireStaff();
-  const parsed = viewInput.safeParse(input);
-  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
-  const { data, error } = await supabase
-    .from("grid_views")
-    .upsert(
-      {
-        owner: email,
-        name: parsed.data.name,
-        shared: parsed.data.shared,
-        column_state: parsed.data.columnState as never,
-        filter_model: parsed.data.state as never,
-        sort_model: parsed.data.state.sort as never,
-      },
-      { onConflict: "owner,name" },
-    )
-    .select("id")
-    .single();
-  if (error) return { ok: false, error: "The view couldn't be saved." };
-  return { ok: true, id: data.id };
-}
-
-export async function deleteView(id: string): Promise<{ ok: boolean }> {
-  const { supabase } = await requireStaff();
-  const { error } = await supabase.from("grid_views").delete().eq("id", id);
-  return { ok: !error };
 }

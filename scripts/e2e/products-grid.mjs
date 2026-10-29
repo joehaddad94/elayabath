@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 await admin.from("sign_in_log").delete().neq("id", 0);
-await admin.from("grid_views").delete().neq("name", "");
 
 const results = [];
 const check = (name, ok, detail = "") => results.push(`${ok ? "ok  " : "FAIL"} ${name}${detail !== "" ? "  (" + detail + ")" : ""}`);
@@ -97,20 +96,6 @@ check("publishing puts the change live", nowLive.name === `${first.name} TEST`, 
 const pdp = await (await fetch(`${BASE}/product/${first.slug}`)).text();
 check("and the public page shows it at once", pdp.includes(`${first.name} TEST`));
 
-// saved view round trip
-await setToolbar(() => page.check("text=Needs attention"));
-const attention = await count();
-await page.click("button:has-text('Views')");
-await page.fill('input[placeholder="Name this view"]', "Needs attention");
-await page.click("button:has-text('Save current view')");
-await page.waitForTimeout(900);
-await page.keyboard.press("Escape");
-const { data: views } = await admin.from("grid_views").select("id, name");
-check("a view can be saved", views.some((v) => v.name === "Needs attention"));
-await page.goto(`${BASE}/admin/products?view=${views[0].id}`, { waitUntil: "networkidle" });
-await page.waitForTimeout(1500);
-check("a saved view's link reopens it", (await count()) === attention, `${await count()} vs ${attention}`);
-
 // palette
 const bg = async () => page.evaluate(() => getComputedStyle(document.querySelector(".ag-root-wrapper")).backgroundColor);
 const ink = await bg();
@@ -123,7 +108,6 @@ check("no errors in the browser console", errors.length === 0, errors[0] ?? "");
 // restore the renamed product and republish it
 await admin.from("products").update({ name: first.name, dimensions: first.dimensions }).eq("id", first.id);
 await admin.rpc("publish_product", { p_id: first.id, p_note: "c6 verify restore" });
-await admin.from("grid_views").delete().neq("name", "");
 await admin.from("sign_in_log").delete().neq("id", 0);
 // The data was put back directly, so refresh the site's cached pages too;
 // otherwise the next run (or a person) would see what the test left.

@@ -112,16 +112,11 @@ export function applyGridState<Q extends Filterable>(
   if (state.changes) q = q.eq("has_changes", true);
   if (state.importJob) q = q.eq("import_job_id", state.importJob);
 
+  // One condition per column; columns combine with AND.
   for (const [colId, f] of Object.entries(state.filter)) {
     if (!isColumn(colId)) continue;
-    const column = COLUMNS[colId];
-    const parts = "conditions" in f ? f.conditions : [f];
-    const exprs = parts.map((c) => expression(column, c)).filter((e): e is string => e !== null);
-    if (exprs.length === 0) continue;
-    // Each column's filter is one group; groups combine with AND, like the
-    // grid's own semantics.
-    const operator = "operator" in f ? f.operator : "AND";
-    q = operator === "OR" ? q.or(exprs.join(",")) : q.or(`and(${exprs.join(",")})`);
+    const expr = expression(COLUMNS[colId], f);
+    if (expr) q = q.or(`and(${expr})`);
   }
 
   if (withSort) {
