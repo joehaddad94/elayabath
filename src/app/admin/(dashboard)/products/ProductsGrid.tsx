@@ -33,6 +33,8 @@ import type { GridRow } from "@/lib/admin/grid-types";
 import styles from "../../admin.module.css";
 import grid from "./grid.module.css";
 import { bulkUpdate, updateProductField } from "./actions";
+import { PhotoViewer, useHoverPreview, type PhotoProduct } from "./PhotoViewer";
+import photos from "./photos.module.css";
 
 /*
  * Only the Community modules the grid uses, so the dashboard downloads no
@@ -118,9 +120,32 @@ function Sku({ value, data }: ICellRendererParams<GridRow, string>) {
   );
 }
 
-function Thumb({ value, data }: ICellRendererParams<GridRow, string | null>) {
-  if (!value) return <span className={grid.noThumb}>none</span>;
-  return <Image src={value} alt="" width={36} height={36} className={grid.thumb} aria-hidden="true" title={data?.name} />;
+/** What the thumbnail cell reaches through the grid's context. */
+interface ThumbContext {
+  openPhotos: (product: PhotoProduct) => void;
+  showPreview: ReturnType<typeof useHoverPreview>["show"];
+  hidePreview: () => void;
+}
+
+/** The thumbnail opens the product's photos large; a mouse resting on it
+ *  gets a medium preview first. */
+function Thumb({ value, data, context }: ICellRendererParams<GridRow, string | null, ThumbContext>) {
+  if (!value || !data) return <span className={grid.noThumb}>none</span>;
+  return (
+    <button
+      type="button"
+      className={photos.thumbButton}
+      aria-label={`Photos of ${data.name}`}
+      onPointerEnter={(e) => context.showPreview(value, e.currentTarget, e.pointerType)}
+      onPointerLeave={context.hidePreview}
+      onClick={() => {
+        context.hidePreview();
+        context.openPhotos({ id: data.id, name: data.name, sku: data.sku, thumb: value });
+      }}
+    >
+      <Image src={value} alt="" width={36} height={36} className={grid.thumb} />
+    </button>
+  );
 }
 
 function Completeness({ value, data }: ICellRendererParams<GridRow, number>) {
@@ -171,6 +196,10 @@ export function ProductsGrid({
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [moveTo, setMoveTo] = useState("");
+  const [viewing, setViewing] = useState<PhotoProduct | null>(null);
+  const preview = useHoverPreview();
+  const { show: showPreview, hide: hidePreview } = preview;
+  const gridContext = useMemo<ThumbContext>(() => ({ openPhotos: setViewing, showPreview, hidePreview }), [showPreview, hidePreview]);
   // Which columns are hidden, as state rather than read off the grid during
   // render, so the menu can never disagree with what the grid shows.
   const [hidden, setHidden] = useState<Set<string>>(() => new Set(["updatedBy"]));
@@ -580,9 +609,19 @@ export function ProductsGrid({
           onColumnResized={(e) => e.finished && syncUrl()}
           onColumnMoved={(e) => e.finished && syncUrl()}
           onColumnVisible={readHidden}
+          context={gridContext}
+          // Enter on a focused thumbnail cell opens the photos, as a click does.
+          onCellKeyDown={(e) => {
+            const key = (e.event as KeyboardEvent | null)?.key;
+            if ("column" in e && e.column.getColId() === "image" && key === "Enter" && e.data?.image_url) {
+              setViewing({ id: e.data.id, name: e.data.name, sku: e.data.sku, thumb: e.data.image_url });
+            }
+          }}
           overlayNoRowsTemplate="<span>No products match.</span>"
         />
       </div>
+      {preview.element}
+      <PhotoViewer product={viewing} onClose={() => setViewing(null)} />
     </div>
   );
 }
