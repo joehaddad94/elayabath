@@ -17,7 +17,6 @@ type ProductPatch = TablesUpdate<"products">;
 const edit = z.discriminatedUnion("field", [
   z.object({ field: z.literal("name"), value: productFields.name }),
   z.object({ field: z.literal("dimensions"), value: productFields.dimensions }),
-  z.object({ field: z.literal("featured"), value: productFields.featured }),
   z.object({ field: z.literal("status"), value: z.enum(["active", "draft"]) }),
   z.object({ field: z.literal("category_id"), value: productFields.category_id }),
   z.object({ field: z.literal("type_id"), value: productFields.type_id }),
@@ -96,7 +95,7 @@ export async function updateProductField(input: {
 /* ── bulk actions ─────────────────────────────────────────────────────── */
 
 const bulkInput = z.object({
-  action: z.enum(["show", "hide", "feature", "unfeature", "category"]),
+  action: z.enum(["show", "hide", "category"]),
   categoryId: z.uuid().optional(),
   // The ticked rows.
   ids: z.array(z.uuid()).min(1).max(5000),
@@ -115,8 +114,6 @@ export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<Bulk
   const patch: ProductPatch =
     action === "show" ? { status: "active" }
     : action === "hide" ? { status: "draft" }
-    : action === "feature" ? { featured: true }
-    : action === "unfeature" ? { featured: false }
     : { category_id: categoryId, type_id: null };
 
   const changed: string[] = [];

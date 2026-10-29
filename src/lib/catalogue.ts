@@ -18,6 +18,7 @@
  */
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import { HOMEPAGE_PRODUCTS } from "@/content/homepage";
 import { tags } from "./cache-tags";
 import type { Selection, SortKey } from "./product-filters";
 import { storageUrl } from "./supabase/config";
@@ -201,24 +202,24 @@ export async function getRedirect(slug: string): Promise<string | undefined> {
   return target.data?.slug ?? undefined;
 }
 
-/** The products staff have marked for the homepage, in catalogue order. */
-export async function getFeaturedProducts(): Promise<Product[]> {
+/** The homepage's products, in the order HOMEPAGE_PRODUCTS lists them.
+ *  Hidden or deleted ones drop out. */
+export async function getHomepageProducts(): Promise<Product[]> {
   "use cache";
   cacheLife("max");
   cacheTag(tags.products);
 
   const { data, error } = await publicClient()
     .from("published_products")
-    .select("snapshot")
+    .select("slug, snapshot")
     .eq("status", "active")
-    .eq("featured", true)
-    // The order last set on the dashboard's Homepage screen, since removed;
-    // products featured after that (no rank) follow, by name.
-    .order("featured_rank", { ascending: true, nullsFirst: false })
-    .order("name", { ascending: true })
-    .order("sku", { ascending: true });
-  if (error) fail("featured products", error);
-  return (data ?? []).map((row) => toProduct(row.snapshot as unknown as ProductSnapshot));
+    .in("slug", [...HOMEPAGE_PRODUCTS]);
+  if (error) fail("homepage products", error);
+  const bySlug = new Map((data ?? []).map((row) => [row.slug, row.snapshot as unknown as ProductSnapshot]));
+  return HOMEPAGE_PRODUCTS.flatMap((slug) => {
+    const s = bySlug.get(slug);
+    return s ? [toProduct(s)] : [];
+  });
 }
 
 /** Every live product's slug, for the sitemap. Slugs only: the sitemap has

@@ -25,7 +25,6 @@ const COLUMNS = {
   category: "category_name",
   type: "type_name",
   status: "status",
-  featured: "featured",
   dimensions: "dimensions",
   finishes: "finish_count",
   completeness: "completeness",

@@ -13,7 +13,7 @@ import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
 import {
   getCatalogueMeta,
   getCategories,
-  getFeaturedProducts,
+  getHomepageProducts,
   getFinishes,
 } from "@/lib/catalogue";
 import { format, getDictionary } from "@/lib/i18n";
@@ -43,9 +43,8 @@ export default async function HomePage({
   const [meta, categories, products, finishes] = await Promise.all([
     getCatalogueMeta(),
     getCategories(),
-    // Chosen by staff with the featured flag. Seeded to exactly the products
-    // this page showed before the catalogue moved to the database.
-    getFeaturedProducts(),
+    // A fixed list in src/content/homepage.ts.
+    getHomepageProducts(),
     getFinishes(),
   ]);
 

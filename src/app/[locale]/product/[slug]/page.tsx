@@ -17,7 +17,7 @@ import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
   getCategory,
   getFinishesFor,
-  getFeaturedProducts,
+  getHomepageProducts,
   getProduct,
   getRedirect,
   getRelatedProducts,
@@ -31,13 +31,13 @@ import { breadcrumbSchema, canonical, productSchema } from "@/lib/seo";
 import styles from "./product.module.css";
 
 /**
- * Built ahead: the featured products only. Building every product page at
+ * Built ahead: the homepage's products only. Building every product page at
  * deploy time slows the build in step with the catalogue; the rest render on
  * their first visit and are cached from then on, which is also how a product
  * published after a deploy gets its page.
  */
 export async function generateStaticParams() {
-  const products = await getFeaturedProducts();
+  const products = await getHomepageProducts();
   return LOCALES.flatMap((locale) =>
     products.map((product) => ({ locale, slug: product.slug })),
   );

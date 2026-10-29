@@ -118,13 +118,13 @@ try {
   // ── an import of changes to visible products goes live at once ──
   await admin.from("products").update({ description: target.description }).eq("id", target.id);
   await admin.rpc("publish_product", { p_id: target.id, p_note: "c11 verify" });
-  const change = ["Item code,Dimensions,Featured", `${target.sku},777 x 111 mm,Yes`, `${target2.sku},666 x 111 mm,`].join("\r\n");
+  const change = ["Item code,Dimensions", `${target.sku},777 x 111 mm`, `${target2.sku},666 x 111 mm`].join("\r\n");
   await importFile("products", "live.csv", Buffer.from(change));
   await page.getByRole("button", { name: /^Apply 2 changes/ }).click();
   await confirmModal(page);
   await page.waitForSelector("text=Applied. The site shows everything this import changed.", { timeout: 60000 });
-  const { data: live } = await admin.from("published_products").select("snapshot, featured").eq("product_id", target.id).single();
-  check("the changes are live", live.snapshot.dimensions === "777 x 111 mm" && live.featured === true, JSON.stringify(live.snapshot.dimensions));
+  const { data: live } = await admin.from("published_products").select("snapshot").eq("product_id", target.id).single();
+  check("the changes are live", live.snapshot.dimensions === "777 x 111 mm", JSON.stringify(live.snapshot.dimensions));
   check("no products are left with changes waiting", (await drafts()) === draftsBefore, `${await drafts()} vs ${draftsBefore}`);
 
   // A file whose headers match nothing asks for its columns first.

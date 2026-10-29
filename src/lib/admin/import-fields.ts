@@ -45,7 +45,6 @@ export const FIELDS: Record<Entity, FieldDef[]> = {
     { key: "features", label: "Features", aliases: ["feature list"], help: "Separated by | or one per line." },
     { key: "finishes", label: "Finishes", aliases: ["colours", "colors", "finish"], help: "Web addresses or codes, separated by | or one per line." },
     { key: "status", label: "Status", aliases: ["state"], help: "Visible or Hidden. New products always start hidden." },
-    { key: "featured", label: "Featured", aliases: ["homepage"], help: "Yes or No." },
   ],
   categories: [
     { key: "id", label: "ID", aliases: ["internal id", "uuid"] },
