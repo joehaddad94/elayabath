@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
+import { Icon } from "@/components/Icon/Icon";
 import { requireStaff } from "@/lib/admin/session";
-import { signOut } from "../sign-in/actions";
 import styles from "../admin.module.css";
+import { AccountMenu } from "./AccountMenu";
 import { AdminNav, type AdminNavItem } from "./AdminNav";
 import { ConfirmProvider } from "./ConfirmDialog";
 
@@ -49,16 +49,11 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
         </Link>
         <AdminNav items={isOwner ? [...SECTIONS, ...OWNER_SECTIONS] : SECTIONS} />
         <div className={styles.who}>
-          <span className={styles.whoEmail}>{email}</span>
-          <ThemeToggle label="Switch to the {theme} palette" />
-          <form action={signOut}>
-            <button type="submit" className={styles.linkButton}>
-              Sign out
-            </button>
-          </form>
-          <Link href="/" className={styles.linkButton}>
+          <Link href="/" className={styles.viewSite}>
             View site
+            <Icon name="externalLink" size={16} />
           </Link>
+          <AccountMenu email={email} />
         </div>
       </header>
       <main id="main" className={styles.main}>

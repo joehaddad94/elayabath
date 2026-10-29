@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import styles from "../admin.module.css";
 
 export interface AdminNavItem {
@@ -38,7 +39,7 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
         aria-controls="dashboard-sections"
         onClick={() => setOpen((o) => !o)}
       >
-        {current} <span aria-hidden="true">{open ? "▴" : "▾"}</span>
+        {current} <Icon name="chevron" size={16} className={open ? styles.chevronOpen : undefined} />
         <span className="sr-only">, show sections</span>
       </button>
       <nav id="dashboard-sections" className={`${styles.nav} ${open ? styles.navOpen : ""}`} aria-label="Dashboard">

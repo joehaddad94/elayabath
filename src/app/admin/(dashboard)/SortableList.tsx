@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import styles from "./sortable.module.css";
 
 /**
@@ -68,19 +69,19 @@ export function SortableList<T>({
             }}
           >
             <span className={styles.handle} aria-hidden="true">
-              ⠿
+              <Icon name="grip" />
             </span>
             <span className={styles.position}>{index + 1}</span>
             <div className={styles.content}>{render(item, index)}</div>
             <span className={styles.buttons}>
               <button type="button" className="btn btn-icon btn-secondary" disabled={index === 0} onClick={() => move(index, 0)} aria-label={`Move ${getLabel(item)} to the top`}>
-                ⤒
+                <Icon name="arrowUpToLine" />
               </button>
               <button type="button" className="btn btn-icon btn-secondary" disabled={index === 0} onClick={() => move(index, index - 1)} aria-label={`Move ${getLabel(item)} up`}>
-                ↑
+                <Icon name="arrowUp" />
               </button>
               <button type="button" className="btn btn-icon btn-secondary" disabled={index === items.length - 1} onClick={() => move(index, index + 1)} aria-label={`Move ${getLabel(item)} down`}>
-                ↓
+                <Icon name="arrowDown" />
               </button>
             </span>
           </li>

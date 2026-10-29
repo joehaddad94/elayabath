@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import { FINISH_FAMILIES, finishForm, type FinishForm } from "@/lib/admin/catalogue-schema";
 import { MAX_SWATCH_EDGE, preparePhoto, swatchFolder } from "@/lib/admin/media";
 import { browserClient } from "@/lib/supabase/browser";
@@ -109,7 +110,7 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
                   <Image src={f.swatchUrl} alt="" width={32} height={32} className={styles.swatch} />
                 ) : (
                   <span className={`${styles.swatch} ${styles.noSwatch}`} aria-hidden="true">
-                    {f.form.code}
+                    <Icon name="ban" size={16} />
                   </span>
                 )}
                 <span className={styles.name}>

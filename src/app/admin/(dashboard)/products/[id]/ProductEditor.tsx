@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Icon } from "@/components/Icon/Icon";
 import { productForm, slugFromSku, type ProductForm } from "@/lib/admin/product-schema";
 import admin from "../../../admin.module.css";
 import { deleteDraftProduct, saveProduct } from "./actions";
@@ -473,7 +474,7 @@ export function ProductEditor({
             <ul className={styles.checks}>
               {checks.map((c) => (
                 <li key={c.label} className={c.ok ? styles.ok : styles.missing}>
-                  <span aria-hidden="true">{c.ok ? "✓" : "○"}</span> {c.label}
+                  <Icon name={c.ok ? "check" : "circle"} size={16} /> {c.label}
                   <span className="sr-only">{c.ok ? ", done" : ", missing"}</span>
                 </li>
               ))}

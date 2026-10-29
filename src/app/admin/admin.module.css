@@ -25,14 +25,14 @@
 
 .signInCard h1 {
   margin: 0 0 var(--space-2);
-  font-size: 1.6rem;
+  font-size: var(--text-lg);
   text-transform: uppercase;
 }
 
 .lede {
   margin: 0 0 var(--space-6);
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
 }
 
 .form {
@@ -41,16 +41,14 @@
 }
 
 .form label {
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
 }
 
 .message {
   margin: var(--space-4) 0 0;
   padding: var(--space-3) var(--space-4);
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   border-inline-start: 3px solid var(--color-accent);
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
 }
@@ -94,7 +92,7 @@
   font-weight: var(--font-heading-weight);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   min-height: 24px;
 }
 
@@ -116,7 +114,7 @@
   min-height: 32px;
   padding: 0 var(--space-2);
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: var(--text-base);
   color: color-mix(in srgb, var(--color-text) 82%, transparent);
   border-bottom: 2px solid transparent;
 }
@@ -133,9 +131,126 @@
 .who {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  font-size: 0.85rem;
+  gap: var(--space-2);
+}
+
+/* Leaves the dashboard, so it says so with an icon. Quiet: the bar is for
+   the sections, and this is used once a session. */
+.viewSite {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-sm);
+  text-decoration: none;
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.viewSite:hover {
+  color: var(--color-text);
+}
+
+/* ── the account menu ── */
+.account {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 36px;
+  padding: 0 var(--space-2) 0 var(--space-1);
+  border: var(--rule);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.account:hover,
+.account[data-state="open"] {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+.chevron,
+.chevronOpen {
+  transition: transform 0.15s ease;
+}
+
+.account[data-state="open"] .chevron,
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  z-index: 40;
+  min-width: 16rem;
+  max-width: calc(100vw - 24px);
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: var(--rule);
+  color: var(--color-text);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-neutral-900) 30%, transparent);
+}
+
+.menuWho {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.menuWhoLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.menuEmail {
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.menuRule {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--color-divider);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-base);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.menuItem[data-highlighted] {
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
+}
+
+.menuPhoneOnly {
+  display: none;
 }
 
 .linkButton {
@@ -173,14 +288,14 @@
 
 .pageHead h1 {
   margin: 0;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
   text-transform: uppercase;
 }
 
 .pageHead p {
   margin: var(--space-1) 0 0;
   color: color-mix(in srgb, var(--color-text) 74%, transparent);
-  font-size: 0.92rem;
+  font-size: var(--text-base);
 }
 
 .stats {
@@ -207,7 +322,7 @@ a.stat:hover {
   display: block;
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
-  font-size: 2rem;
+  font-size: var(--text-xl);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -215,8 +330,8 @@ a.stat:hover {
 .statLabel {
   display: block;
   margin-top: var(--space-2);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text) 74%, transparent);
 }
@@ -227,15 +342,13 @@ a.stat:hover {
 
 .section h2 {
   margin: 0 0 var(--space-4);
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: var(--text-md);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
 }
 
 .table th,
@@ -247,7 +360,7 @@ a.stat:hover {
 }
 
 .table th {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text) 74%, transparent);
@@ -272,17 +385,15 @@ a.stat:hover {
 }
 
 .inline label {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
 }
 
 .badge {
   display: inline-block;
   padding: 0.1rem 0.45rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 1px solid var(--color-control);
 }
@@ -336,19 +447,31 @@ a.stat:hover {
     padding-inline-start: var(--space-3);
   }
 
-  .whoEmail {
+  /* View site moves into the account menu, so the bar stays one row. */
+  .viewSite {
     display: none;
   }
 
-  /* An open menu sits right under the logo row, above the account links. */
-  .who {
-    order: 4;
-    width: 100%;
-    justify-content: space-between;
+  .menuPhoneOnly {
+    display: flex;
+  }
+
+  /* Fingers, not pointers: icon buttons grow to 44px. */
+  .shell :global(.btn-icon) {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* iOS zooms the page when a field under 16px takes focus, and stays zoomed. */
+  .shell :global(.input),
+  .shell select,
+  .shell textarea,
+  .signInCard :global(.input) {
+    font-size: 1rem;
   }
 
   .table {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
   }
 
   .table th,
@@ -359,7 +482,7 @@ a.stat:hover {
 
 .crumbs {
   margin: 0 0 var(--space-3);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: color-mix(in srgb, var(--color-text) 74%, transparent);
 }
 
@@ -379,22 +502,18 @@ a.stat:hover {
 }
 
 .newForm label {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
 }
 
 .fieldError {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .sectionTitle {
   margin: 0 0 var(--space-3);
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: var(--text-md);
 }
 
 .meterText {
@@ -524,7 +643,7 @@ a.stat:hover {
 
 .problem h1 {
   margin: 0;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
   text-transform: uppercase;
 }
 
@@ -568,14 +687,12 @@ a.stat:hover {
 
 .dialogTitle {
   margin: 0;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--text-md);
 }
 
 .dialogBody {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   line-height: 1.5;
 }
 

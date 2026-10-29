@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Dialog } from "radix-ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { Icon } from "@/components/Icon/Icon";
 import { productPhotos, type Photo } from "./actions";
 import admin from "../../admin.module.css";
 import styles from "./photos.module.css";
@@ -92,8 +93,8 @@ function Viewer({ product, onClose }: { product: PhotoProduct; onClose: () => vo
         <Link href={`/admin/products/${product.id}`} className={styles.edit}>
           Edit product
         </Link>
-        <Dialog.Close className={styles.close} aria-label="Close">
-          ×
+        <Dialog.Close className={styles.close} aria-label="Close" title="Close">
+          <Icon name="close" size={24} />
         </Dialog.Close>
       </div>
 
@@ -161,11 +162,11 @@ function Viewer({ product, onClose }: { product: PhotoProduct; onClose: () => vo
         )}
         {count > 1 && (
           <>
-            <button type="button" className={`${styles.arrow} ${styles.prev}`} aria-label="Previous photo" onClick={() => step(-1)}>
-              ‹
+            <button type="button" className={`${styles.arrow} ${styles.prev}`} aria-label="Previous photo" title="Previous photo" onClick={() => step(-1)}>
+              <Icon name="chevronLeft" size={32} />
             </button>
-            <button type="button" className={`${styles.arrow} ${styles.next}`} aria-label="Next photo" onClick={() => step(1)}>
-              ›
+            <button type="button" className={`${styles.arrow} ${styles.next}`} aria-label="Next photo" title="Next photo" onClick={() => step(1)}>
+              <Icon name="chevronRight" size={32} />
             </button>
           </>
         )}
