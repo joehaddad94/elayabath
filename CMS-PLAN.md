@@ -1157,6 +1157,7 @@ status. The code is in git history if any of it is wanted back.
   change, and Apply saves and publishes in one go. Exports write
   Visible/Hidden; imports also accept the older Live/Draft/Discontinued.
 - **Staff** is the owner's page alone (`staff.role = 'owner'`, `is_owner()`).
+- **Homepage** screen removed too. Ticking Featured on a product still puts it on the homepage; the order last set there stays (`featured_rank`), and products featured since follow by name.
 
 Choosing an email provider is deliberately not a milestone. It is a
 conversation to have before the dashboard is used anywhere but the development

@@ -1,4 +1,4 @@
-// End-to-end check: categories, ordering, homepage, finish library.
+// End-to-end check: categories, ordering, finish library.
 import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
@@ -28,7 +28,6 @@ const { data: products } = await admin.from("products").select("id, slug, sku, p
 const { data: types } = await admin.from("product_types").select("id, slug, name").eq("category_id", target.id);
 const usedType = types.find((t) => products.some((p) => p.type_id === t.id));
 const typedProduct = products.find((p) => p.type_id === usedType.id);
-const { data: featured } = await admin.from("products").select("id, slug, featured_rank").eq("featured", true).order("featured_rank");
 const { data: white } = await admin.from("finishes").select("*").eq("code", "A00").maybeSingle();
 const draftsBefore = await drafts();
 
@@ -96,17 +95,6 @@ try {
   const [lastAt, firstAt] = order(shelf, [`/product/${last.slug}"`, `/product/${products[0].slug}"`]);
   check("a category's new product order changes its shelf", lastAt < firstAt);
   check("reordering left no product with unpublished changes", (await drafts()) === draftsBefore, `${await drafts()} vs ${draftsBefore}`);
-
-  // ── homepage ──
-  await go("/admin/homepage");
-  const lastFeatured = featured[featured.length - 1];
-  const featuredRows = page.locator("ol[aria-label='Featured products in homepage order'] > li");
-  check("the homepage screen lists the featured products", (await featuredRows.count()) === featured.length);
-  await featuredRows.last().getByRole("button", { name: /to the top$/ }).click();
-  await orderSaved();
-  const home = await html("/");
-  const [lf, ff] = order(home, [`/product/${lastFeatured.slug}"`, `/product/${featured[0].slug}"`]);
-  check("a new homepage order changes the homepage", lf < ff, `${lastFeatured.slug} at ${lf}, ${featured[0].slug} at ${ff}; ranks ${JSON.stringify((await admin.from("published_products").select("slug, featured_rank").eq("featured", true).order("featured_rank")).data?.map((p) => p.slug + ":" + p.featured_rank))}`);
 
   // ── finish library ──
   await go("/admin/finishes");
@@ -180,7 +168,7 @@ try {
   await go(`/admin/products/${draftProduct.id}`);
   check("the editor warns when a product's category is hidden", (await page.getByText("This category is hidden").count()) === 1);
 
-  for (const path of ["/admin/categories", `/admin/categories/${target.id}`, "/admin/homepage", "/admin/finishes"]) {
+  for (const path of ["/admin/categories", `/admin/categories/${target.id}`, "/admin/finishes"]) {
     await page.setViewportSize({ width: 390, height: 844 });
     await go(path);
     const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -194,7 +182,6 @@ try {
   // Put it all back.
   await admin.rpc("set_category_order", { p_ids: categories.map((c) => c.id) });
   await admin.rpc("set_product_order", { p_category: target.id, p_ids: products.map((p) => p.id) });
-  await admin.rpc("set_featured_order", { p_ids: featured.map((p) => p.id) });
   await admin.from("categories").update({ blurb: target.blurb }).eq("id", target.id);
   await admin.from("product_types").update({ name: usedType.name }).eq("id", usedType.id);
   await admin.from("product_types").delete().eq("category_id", target.id).eq("name", "C10 new type");

@@ -105,14 +105,12 @@ export async function publishFinish(supabase: Client, id: string, note?: string)
  *  any product's or category's own version. */
 export async function publishOrder(
   supabase: Client,
-  order: { kind: "products"; categoryId: string; ids: string[] } | { kind: "categories"; ids: string[] } | { kind: "featured"; ids: string[] },
+  order: { kind: "products"; categoryId: string; ids: string[] } | { kind: "categories"; ids: string[] },
 ): Promise<{ error?: string }> {
   const { error } =
     order.kind === "products"
       ? await supabase.rpc("set_product_order", { p_category: order.categoryId, p_ids: order.ids })
-      : order.kind === "categories"
-        ? await supabase.rpc("set_category_order", { p_ids: order.ids })
-        : await supabase.rpc("set_featured_order", { p_ids: order.ids });
+      : await supabase.rpc("set_category_order", { p_ids: order.ids });
   if (error) return { error: error.message };
   updateTag(order.kind === "categories" ? tags.categories : tags.products);
   return {};

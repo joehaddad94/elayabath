@@ -212,7 +212,8 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .select("snapshot")
     .eq("status", "active")
     .eq("featured", true)
-    // Staff set this order on the dashboard's Homepage screen.
+    // The order last set on the dashboard's Homepage screen, since removed;
+    // products featured after that (no rank) follow, by name.
     .order("featured_rank", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true })
     .order("sku", { ascending: true });
