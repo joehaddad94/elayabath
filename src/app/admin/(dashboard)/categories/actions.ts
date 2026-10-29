@@ -17,8 +17,9 @@ const fieldErrors = (issues: z.core.$ZodIssue[]) => {
 };
 
 /**
- * Saves a category and its product types as a draft, version-checked,
- * through `public.save_category`.
+ * Saves a category and its product types, version-checked, through
+ * `public.save_category`, and puts it live: visible, or hidden from the menu
+ * and with no category page.
  *
  * A published category's web address is fixed: product addresses redirect
  * when they change, category addresses do not, so changing one would break
@@ -38,10 +39,8 @@ export async function saveCategory(input: { id: string; version: number; form: u
   if (current.published_version !== null && fields.slug !== current.slug) {
     return { ok: false, error: "Some fields need attention.", fields: { slug: "A published category keeps its web address." } };
   }
-  if (current.published_version !== null && fields.status === "draft") {
-    return { ok: false, error: "Some fields need attention.", fields: { status: "Choose live or hidden." } };
-  }
-  if (current.published_version === null) fields.status = "draft";
+  // Visible or hidden; a category never yet on the site counts as hidden.
+  if (fields.status === "draft") fields.status = "discontinued";
 
   // New types get an address from their name, unique within the category.
   const { data: existing } = await supabase.from("product_types").select("slug").eq("category_id", id.data);
@@ -72,22 +71,19 @@ export async function saveCategory(input: { id: string; version: number; form: u
   if (error?.code === "PT422") return { ok: false, error: error.message };
   if (error?.code === "23505") return { ok: false, error: "Some fields need attention.", fields: { slug: "Another category already uses this address." } };
   if (error || saved === null) return { ok: false, error: "That couldn't be saved. Try again." };
-  return { ok: true, version: saved, message: "Saved as a draft. The site changes when you publish." };
-}
 
-export async function publishCategoryNow(input: { id: string }): Promise<{ ok: boolean; error?: string; message?: string; version?: number }> {
-  const { supabase } = await requireStaff();
-  const id = z.uuid().safeParse(input.id);
-  if (!id.success) return { ok: false, error: "That category isn't valid." };
-  const { error } = await publishCategory(supabase, id.data);
-  if (error) return { ok: false, error: `It couldn't be published: ${error}` };
-  const { data } = await supabase.from("categories").select("published_version").eq("id", id.data).single();
-  return { ok: true, message: "Published. Menus, shelves and its product pages show it now.", version: data?.published_version ?? undefined };
+  const { error: liveError } = await publishCategory(supabase, id.data);
+  if (liveError) return { ok: false, error: `Saved, but the site couldn't be updated: ${liveError} Save again to retry.` };
+  return {
+    ok: true,
+    version: saved,
+    message: fields.status === "active" ? "Saved. Menus, shelves and its product pages show it now." : "Saved. It is hidden: no menu entry or category page.",
+  };
 }
 
 const ids = z.array(z.uuid()).max(5000);
 
-export async function publishCategoryOrder(input: { ids: string[] }): Promise<{ ok: boolean; error?: string }> {
+export async function saveCategoryOrder(input: { ids: string[] }): Promise<{ ok: boolean; error?: string }> {
   const { supabase } = await requireStaff();
   const parsed = ids.safeParse(input.ids);
   if (!parsed.success) return { ok: false, error: "That order isn't valid." };
@@ -95,7 +91,7 @@ export async function publishCategoryOrder(input: { ids: string[] }): Promise<{ 
   return error ? { ok: false, error } : { ok: true };
 }
 
-export async function publishProductOrder(input: { categoryId: string; ids: string[] }): Promise<{ ok: boolean; error?: string }> {
+export async function saveProductOrder(input: { categoryId: string; ids: string[] }): Promise<{ ok: boolean; error?: string }> {
   const { supabase } = await requireStaff();
   const category = z.uuid().safeParse(input.categoryId);
   const parsed = ids.safeParse(input.ids);
@@ -106,8 +102,8 @@ export async function publishProductOrder(input: { categoryId: string; ids: stri
 
 export type NewCategoryState = { error?: string; fields?: Record<string, string>; values?: { name: string }; attempt?: number };
 
-/** A new category starts as a draft, last in the menu, with an address
- *  made from its name. */
+/** A new category starts hidden, last in the menu, with an address made
+ *  from its name. It goes on the site when it is made visible and saved. */
 export async function createCategory(previous: NewCategoryState, formData: FormData): Promise<NewCategoryState> {
   const refused = (state: Omit<NewCategoryState, "attempt">): NewCategoryState => ({ ...state, attempt: (previous.attempt ?? 0) + 1 });
   const { supabase } = await requireStaff();

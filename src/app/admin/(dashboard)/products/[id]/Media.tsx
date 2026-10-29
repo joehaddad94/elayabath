@@ -185,7 +185,7 @@ export function Gallery({
   );
 }
 
-/** The product's data sheet: one PDF, replaced or removed as a draft change. */
+/** The product's data sheet: one PDF, replaced or removed when the product is saved. */
 export function Datasheet({
   productId,
   path,

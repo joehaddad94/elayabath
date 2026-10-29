@@ -5,7 +5,7 @@ import { z } from "zod";
 import { fetchAll } from "@/lib/admin/fetch-all";
 import { DEFAULT_OPTIONS, FIELDS, IDENTITIES, suggestMapping, type Entity, type ImportOptions } from "@/lib/admin/import-fields";
 import { stageRows, type Job } from "@/lib/admin/import-stage";
-import { publishCategory, publishFinish, publishProducts } from "@/lib/admin/publish";
+import { publishCategory, publishFinish, syncProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 import { MAX_IMPORT_ROWS, readSheet } from "@/lib/admin/sheet-reader";
 import { normaliseHeader } from "@/lib/admin/sheets";
@@ -270,7 +270,7 @@ export async function publishNext(input: { id: string }): Promise<Result<{ remai
     const { data: batch } = await supabase.from("products").select("id").eq("import_job_id", input.id).limit(PUBLISH_CHUNK);
     const ids = (batch ?? []).map((p) => p.id);
     if (ids.length) {
-      const { failed } = await publishProducts(supabase, ids, "Published from an import");
+      const { failed } = await syncProducts(supabase, ids, "Published from an import");
       if (failed.length) return { ok: false, error: `${failed.length} couldn't be published: ${failed[0]!.message}` };
     }
     const { count } = await supabase.from("products").select("id", { count: "exact", head: true }).eq("import_job_id", input.id);

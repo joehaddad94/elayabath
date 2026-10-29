@@ -31,7 +31,6 @@ export const gridStateSchema = z.object({
   category: z.string().max(80).default(""),
   status: z.enum(["", "draft", "active", "discontinued"]).default(""),
   incomplete: z.boolean().default(false),
-  changes: z.boolean().default(false),
   importJob: z.string().uuid().or(z.literal("")).default(""),
 });
 export type GridState = z.infer<typeof gridStateSchema>;

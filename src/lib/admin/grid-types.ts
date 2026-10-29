@@ -17,7 +17,6 @@ export interface GridRow {
   finish_count: number;
   completeness: number;
   missing: string[];
-  has_changes: boolean;
   published_version: number | null;
   version: number;
   updated_at: string;

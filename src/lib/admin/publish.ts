@@ -9,54 +9,55 @@ const CHUNK = 100;
 const PARALLEL = 6;
 
 /**
- * Publishes products and refreshes exactly the pages that show them.
+ * Makes the site match the saved products, and refreshes exactly the pages
+ * that show them. Called straight after every save: saving is what puts a
+ * change live.
  *
- * Each product goes through `public.publish_product`, one transaction per
- * product, as the signed-in staff member. Then the cache: every list of
- * products is refreshed once however many were published, and each product's
- * own page is refreshed under both its old slug and its new one, so a renamed
- * product's old address starts redirecting straight away.
+ * Each product goes through `public.sync_product`, one transaction per
+ * product, as the signed-in staff member: a visible product is published, a
+ * hidden one taken off the site. Then the cache: every list of products is
+ * refreshed once however many changed, and each product's own page is
+ * refreshed under both its old slug and its new one, so a renamed product's
+ * old address starts redirecting straight away and a hidden one's page goes.
  *
  * `updateTag` makes the next request wait for fresh data rather than serving
- * the old page, so the person who pressed Publish sees their change at once.
- * It only works inside a Server Action, which is where this is called from.
+ * the old page, so the person who saved sees their change at once. It only
+ * works inside a Server Action, which is where this is called from.
  */
-export async function publishProducts(
+export async function syncProducts(
   supabase: Client,
   ids: string[],
   note?: string,
-): Promise<{ published: number; failed: Array<{ id: string; message: string }> }> {
+): Promise<{ synced: number; failed: Array<{ id: string; message: string }> }> {
   const slugsBefore = await publishedSlugs(supabase, ids);
 
-  // A finish that has never been published would be dropped from the
-  // product's page, so it goes live first. (A published finish with
-  // unpublished edits is left alone: that is its own decision.)
+  // A finish goes live with the first product that uses it.
   const newFinishes = await unpublishedFinishes(supabase, ids);
   for (const id of newFinishes) {
     await supabase.rpc("publish_finish", { p_id: id, p_note: "Published with a product that uses it" });
   }
   if (newFinishes.length) updateTag(tags.finishes);
 
-  let published = 0;
+  let synced = 0;
   const failed: Array<{ id: string; message: string }> = [];
   let next = 0;
   await Promise.all(
     Array.from({ length: Math.min(PARALLEL, ids.length) }, async () => {
       while (next < ids.length) {
         const id = ids[next++]!;
-        const { error } = await supabase.rpc("publish_product", { p_id: id, p_note: note });
+        const { error } = await supabase.rpc("sync_product", { p_id: id, p_note: note });
         if (error) failed.push({ id, message: error.message });
-        else published += 1;
+        else synced += 1;
       }
     }),
   );
 
   const slugsAfter = await publishedSlugs(supabase, ids);
-  if (published > 0) {
+  if (synced > 0) {
     updateTag(tags.products);
     for (const slug of new Set([...slugsBefore, ...slugsAfter])) updateTag(tags.product(slug));
   }
-  return { published, failed };
+  return { synced, failed };
 }
 
 async function unpublishedFinishes(supabase: Client, productIds: string[]): Promise<string[]> {
@@ -75,7 +76,7 @@ async function unpublishedFinishes(supabase: Client, productIds: string[]): Prom
 }
 
 /**
- * Publishes a category, and refreshes every page that shows its name or its
+ * Puts a saved category live (visible or hidden), and refreshes every page that shows its name or its
  * product types' names: the menus and shelves, and each of its products'
  * own pages (a product page carries its category and type names).
  */
@@ -90,7 +91,7 @@ export async function publishCategory(supabase: Client, id: string, note?: strin
   return {};
 }
 
-/** Publishes a finish. Every page that names finishes reads the finish
+/** Puts a saved finish live. Every page that names finishes reads the finish
  *  library under one tag, and the shelves' colour filters under another. */
 export async function publishFinish(supabase: Client, id: string, note?: string): Promise<{ error?: string }> {
   const { error } = await supabase.rpc("publish_finish", { p_id: id, p_note: note });
@@ -100,8 +101,8 @@ export async function publishFinish(supabase: Client, id: string, note?: string)
   return {};
 }
 
-/** Order is layout: it goes live as soon as it is published here, without
- *  touching any product's or category's own version. */
+/** Order is layout: it goes live as soon as it is saved, without touching
+ *  any product's or category's own version. */
 export async function publishOrder(
   supabase: Client,
   order: { kind: "products"; categoryId: string; ids: string[] } | { kind: "categories"; ids: string[] } | { kind: "featured"; ids: string[] },

@@ -25,15 +25,17 @@ export default async function ProductPage({
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const { supabase, email } = await requireStaff();
 
-  const [product, links, images, live, categories, types, finishes, duplicates] = await Promise.all([
+  const [product, links, images, live, categories, types, finishes, duplicates, history] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
     supabase.from("product_finishes").select("finish_id").eq("product_id", id).order("position"),
     supabase.from("product_images").select("path, alt, caption, width, height").eq("product_id", id).order("position").order("created_at"),
-    supabase.from("published_products").select("slug, status").eq("product_id", id).maybeSingle(),
+    supabase.from("published_products").select("slug").eq("product_id", id).maybeSingle(),
     supabase.from("categories").select("id, slug, name, status").order("position"),
     supabase.from("product_types").select("id, slug, name, category_id").order("name"),
     supabase.from("finishes").select("id, slug, code, name, family, swatch_path, status").order("name"),
     supabase.from("duplicate_finish_codes").select("code"),
+    // Whether it has ever been on the site: if not, it can be deleted.
+    supabase.from("revisions").select("id", { count: "exact", head: true }).eq("entity_type", "product").eq("entity_id", id),
   ]);
   const p = product.data;
   if (!p) notFound();
@@ -53,10 +55,10 @@ export default async function ProductPage({
   const editorProduct: EditorProduct = {
     id: p.id,
     version: p.version,
-    publishedVersion: p.published_version,
     updatedAt: p.updated_at,
     updatedBy: p.updated_by,
-    live: live.data ? { slug: live.data.slug, status: live.data.status } : null,
+    live: live.data ? { slug: live.data.slug } : null,
+    deletable: !live.data && (history.count ?? 1) === 0,
     form: {
       sku: p.sku,
       slug: p.slug,
@@ -88,7 +90,7 @@ export default async function ProductPage({
           id: c.id,
           slug: c.slug,
           name: c.name,
-          draft: c.status === "draft",
+          hidden: c.status !== "active",
         }))}
         types={(types.data ?? []).map((t) => ({ id: t.id, slug: t.slug, name: t.name, categoryId: t.category_id }))}
         library={library}

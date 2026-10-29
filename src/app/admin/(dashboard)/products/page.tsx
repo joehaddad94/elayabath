@@ -27,8 +27,8 @@ export default async function ProductsPage() {
         <div>
           <h1>Products</h1>
           <p>
-            Edits save as drafts. Nothing changes on the site until it is published, one product at a
-            time or in bulk.
+            Saving changes the site straight away. A hidden product stays off the site until it is made
+            visible, one at a time or in bulk.
           </p>
         </div>
         <Link href="/admin/products/new" className="btn btn-primary">

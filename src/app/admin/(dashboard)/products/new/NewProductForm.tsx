@@ -45,7 +45,7 @@ export function NewProductForm({ categories }: { categories: Array<{ id: string;
       </div>
       <div>
         <button type="submit" className="btn btn-primary" disabled={pending}>
-          {pending ? "Creating" : "Create draft"}
+          {pending ? "Creating" : "Create product, hidden"}
         </button>
       </div>
       {state.error && (

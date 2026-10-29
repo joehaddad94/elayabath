@@ -43,9 +43,10 @@ await setToolbar(() => page.fill('input[placeholder="Name or item code"]', ""));
 await setToolbar(() => page.check("text=Needs attention"));
 check("'needs attention' finds the incomplete products", (await count()).startsWith("285"), await count());
 await setToolbar(() => page.uncheck("text=Needs attention"));
-await setToolbar(() => page.check("text=Unpublished changes"));
-check("'unpublished changes' finds the 56 drafts", (await count()).startsWith("56"), await count());
-await setToolbar(() => page.uncheck("text=Unpublished changes"));
+const { count: hiddenCount } = await admin.from("products").select("id", { count: "exact", head: true }).eq("status", "draft");
+await setToolbar(() => page.getByLabel("On the site").selectOption("draft"));
+check("'hidden' finds the hidden products", (await count()).startsWith(`${hiddenCount} product`), `${await count()} vs ${hiddenCount}`);
+await setToolbar(() => page.getByLabel("On the site").selectOption(""));
 await setToolbar(() => page.selectOption("select >> nth=0", { label: "Toilets" }));
 check("the category filter applies", (await count()).startsWith("26"), await count());
 await setToolbar(() => page.selectOption("select >> nth=0", ""));
@@ -70,10 +71,10 @@ await page.keyboard.type(`${first.name} TEST`);
 await page.keyboard.press("Enter");
 await page.waitForTimeout(1200);
 const { data: renamed } = await admin.from("products").select("name, version, published_version").eq("id", first.id).single();
-check("an inline edit saves to the working copy", renamed.name === `${first.name} TEST`, renamed.name);
-check("as a draft, with the version bumped", renamed.version === first.version + 1 && renamed.version !== renamed.published_version, `v${first.version} -> v${renamed.version}`);
-const { data: live } = await admin.from("published_products").select("name").eq("product_id", first.id).single();
-check("the live site is unaffected until publish", live.name === first.name, live.name);
+check("an inline edit saves", renamed.name === `${first.name} TEST`, renamed.name);
+check("as one new version, with nothing left waiting", renamed.version === first.version + 1 && renamed.version === renamed.published_version, `v${first.version} -> v${renamed.version}`);
+const { data: live } = await admin.from("published_products").select("name").eq("product_id", first.id).maybeSingle();
+check("and goes live at once", first.status !== "active" || live?.name === `${first.name} TEST`, live?.name);
 
 // conflict: someone else saves first
 await admin.from("products").update({ dimensions: "999 x 999 mm" }).eq("id", first.id);
@@ -87,14 +88,16 @@ const { data: afterConflict } = await admin.from("products").select("name").eq("
 check("a stale edit is refused, not saved over someone else's", afterConflict.name === `${first.name} TEST`, afterConflict.name);
 check("and the editor is told who changed it", notice.includes("changed this product since you opened it"), notice.slice(0, 80));
 
-// bulk publish of the ticked row, and the site follows
+// bulk hide and show of the ticked row, and the site follows
 await page.locator(`.ag-row[row-id="${first.id}"] .ag-selection-checkbox input`).check();
-await page.click("button:has-text('Publish')");
+await page.click("button:has-text('Hide')");
 await page.waitForTimeout(2500);
-const { data: nowLive } = await admin.from("published_products").select("name").eq("product_id", first.id).single();
-check("publishing puts the change live", nowLive.name === `${first.name} TEST`, nowLive.name);
+check("hiding takes it off the site", (await fetch(`${BASE}/product/${first.slug}`)).status === 404);
+await page.locator(`.ag-row[row-id="${first.id}"] .ag-selection-checkbox input`).check();
+await page.click("button:has-text('Show on site')");
+await page.waitForTimeout(2500);
 const pdp = await (await fetch(`${BASE}/product/${first.slug}`)).text();
-check("and the public page shows it at once", pdp.includes(`${first.name} TEST`));
+check("showing it puts it back, with the edit", pdp.includes(`${first.name} TEST`));
 
 // palette
 const bg = async () => page.evaluate(() => getComputedStyle(document.querySelector(".ag-root-wrapper")).backgroundColor);
@@ -106,7 +109,7 @@ check("the grid follows the palette switch", ink !== stone, `${ink} -> ${stone}`
 check("no errors in the browser console", errors.length === 0, errors[0] ?? "");
 
 // restore the renamed product and republish it
-await admin.from("products").update({ name: first.name, dimensions: first.dimensions }).eq("id", first.id);
+await admin.from("products").update({ name: first.name, dimensions: first.dimensions, status: first.status }).eq("id", first.id);
 await admin.rpc("publish_product", { p_id: first.id, p_note: "c6 verify restore" });
 await admin.from("sign_in_log").delete().neq("id", 0);
 // The data was put back directly, so refresh the site's cached pages too;

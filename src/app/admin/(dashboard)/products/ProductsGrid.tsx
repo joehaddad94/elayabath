@@ -63,9 +63,9 @@ export interface Option {
 export interface TypeOption extends Option {
   categoryId: string;
 }
-type Toolbar = Pick<GridState, "q" | "category" | "status" | "incomplete" | "changes" | "importJob">;
+type Toolbar = Pick<GridState, "q" | "category" | "status" | "incomplete" | "importJob">;
 
-const EMPTY_TOOLBAR: Toolbar = { q: "", category: "", status: "", incomplete: false, changes: false, importJob: "" };
+const EMPTY_TOOLBAR: Toolbar = { q: "", category: "", status: "", incomplete: false, importJob: "" };
 
 /**
  * The grid's look, built from the site's own tokens, so it follows the Ink
@@ -92,8 +92,8 @@ const theme = themeQuartz.withParams({
 });
 
 const STATUS_LABEL: Record<GridRow["status"], string> = {
-  draft: "Draft",
-  active: "Live",
+  draft: "Hidden",
+  active: "Visible",
   discontinued: "Discontinued",
 };
 
@@ -136,15 +136,6 @@ function Completeness({ value, data }: ICellRendererParams<GridRow, number>) {
 
 function Status({ value }: ICellRendererParams<GridRow, GridRow["status"]>) {
   return value ? <span className={`${styles.badge} ${grid.cellBadge} ${grid[value]}`}>{STATUS_LABEL[value]}</span> : null;
-}
-
-function Changes({ value, data }: ICellRendererParams<GridRow, boolean>) {
-  if (!value) return null;
-  return (
-    <span className={`${styles.badge} ${styles.badgeWarn} ${grid.cellBadge}`}>
-      {data?.published_version == null ? "Never published" : "Unpublished changes"}
-    </span>
-  );
 }
 
 /** Column filters hold one condition each. A link made before that rule
@@ -303,7 +294,7 @@ export function ProductsGrid({
       // another save.
       event.node.setData({ ...event.data, [field]: event.oldValue });
     }
-    setNotice(result.ok ? { text: `Saved “${result.row.name}” as a draft.` } : { text: result.error, error: true });
+    setNotice(result.ok ? { text: `Saved “${result.row.name}”. The site shows it now.` } : { text: result.error, error: true });
   }, []);
 
   const columnDefs = useMemo<ColDef<GridRow>[]>(
@@ -337,18 +328,17 @@ export function ProductsGrid({
       {
         field: "status",
         colId: "status",
-        headerName: "Status",
+        headerName: "On the site",
         width: 150,
         editable: true,
         cellRenderer: Status,
         cellEditor: "agSelectCellEditor",
-        cellEditorParams: { values: ["active", "discontinued"], formatValue: (v: GridRow["status"]) => STATUS_LABEL[v] },
+        cellEditorParams: { values: ["active", "draft"], formatValue: (v: GridRow["status"]) => STATUS_LABEL[v] },
       },
       { field: "featured", colId: "featured", headerName: "Featured", width: 110, editable: true, cellEditor: "agCheckboxCellEditor", cellRenderer: "agCheckboxCellRenderer" },
       { field: "dimensions", colId: "dimensions", headerName: "Dimensions", width: 190, editable: true, filter: "agTextColumnFilter", filterParams: COLUMN_FILTER },
       { field: "finish_count", colId: "finishes", headerName: "Finishes", width: 110, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, type: "rightAligned" },
       { field: "completeness", colId: "completeness", headerName: "Complete", width: 190, filter: "agNumberColumnFilter", filterParams: COLUMN_FILTER, cellRenderer: Completeness },
-      { field: "has_changes", colId: "changes", headerName: "Publishing", width: 180, cellRenderer: Changes },
       {
         field: "updated_at",
         colId: "updated",
@@ -363,7 +353,7 @@ export function ProductsGrid({
   );
 
   const runBulk = useCallback(
-    async (action: "publish" | "discontinue" | "activate" | "feature" | "unfeature" | "category") => {
+    async (action: "show" | "hide" | "feature" | "unfeature" | "category") => {
       if (action === "category" && !moveTo) {
         setNotice({ text: "Choose the category to move them to.", error: true });
         return;
@@ -442,25 +432,20 @@ export function ProductsGrid({
           </select>
         </label>
         <label className={grid.field}>
-          <span>Status</span>
+          <span>On the site</span>
           <select
             className="input"
             value={toolbar.status}
             onChange={(e) => setToolbar((t) => ({ ...t, status: e.target.value as Toolbar["status"] }))}
           >
-            <option value="">Any status</option>
-            <option value="active">Live</option>
-            <option value="draft">Draft</option>
-            <option value="discontinued">Discontinued</option>
+            <option value="">Visible or hidden</option>
+            <option value="active">Visible</option>
+            <option value="draft">Hidden</option>
           </select>
         </label>
         <label className={grid.check}>
           <input type="checkbox" checked={toolbar.incomplete} onChange={(e) => setToolbar((t) => ({ ...t, incomplete: e.target.checked }))} />
           Needs attention
-        </label>
-        <label className={grid.check}>
-          <input type="checkbox" checked={toolbar.changes} onChange={(e) => setToolbar((t) => ({ ...t, changes: e.target.checked }))} />
-          Unpublished changes
         </label>
 
         <div className={grid.spacer} />
@@ -548,14 +533,11 @@ export function ProductsGrid({
           <span className={styles.muted}>Tick rows to act on them.</span>
         ) : (
           <div className={grid.actions}>
-            <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void runBulk("publish")}>
-              Publish
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("show")}>
+              Show on site
             </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("discontinue")}>
-              Discontinue
-            </button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("activate")}>
-              Make live
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("hide")}>
+              Hide
             </button>
             <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void runBulk("feature")}>
               Feature

@@ -20,9 +20,9 @@ const errors = [];
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 200)); });
 page.on("pageerror", (e) => errors.push("pageerror " + e.message.slice(0, 200)));
 const editor = (id) => page.goto(`${BASE}/admin/products/${id}`, { waitUntil: "load" }).then(() => page.waitForSelector("fieldset"));
-const publishNow = async () => {
-  await page.getByRole("button", { name: /^(Save and publish|Publish)$/ }).click();
-  await page.waitForSelector("text=/Published\\./");
+const saveNow = async () => {
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=/^Saved\\./");
 };
 
 try {
@@ -31,54 +31,46 @@ try {
   await Promise.all([page.waitForURL(`${BASE}/admin`), page.click("button[type=submit]")]);
 
   // ── preview ──
-  await editor(ace.id);
-  await page.getByLabel("Description").fill("C9 draft description.");
+  // A hidden product can be previewed by staff; visitors get a 404.
+  await page.goto(`${BASE}/admin/products/new`, { waitUntil: "load" });
+  await page.getByLabel("Item code").fill("C9-TEST-0001");
+  await page.getByLabel("Name").fill("Preview test");
+  await page.getByLabel("Category").selectOption(ace.category_id);
+  await Promise.all([page.waitForURL("**/admin/products/*?created=1"), page.click("button:has-text('Create product, hidden')")]);
+  const newId = page.url().split("/").pop().split("?")[0];
+  await page.getByLabel("Description").fill("C9 hidden description.");
   check("preview waits for a save", (await page.getByText("save first to see these changes").count()) === 1);
-  await page.getByRole("button", { name: "Save draft" }).click();
-  await page.waitForSelector("text=Saved as a draft");
-  const previewResponse = await page.goto(`${BASE}/admin/preview?product=${ace.id}`, { waitUntil: "load" });
-  check("preview opens the real product page", new URL(page.url()).pathname === `/product/${ace.slug}`);
-  const previewHtml = await page.content();
-  check("showing the saved draft, under a preview banner", previewHtml.includes("C9 draft description.") && (await page.getByText("This is the saved draft").count()) === 1);
+  await saveNow();
+  const previewResponse = await page.goto(`${BASE}/admin/preview?product=${newId}`, { waitUntil: "load" });
+  check("preview opens the real product page", new URL(page.url()).pathname === "/product/c9-test-0001");
+  check(
+    "showing the saved copy, under a preview banner",
+    (await page.content()).includes("C9 hidden description.") && (await page.getByText("The saved copy, shown only to staff").count()) === 1,
+  );
   check("sent as private and not for indexing", /no-store/.test(previewResponse.headers()["cache-control"] ?? "") && /noindex/.test(previewResponse.headers()["x-robots-tag"] ?? ""), previewResponse.headers()["cache-control"]);
-
-  const anon = await (await fetch(`${BASE}/product/${ace.slug}`)).text();
-  check("visitors still see the live page", !anon.includes("C9 draft description.") && anon.includes(ace.description.slice(0, 30)));
+  check("while visitors get a 404", (await fetch(`${BASE}/product/c9-test-0001`)).status === 404);
 
   const bypass = (await ctx.cookies()).find((c) => c.name === "__prerender_bypass");
   const stranger = await b.newContext();
   await stranger.addCookies([{ ...bypass }]);
   const strangerPage = await stranger.newPage();
-  await strangerPage.goto(`${BASE}/product/${ace.slug}`, { waitUntil: "load" });
-  check("a copied preview cookie without a staff session shows only the live page", !(await strangerPage.content()).includes("C9 draft description.") && (await strangerPage.getByText("This is the saved draft").count()) === 0);
+  await strangerPage.goto(`${BASE}/product/c9-test-0001`, { waitUntil: "load" });
+  check("a copied preview cookie without a staff session shows nothing", !(await strangerPage.content()).includes("C9 hidden description."));
   await stranger.close();
 
-  await Promise.all([page.waitForURL(`**/admin/products/${ace.id}`), page.getByRole("button", { name: "Leave preview" }).click()]);
+  await Promise.all([page.waitForURL(`**/admin/products/${newId}`), page.getByRole("button", { name: "Leave preview" }).click()]);
   check("leaving preview returns to the editor and ends preview", !(await ctx.cookies()).some((c) => c.name === "__prerender_bypass"));
-
-  // A draft that was never published can be previewed; visitors get a 404.
-  await page.goto(`${BASE}/admin/products/new`, { waitUntil: "load" });
-  await page.getByLabel("Item code").fill("C9-TEST-0001");
-  await page.getByLabel("Name").fill("Preview test");
-  await page.getByLabel("Category").selectOption(ace.category_id);
-  await Promise.all([page.waitForURL("**/admin/products/*?created=1"), page.click("button:has-text('Create draft')")]);
-  const newId = page.url().split("/").pop().split("?")[0];
-  const draftPreview = await page.goto(`${BASE}/admin/preview?product=${newId}`, { waitUntil: "load" });
-  check("a never-published draft can be previewed", draftPreview.status() === 200 && (await page.getByText("Preview test").count()) > 0);
-  check("while visitors get a 404", (await fetch(`${BASE}/product/c9-test-0001`)).status === 404);
-  await page.getByRole("button", { name: "Leave preview" }).click();
-  await page.waitForURL(`**/admin/products/${newId}`);
 
   // ── sitemap ──
   const inSitemap = async () => (await (await fetch(`${BASE}/sitemap.xml`)).text()).includes(`/product/${other.slug}<`);
   check("a live product is in the sitemap", await inSitemap());
   await editor(other.id);
-  await page.getByLabel("Discontinued: hidden from listings, page kept").check();
-  await publishNow();
-  check("publishing it as discontinued takes it out of the sitemap", !(await inSitemap()));
-  await page.getByLabel("Live", { exact: true }).check();
-  await publishNow();
-  check("and making it live again puts it back", await inSitemap());
+  await page.getByLabel("Hidden: not on the site at all").check();
+  await saveNow();
+  check("hiding it takes it out of the sitemap", !(await inSitemap()));
+  await page.getByLabel("Visible", { exact: true }).check();
+  await saveNow();
+  check("and showing it again puts it back", await inSitemap());
 
   check("no errors in the browser console", errors.length === 0, errors[0] ?? "");
 } catch (e) {

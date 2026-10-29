@@ -76,8 +76,8 @@ try {
   await page.getByRole("button", { name: /Replace|Upload a PDF/ }).click();
   await (await sheetChooser).setFiles({ name: "sheet.pdf", mimeType: "application/pdf", buffer: pdf });
   await page.waitForSelector("a:has-text('Open the data sheet')");
-  await page.getByRole("button", { name: "Save draft" }).click();
-  await page.waitForSelector("text=Saved as a draft");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForSelector("text=Saved. The site shows it now.");
 
   const { data: saved } = await admin.from("product_images").select("path, alt, caption, width, height").eq("product_id", original.id).order("position");
   const { data: savedProduct } = await admin.from("products").select("datasheet_path").eq("id", original.id).single();
@@ -88,9 +88,7 @@ try {
   const { data: gridRow } = await admin.from("admin_products").select("image_path").eq("id", original.id).single();
   check("the grid's thumbnail follows the main photo", gridRow.image_path === saved[0].path);
 
-  // Publish; the site follows.
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
-  await page.waitForSelector("text=Published. The site shows it now.");
+  // Saved, so the site follows.
   const html = await (await fetch(`${BASE}/product/${original.slug}`)).text();
   check("the live page leads with the new photo", html.includes(encodeURIComponent(saved[0].path)) || html.includes(saved[0].path));
   check("and links the new data sheet", html.includes(savedProduct.datasheet_path));

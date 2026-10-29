@@ -15,32 +15,35 @@ export default async function Overview() {
   const { supabase } = await requireStaff();
 
   const head = { count: "exact" as const, head: true };
-  const [live, drafts, waiting, discontinued, categoriesLive, categoryDrafts, finishes, sharedCodes] = (
+  const [visible, hidden, discontinued, incomplete, categoriesVisible, categoriesHidden, finishes, sharedCodes] = (
     await Promise.all([
-      supabase.from("products").select("id", head).eq("status", "active"),
+      // What the site shows, counted from the site's own copy.
+      supabase.from("published_products").select("product_id", head).eq("status", "active"),
       supabase.from("products").select("id", head).eq("status", "draft"),
-      supabase.from("admin_products").select("id", head).eq("has_changes", true),
       supabase.from("products").select("id", head).eq("status", "discontinued"),
+      supabase.from("admin_products").select("id", head).lt("completeness", 6),
       supabase.from("categories").select("id", head).eq("status", "active"),
-      supabase.from("categories").select("id", head).eq("status", "draft"),
+      supabase.from("categories").select("id", head).neq("status", "active"),
       supabase.from("finishes").select("id", head),
       supabase.from("duplicate_finish_codes").select("code", head),
     ])
-  ).map((r) => r.count ?? 0) as [number, number, number, number, number, number, number, number];
+  ).map((r) => {
+    // A count that failed is not a zero: show the error screen with "Try again".
+    if (r.error) throw new Error(`The overview couldn't be counted: ${r.error.message}`);
+    return r.count ?? 0;
+  }) as [number, number, number, number, number, number, number, number];
 
   const { data: usage } = await supabase.rpc("storage_usage");
   const stored = (usage ?? []).reduce((sum, r) => sum + Number(r.bytes), 0);
 
-  // Each card opens what it counts. "Never published" and "waiting to be
-  // published" are different sets: the second also holds live products
-  // with edits not yet published, which is why it can be the larger.
+  // Each card opens what it counts.
   const stats: Array<[string, number, string]> = [
-    ["Products live", live, gridLink({ status: "active" })],
-    ["Waiting to be published", waiting, gridLink({ changes: true })],
-    ["Never published", drafts, gridLink({ status: "draft" })],
-    ["Discontinued", discontinued, gridLink({ status: "discontinued" })],
-    ["Categories live", categoriesLive, "/admin/categories"],
-    ["Categories in draft", categoryDrafts, "/admin/categories"],
+    ["Products on the site", visible, gridLink({ status: "active" })],
+    ["Products hidden", hidden, gridLink({ status: "draft" })],
+    ...(discontinued > 0 ? [["Discontinued", discontinued, gridLink({ status: "discontinued" })] as [string, number, string]] : []),
+    ["Products missing details", incomplete, gridLink({ incomplete: true })],
+    ["Categories visible", categoriesVisible, "/admin/categories"],
+    ["Categories hidden", categoriesHidden, "/admin/categories"],
     ["Finishes", finishes, "/admin/finishes"],
   ];
 
@@ -49,7 +52,7 @@ export default async function Overview() {
       <div className={styles.pageHead}>
         <div>
           <h1>Overview</h1>
-          <p>The catalogue as the public site sees it, and what is waiting.</p>
+          <p>The catalogue at a glance. Every save changes the site straight away.</p>
         </div>
       </div>
 

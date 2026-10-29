@@ -29,6 +29,9 @@ insert into public.products (id, sku, slug, name, category_id, status, published
 values
   ('00000000-0000-0000-0000-00000000d001', 'T-1', 't-1', 'Basin', '00000000-0000-0000-0000-00000000c001', 'active', 1),
   ('00000000-0000-0000-0000-00000000d002', 'T-2', 't-2', 'Draft', '00000000-0000-0000-0000-00000000c001', 'draft', null);
+-- T-1 has been on the site: it has a published version in the history.
+insert into public.revisions (entity_type, entity_id, version, snapshot)
+values ('product', '00000000-0000-0000-0000-00000000d001', 1, '{}');
 insert into public.product_images (product_id, path, alt, position) values
   ('00000000-0000-0000-0000-00000000d001', 'products/t-1.webp', 'Old alt', 0),
   ('00000000-0000-0000-0000-00000000d001', 'products/t-1-side.webp', 'Side', 1);
@@ -111,7 +114,7 @@ select is((select name from public.products where sku = 'T-1'), 'Basin, renamed'
 select throws_ok(
   $$ select public.delete_draft_product('00000000-0000-0000-0000-00000000d001') $$,
   'PT409', null,
-  'a product that has been published cannot be deleted');
+  'a product that has been on the site cannot be deleted');
 select public.delete_draft_product('00000000-0000-0000-0000-00000000d002');
 select is((select count(*) from public.products where sku = 'T-2')::int, 0, 'a never-published draft can be');
 

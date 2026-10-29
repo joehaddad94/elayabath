@@ -29,7 +29,6 @@ const COLUMNS = {
   dimensions: "dimensions",
   finishes: "finish_count",
   completeness: "completeness",
-  changes: "has_changes",
   updated: "updated_at",
   updatedBy: "updated_by",
 } as const;
@@ -109,7 +108,6 @@ export function applyGridState<Q extends Filterable>(
   if (state.category) q = q.eq("category_slug", state.category);
   if (state.status) q = q.eq("status", state.status);
   if (state.incomplete) q = q.lt("completeness", 6);
-  if (state.changes) q = q.eq("has_changes", true);
   if (state.importJob) q = q.eq("import_job_id", state.importJob);
 
   // One condition per column; columns combine with AND.
@@ -133,7 +131,7 @@ export function applyGridState<Q extends Filterable>(
 export const ADMIN_PRODUCT_COLUMNS =
   "id, sku, slug, name, category_id, category_slug, category_name, type_id, type_name, status, " +
   "featured, position, dimensions, has_datasheet, image_path, finish_count, completeness, missing, " +
-  "has_changes, published_version, version, updated_at, updated_by";
+  "published_version, version, updated_at, updated_by";
 
 /** Every id matching the state, for bulk actions. Paged, so a very large
  *  catalogue is read in slices rather than one unbounded request. */

@@ -18,11 +18,11 @@ export default async function NewProductPage() {
       <div className={styles.pageHead}>
         <div>
           <h1>New product</h1>
-          <p>It starts as a draft with a code, a name and a category. Everything else is filled in next.</p>
+          <p>It starts hidden, with a code, a name and a category. Everything else is filled in next.</p>
         </div>
       </div>
       <NewProductForm
-        categories={(categories ?? []).map((c) => ({ id: c.id, name: c.status === "draft" ? `${c.name} (draft)` : c.name }))}
+        categories={(categories ?? []).map((c) => ({ id: c.id, name: c.status === "active" ? c.name : `${c.name} (hidden)` }))}
       />
     </>
   );

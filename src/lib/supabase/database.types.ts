@@ -1000,6 +1000,10 @@ export type Database = {
           files: number
         }[]
       }
+      sync_product: {
+        Args: { p_id: string; p_note?: string }
+        Returns: number
+      }
       unused_media: {
         Args: { p_grace?: string }
         Returns: {
