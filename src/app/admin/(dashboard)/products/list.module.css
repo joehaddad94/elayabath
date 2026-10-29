@@ -1,0 +1,608 @@
+.wrap {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* ── toolbar ─────────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.filters {
+  display: contents;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 10rem;
+}
+
+.search {
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.field > span {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.check input,
+.tick input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.filtersToggle {
+  display: none;
+}
+
+.toolbarEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-inline-start: auto;
+}
+
+.linkButton {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── count and tick-all ──────────────────────────────────────────────── */
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  padding-inline: var(--space-3);
+}
+
+.count {
+  margin: 0;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── the list ────────────────────────────────────────────────────────── */
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule);
+}
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: 24px 48px minmax(12rem, 1fr) minmax(9rem, 14rem) minmax(8rem, 13rem) 7.5rem 8.5rem;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--rule);
+}
+
+.head {
+  padding-block: var(--space-2);
+  background: var(--color-surface);
+  font-family: var(--font-barlow-condensed), system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.row {
+  position: relative;
+  min-height: 64px;
+  /* Off-screen rows skip layout and paint until they scroll near. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 64px;
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+.ticked {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+/* Hidden products recede: greyed photo, softer text. The switch keeps full
+   contrast, since it is what changes that. */
+.hidden .thumb {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+
+.hidden .name,
+.hidden .meta {
+  color: color-mix(in srgb, var(--color-text) 72%, var(--color-bg));
+}
+
+.tick {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.photo {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+}
+
+.thumbButton {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.thumb {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: var(--color-surface);
+}
+
+/* Pulses in the photo's place until it arrives. */
+.loadingThumb {
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingThumb {
+    animation: none;
+  }
+}
+
+.noPhoto {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px dashed var(--color-control);
+  color: var(--accent-text);
+  font-size: 0.68rem;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+}
+
+.name {
+  display: grid;
+  min-width: 0;
+}
+
+.open {
+  overflow: hidden;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The whole row is the product's link. */
+.open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.open:focus-visible {
+  outline: none;
+}
+
+.open:focus-visible::after {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.row:hover .open {
+  text-decoration: underline;
+}
+
+.sku {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
+.meta,
+.missing,
+.edited {
+  min-width: 0;
+  font-size: 0.88rem;
+}
+
+.missing::first-letter {
+  text-transform: uppercase;
+}
+
+.edited {
+  font-variant-numeric: tabular-nums;
+}
+
+.faint {
+  color: color-mix(in srgb, var(--color-text) 66%, transparent);
+}
+
+.status {
+  position: relative;
+  z-index: 1;
+}
+
+/* A switch, not a select: one press shows or hides. */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-2) 0 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.switch:disabled {
+  cursor: progress;
+}
+
+/* Where the track was, while the change saves. */
+.switchSpinner {
+  width: 18px;
+  height: 18px;
+  margin: 1px 9px;
+  color: var(--color-accent);
+}
+
+.track {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  border: 1px solid var(--color-control);
+  border-radius: 10px;
+  background: var(--color-bg);
+  transition: background 0.15s;
+}
+
+.track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-control);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked="true"] .track {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.switch[aria-checked="true"] .track::after {
+  transform: translateX(16px);
+  background: var(--color-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .track::after {
+    transition: none;
+  }
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-3);
+  border-top: var(--rule);
+}
+
+.empty p {
+  margin: 0;
+}
+
+/* ── bulk bar, at the foot of the screen while rows are ticked ────────── */
+.bulk {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border: var(--rule);
+  box-shadow: 0 -6px 18px color-mix(in srgb, var(--color-neutral-900) 14%, transparent);
+}
+
+.bulkCount {
+  margin-inline-end: auto;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.move {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.move select {
+  width: auto;
+  max-width: 14rem;
+}
+
+/* ── toast ───────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-6) + 4.5rem);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  transform: translateX(-50%);
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-100);
+  border-inline-start: 3px solid var(--color-accent);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--color-neutral-900) 30%, transparent);
+  font-size: 0.9rem;
+}
+
+.toast p {
+  margin: 0;
+}
+
+.toastError {
+  border-inline-start-color: var(--color-neutral-100);
+  font-weight: 600;
+}
+
+.toastAction,
+.toastClose {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toastAction {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.toastClose {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.toastAction:focus-visible,
+.toastClose:focus-visible {
+  outline: 2px solid var(--color-accent-300);
+}
+
+/* ── narrower screens ────────────────────────────────────────────────── */
+@media (max-width: 72rem) {
+  .head,
+  .row {
+    grid-template-columns: 24px 48px minmax(10rem, 1fr) minmax(8rem, 12rem) minmax(7rem, 11rem) 8.5rem;
+  }
+
+  .head > :nth-child(6),
+  .edited {
+    display: none;
+  }
+}
+
+/* A phone: each product is a card, and the filters fold behind a button. */
+@media (max-width: 48rem) {
+  .search {
+    flex: 1 1 0;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .filtersToggle {
+    display: inline-flex;
+  }
+
+  .filters {
+    display: none;
+  }
+
+  .filtersOpen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .filtersOpen .field {
+    min-width: 0;
+  }
+
+  .toolbarEnd {
+    width: 100%;
+    justify-content: space-between;
+    margin-inline-start: 0;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: 24px 48px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "tick photo name status"
+      "tick photo meta status"
+      "tick photo missing status";
+    row-gap: 2px;
+    align-items: start;
+    padding-block: var(--space-3);
+    contain-intrinsic-size: auto 96px;
+  }
+
+  .tick {
+    grid-area: tick;
+    align-self: center;
+  }
+
+  .photo {
+    grid-area: photo;
+    align-self: center;
+  }
+
+  .name {
+    grid-area: name;
+  }
+
+  .meta {
+    grid-area: meta;
+    font-size: 0.82rem;
+  }
+
+  .missing {
+    grid-area: missing;
+    font-size: 0.82rem;
+  }
+
+  .status {
+    grid-area: status;
+    align-self: center;
+  }
+
+  /* On a phone the switch says its state with the track alone. */
+  .switch {
+    font-size: 0;
+    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .move {
+    width: 100%;
+  }
+
+  .move select {
+    flex: 1;
+    max-width: none;
+  }
+
+  .bulkCount {
+    width: 100%;
+  }
+}
+
+/* ── the editor's way back to the list ───────────────────────────────── */
+.listNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-3);
+  font-size: 0.88rem;
+}
+
+.crumbs,
+.steps {
+  margin: 0;
+}
+
+.crumbs {
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.steps a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--accent-text);
+}
+
+.position {
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}

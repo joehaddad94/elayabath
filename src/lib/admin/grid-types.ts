@@ -1,24 +1,17 @@
-/** One row of the products grid, as the browser receives it. */
-export interface GridRow {
+/** One product on the Products list, as the browser receives it. Only what
+ *  the list shows, searches, sorts or acts on: all of them are sent at once,
+ *  so every field is paid for 600 times. */
+export interface ProductRow {
   id: string;
   sku: string;
-  slug: string;
   name: string;
   category_id: string;
-  category_slug: string;
-  category_name: string;
   type_id: string | null;
-  type_name: string | null;
   status: "draft" | "active";
-  featured: boolean;
   dimensions: string | null;
-  has_datasheet: boolean;
   image_url: string | null;
-  finish_count: number;
-  completeness: number;
+  /** What the product still lacks, in the editor's words ("photograph", …). */
   missing: string[];
-  published_version: number | null;
   version: number;
   updated_at: string;
-  updated_by: string | null;
 }

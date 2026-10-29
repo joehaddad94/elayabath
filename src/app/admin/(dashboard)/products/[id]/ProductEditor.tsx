@@ -9,6 +9,7 @@ import { deleteDraftProduct, saveProduct } from "./actions";
 import styles from "./editor.module.css";
 import { useConfirm } from "../../ConfirmDialog";
 import { useUnsavedGuard } from "../../useUnsavedGuard";
+import { Spinner } from "../../Spinner";
 import { FinishPicker } from "./FinishPicker";
 import { Datasheet, Gallery } from "./Media";
 
@@ -147,12 +148,19 @@ export function ProductEditor({
       for (const issue of check.error.issues) fields[String(issue.path[0])] ??= issue.message;
       setErrors(fields);
       setNotice({ text: "Some fields need attention.", error: true });
+      focusField(Object.keys(fields)[0]);
       return false;
     }
     setBusy("save");
     setNotice(null);
-    const result = await saveProduct({ id: product.id, version: over, form: payload });
+    // A save that never answers (the connection dropped) must not leave
+    // "Saving" turning; the form keeps its changes for another try.
+    const result = await saveProduct({ id: product.id, version: over, form: payload }).catch(() => null);
     setBusy(null);
+    if (result === null) {
+      setNotice({ text: "That didn't reach the server, so nothing was saved. Check the connection and save again.", error: true });
+      return false;
+    }
     if (result.ok) {
       setVersion(result.version);
       setLive(result.live);
@@ -170,7 +178,16 @@ export function ProductEditor({
     }
     setErrors(result.fields ?? {});
     setNotice({ text: result.error, error: true });
+    focusField(Object.keys(result.fields ?? {})[0]);
     return false;
+  };
+
+  /** Takes the person to the first field that needs attention. */
+  const focusField = (key: string | undefined) => {
+    if (!key) return;
+    const element = document.getElementById(key === "images" ? "photographs" : `${ids}-${key}`);
+    element?.scrollIntoView({ block: "center" });
+    element?.focus({ preventScroll: true });
   };
 
   const remove = async () => {
@@ -190,14 +207,16 @@ export function ProductEditor({
   // Ctrl+S or Cmd+S saves; the latest `save` is kept in a ref so the listener
   // is added once.
   const saveRef = useRef(save);
+  const dirtyRef = useRef(dirty);
   useEffect(() => {
     saveRef.current = save;
+    dirtyRef.current = dirty;
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        void saveRef.current();
+        if (dirtyRef.current) void saveRef.current();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -217,7 +236,9 @@ export function ProductEditor({
   ];
   const score = checks.filter((c) => c.ok).length;
 
-  const statusLabel = form.status === "active" ? "Visible" : "Hidden";
+  // The site's state is the saved one; an unsaved switch shows as a change.
+  const statusLabel = base.status === "active" ? "Visible" : "Hidden";
+  const noPhoto = form.images.length === 0;
 
   const field = (key: string) => ({
     id: `${ids}-${key}`,
@@ -245,7 +266,11 @@ export function ProductEditor({
           <h1>{form.name || "Untitled"}</h1>
           <p className={styles.badges}>
             <span className={`${admin.badge} ${statusLabel === "Visible" ? "" : admin.badgeWarn}`}>{statusLabel}</span>
-            {dirty && <span className={`${admin.badge} ${admin.badgeWarn}`}>Unsaved changes</span>}
+            {dirty && (
+              <span className={`${admin.badge} ${admin.badgeWarn}`}>
+                {form.status !== base.status ? `Unsaved: will be ${form.status === "active" ? "visible" : "hidden"}` : "Unsaved changes"}
+              </span>
+            )}
           </p>
         </div>
       </header>
@@ -268,6 +293,7 @@ export function ProductEditor({
               Load their version
             </button>
             <button type="button" className="btn btn-primary" disabled={busy !== null} onClick={() => void save(conflict.version)}>
+              {busy === "save" && <Spinner />}
               Keep mine and overwrite
             </button>
           </div>
@@ -361,7 +387,7 @@ export function ProductEditor({
             </div>
           </fieldset>
 
-          <fieldset className={styles.section}>
+          <fieldset className={styles.section} id="photographs" tabIndex={-1}>
             <legend>Photographs</legend>
             <Gallery
               productId={product.id}
@@ -405,10 +431,13 @@ export function ProductEditor({
                 Hidden: not on the site at all
               </label>
             </div>
+            {form.status === "active" && noPhoto && (
+              <p className={styles.hint}>It has no photograph, so the site will show it without one.</p>
+            )}
 
             <div className={styles.buttons}>
-              <button type="submit" className="btn btn-primary" disabled={busy !== null}>
-                {busy === "save" ? "Saving" : "Save"}
+              <button type="submit" className="btn btn-primary" disabled={busy !== null || !dirty}>
+                {busy === "save" ? <><Spinner />Saving</> : dirty ? "Save" : "Saved"}
               </button>
               {live && !dirty && (
                 <Link href={`/product/${live.slug}`} target="_blank" className="btn btn-secondary">
@@ -457,12 +486,25 @@ export function ProductEditor({
               <h2>Delete</h2>
               <p className={styles.hint}>Only a product that has never been on the site can be deleted.</p>
               <button type="button" className="btn btn-secondary" disabled={busy !== null} onClick={() => void remove()}>
-                {busy === "delete" ? "Deleting" : "Delete this product"}
+                {busy === "delete" ? <><Spinner />Deleting</> : "Delete this product"}
               </button>
             </section>
           )}
         </aside>
       </div>
+
+      {/* On a phone the panel above sits below the form, so Save stays in
+          reach here while there is something to save. */}
+      {dirty && (
+        <div className={styles.saveBar}>
+          <span>
+            {form.status === "active" ? "Visible" : "Hidden"} · unsaved changes
+          </span>
+          <button type="submit" className="btn btn-primary" disabled={busy !== null}>
+            {busy === "save" ? <><Spinner />Saving</> : "Save"}
+          </button>
+        </div>
+      )}
     </form>
   );
 }

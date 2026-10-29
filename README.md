@@ -176,7 +176,7 @@ Product imagery, copy and catalogue data belong to Elaya Bath.
 
 ## The dashboard
 
-At `/admin`, for Elaya's staff: a products grid (AG Grid) with saved views and
+At `/admin`, for Elaya's staff: a products list (every product at once, instant search, a Visible switch) with
 bulk actions, a product editor with gallery, data sheet, finishes, preview
 and history, categories, finishes, the homepage order, import and export of
 Excel and CSV, media and an activity feed. Every change is a draft until it

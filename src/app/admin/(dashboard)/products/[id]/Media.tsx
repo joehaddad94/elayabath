@@ -12,6 +12,7 @@ import {
 import type { ProductImage } from "@/lib/admin/product-schema";
 import { browserClient } from "@/lib/supabase/browser";
 import { storageUrl } from "@/lib/supabase/config";
+import { Spinner } from "../../Spinner";
 import styles from "./editor.module.css";
 
 type Images = ProductImage[];
@@ -151,11 +152,13 @@ export function Gallery({
         onDrop={(e) => {
           e.preventDefault();
           setOver(false);
-          void upload([...e.dataTransfer.files]);
+          // One batch at a time, as the button allows.
+          if (progress === null) void upload([...e.dataTransfer.files]);
         }}
       >
         <button type="button" className="btn btn-secondary" disabled={progress !== null} onClick={() => input.current?.click()}>
-          Add photographs
+          {progress !== null && <Spinner />}
+          {progress !== null ? "Uploading" : "Add photographs"}
         </button>
         <input
           ref={input}
@@ -230,7 +233,7 @@ export function Datasheet({
         <span className={styles.hint}>No data sheet.</span>
       )}
       <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => input.current?.click()}>
-        {busy ? "Uploading" : path ? "Replace" : "Upload a PDF"}
+        {busy ? <><Spinner />Uploading</> : path ? "Replace" : "Upload a PDF"}
       </button>
       <input
         ref={input}

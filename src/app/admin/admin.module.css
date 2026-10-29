@@ -594,3 +594,63 @@ a.stat:hover {
   border-color: var(--color-text);
   color: var(--color-bg);
 }
+
+/* ── spinner, inside a button while its action runs ──────────────────── */
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.5em;
+  vertical-align: -0.15em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* A skeleton row: a square and two lines, the shape of what is coming. */
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: var(--rule);
+}
+
+.skeletonSquare {
+  display: block;
+  width: 44px;
+  height: 44px;
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeletonLines {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.skeletonShort {
+  width: min(12rem, 60%);
+  height: 0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonSquare {
+    animation: none;
+  }
+}
