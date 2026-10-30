@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
-import { useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { THEME_LABELS, THEMES } from "@/lib/theme";
 import { applyTheme, getServerSnapshot, getSnapshot, subscribe } from "@/lib/theme-store";
@@ -23,12 +23,16 @@ export function AccountMenu({ email }: { email: string }) {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length] ?? THEMES[0];
   const initial = email.trim().charAt(0).toUpperCase() || "?";
+  const signOutForm = useRef<HTMLFormElement>(null);
 
   return (
     <>
-      {/* Outside the menu, which renders in a portal: the Sign out item
-          submits it by id, so signing out is a real form post. */}
-      <form id="sign-out" action={signOut} hidden />
+      {/* Outside the menu, so it is still mounted when the item is chosen.
+          The item used to be a submit button pointing here by id, but
+          choosing it closes the menu, and the button left the page before
+          the browser got to submit: nothing happened. Submitting this form
+          from onSelect doesn't depend on the item outliving the click. */}
+      <form ref={signOutForm} action={signOut} hidden />
       <DropdownMenu.Root modal={false}>
         <DropdownMenu.Trigger className={styles.account} aria-label={`Account: ${email}`} title={email}>
           <span className={styles.avatar} aria-hidden="true">
@@ -54,11 +58,9 @@ export function AccountMenu({ email }: { email: string }) {
               Switch to the {THEME_LABELS[next]} palette
             </DropdownMenu.Item>
             <DropdownMenu.Separator className={styles.menuRule} />
-            <DropdownMenu.Item asChild className={styles.menuItem}>
-              <button type="submit" form="sign-out">
-                <Icon name="logOut" />
-                Sign out
-              </button>
+            <DropdownMenu.Item className={styles.menuItem} onSelect={() => signOutForm.current?.requestSubmit()}>
+              <Icon name="logOut" />
+              Sign out
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
