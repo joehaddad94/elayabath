@@ -1,5 +1,20 @@
+/* The footer is the site's one "cover": a Deep Burgundy panel carrying the
+   off-white logo, as the brand guidelines pair them. The tokens are re-stated
+   for this subtree so every rule below, and the buttons inside, derive their
+   colours from the panel rather than from the cream page.
+   Off-white on burgundy 14.2:1, champagne on burgundy 9.6:1. */
 .foot {
-  border-top: var(--rule);
+  --color-text: var(--color-offwhite);
+  --color-accent: var(--color-champagne);
+  --accent-text: var(--color-champagne);
+  --color-muted: color-mix(in srgb, var(--color-offwhite) 75%, transparent);
+  --color-divider: color-mix(in srgb, var(--color-offwhite) 22%, transparent);
+  --color-control: color-mix(in srgb, var(--color-offwhite) 55%, transparent);
+  /* --rule is resolved where it is declared, on :root, so it has to be
+     re-declared here to pick up the panel's divider. */
+  --rule: 1px solid var(--color-divider);
+  background: var(--color-burgundy);
+  color: var(--color-text);
   padding-block: calc(var(--space-8) * 2);
 }
 
@@ -15,9 +30,11 @@
 }
 
 .foot h2 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
   font-size: 0.82rem;
   letter-spacing: 0.14em;
-  text-transform: uppercase;
   padding-bottom: var(--space-3);
   margin-bottom: var(--space-4);
   border-bottom: var(--rule);
@@ -77,6 +94,19 @@
   margin-top: calc(var(--space-8) * 2);
   padding-top: var(--space-6);
   border-top: var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
   font-size: 0.78rem;
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  color: color-mix(in srgb, var(--color-text) 75%, transparent);
+}
+
+/* "ELAYA BATH" in spaced capitals, the brand's signature line. */
+.signature {
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-text);
 }

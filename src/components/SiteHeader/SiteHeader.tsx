@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
 import { getCategories } from "@/lib/catalogue";
 import { getDictionary } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
@@ -52,7 +51,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         <nav className={styles.nav} aria-label={t.nav.label}>
           <Link className={styles.brand} href={routes.home(locale)}>
             <Image
-              src="/logo.png"
+              src="/logo-burgundy.png"
               alt={t.brand.name}
               // The painted size, at the file's real 2.05 aspect. Stating
               // it rather than the intrinsic 1140x557 is what gets a 1x/2x
@@ -60,7 +59,6 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               width={108}
               height={53}
               priority
-              className="invert-on-dark"
             />
           </Link>
 
@@ -69,7 +67,6 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           <div className={styles.tools}>
             <HeaderSearch locale={locale} t={t} />
             <ShortlistLink locale={locale} label={t.shortlist.headerLabel} />
-            <ThemeToggle label={t.nav.switchTo} />
           </div>
         </nav>
       </header>

@@ -1,3 +1,10 @@
+/* The brand's "occasional soft arch on an image frame": the one arched frame
+   on the site, on the homepage's featured product. */
+.heroProduct {
+  border-radius: 50% 50% 0 0 / 34% 34% 0 0;
+  overflow: hidden;
+}
+
 /* Product photography keeps true colour: no duotone. This brand sells
    Polished Brass, Rose Gold, Polished Copper, Chrome and Matt Black, and
    washing a tap into the accent destroys the one attribute the buyer is

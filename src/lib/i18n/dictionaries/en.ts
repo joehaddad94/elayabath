@@ -24,8 +24,10 @@
 const en = {
   brand: {
     name: "Elaya Bath",
-    /** verbatim — the homepage slogan. The About page uses an ungrammatical
-     *  variant, "Because Bathroom's Matters"; this is the canonical one. */
+    /** verbatim — the homepage slogan, kept by decision (2026-10-31) over the
+     *  guidelines' "Soft curves, effortless flow.". The About page uses an
+     *  ungrammatical variant, "Because Bathroom's Matters"; this is the
+     *  canonical one. Set in Cormorant italic, as the guidelines set taglines. */
     tagline: "Because Bathrooms Matter",
   },
 
@@ -37,9 +39,6 @@ const en = {
     catalogue: "Catalogue",
     contact: "Contact Us",
     search: "Search products",
-    /** Names the palette being moved to, not the one in use: the control is
-     *  one button now, so its label has to say what pressing it does. */
-    switchTo: "Switch to the {theme} palette",
     allProducts: "All products",
     categories: "Categories",
     searchSubmit: "Search",
@@ -63,7 +62,9 @@ const en = {
     privacy: "Privacy Policy",
     terms: "Terms of Use",
     returns: "Returns & Refunds",
-    copyright: "Copyright © 2026 Elaya",
+    /** The brand's signature, set in spaced capitals. */
+    signature: "Elaya Bath",
+    copyright: "Copyright © 2026 Elaya Bath",
   },
 
   contactAddresses: {
@@ -110,7 +111,9 @@ const en = {
   },
 
   home: {
-    /** verbatim — the About Us paragraph, which the homepage also uses. */
+    /** verbatim — the About Us paragraph, which the homepage also uses. Kept
+     *  as written by decision (2026-10-31), though it is hotter than the
+     *  guidelines' tone. */
     lede:
       "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
     /** verbatim — the four-item product list, kept as a list rather than
@@ -136,10 +139,9 @@ const en = {
   products: {
     title: "Products",
     intro:
-      "The live site drops you into an unfiltered grid of every item, fifteen at a time. Choosing a category first is the difference between forty pages of scrolling and one filtered shelf.",
+      "Choose a category to begin. Each one opens on its own shelf, with filters for type and finish.",
     startWithCategory: "Start with a category",
-    inThisBuild: "in this build",
-    inCatalogue: "in the full catalogue",
+    productCount: "products",
     knowTheCode: "Know the code?",
     knowTheCodeBody:
       "Every item carries a code like E02-SW40034. If you have it from a drawing, a data sheet or the catalogue, skip the browsing.",
@@ -191,8 +193,7 @@ const en = {
     quoteBody:
       "No prices are published. Send the item code and the finish you want, and we come back with pricing, lead time and availability.",
     related: "Other products in this category",
-    datasheetMissing:
-      "Referenced by the live site, but the file could not be retrieved.",
+    datasheetMissing: "Available on request.",
   },
 
   search: {
@@ -346,9 +347,9 @@ const en = {
       "Every product, grouped by category, with item codes, dimensions and the finish range for each piece. The same codes work in the enquiry form.",
     download: "Download the PDF",
     browseInstead: "Browse online instead",
-    missingLabel: "File missing from their server",
+    missingLabel: "Coming soon",
     missingBody:
-      "The live site links to CATALOGUE-ELAYA.pdf from its homepage, its catalogue page and its PDF viewer. That file returns 404. The download below is deliberately inert until the client supplies the document.",
+      "The PDF catalogue is being updated. In the meantime, every product is here online with its item code, dimensions and finishes.",
     sheetsHeading: "Technical data sheets",
     sheetsBody:
       "Separate from the catalogue, each item has its own sheet with dimensions, outlet position and installation requirements. These do still exist and are downloadable from every product page.",

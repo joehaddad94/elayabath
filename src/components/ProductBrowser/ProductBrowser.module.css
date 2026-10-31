@@ -59,10 +59,12 @@
 }
 
 .facet > h3 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
   margin: 0 0 var(--space-4);
   font-size: 0.75rem;
   letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text) 72%, transparent);
 }
 

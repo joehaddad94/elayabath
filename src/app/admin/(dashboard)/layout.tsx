@@ -44,7 +44,7 @@ async function SignedIn({ children }: { children: React.ReactNode }) {
     <ConfirmProvider>
       <header className={styles.bar}>
         <Link href="/admin" className={styles.brand}>
-          <Image src="/logo.png" alt="" width={74} height={36} className="invert-on-dark" />
+          <Image src="/logo-burgundy.png" alt="" width={74} height={36} />
           Dashboard
         </Link>
         <AdminNav items={isOwner ? [...SECTIONS, ...OWNER_SECTIONS] : SECTIONS} />

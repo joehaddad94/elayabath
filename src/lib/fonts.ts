@@ -1,33 +1,34 @@
-import { Barlow, Barlow_Condensed } from "next/font/google";
+import { Cormorant_Garamond, Poppins } from "next/font/google";
 
 /**
- * The site's two typefaces, declared once and shared by both root layouts:
- * the public site and the dashboard. next/font self-hosts and preloads them,
- * so neither layout pays for a render-blocking stylesheet.
+ * The brand's two typefaces, from the client's brand guidelines, declared once
+ * and shared by both root layouts: the public site and the dashboard.
+ * next/font self-hosts and preloads them, so neither layout pays for a
+ * render-blocking stylesheet.
+ *
+ * The guidelines' rule: the serif for titles, the sans-serif for information.
+ * Don't mix them up.
  */
 
-/* The design system asks for Barlow Condensed over Barlow. Loading them
-   through next/font rather than the system stylesheet's @import means they
-   are self-hosted, preloaded and not render-blocking, with no layout shift
-   as they swap in. */
-const barlow = Barlow({
+/* Titles, and italic for accent lines and taglines. 500 rather than 400 for
+   headings: Cormorant's hairlines thin out on screen at 400. */
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  // 400 for running text, 600 for emphasis (the dashboard's counts, errors,
-  // flags and <strong>). Without the 600 file the browser fakes a bold by
-  // thickening the 400, which smears on Safari and Windows.
-  weight: ["400", "600"],
-  variable: "--font-barlow",
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
   display: "swap",
 });
 
-// Headings and buttons only, always at --font-heading-weight. A 400 used to
-// be loaded for a single SKU label, which now sets in Barlow instead.
-const barlowCondensed = Barlow_Condensed({
+/* Everything that informs: body text, series names in capitals, item codes,
+   labels, and "ELAYA BATH" in spaced capitals. 400 for running text, 500 for
+   emphasis and series names, 600 only for the dashboard's counts. */
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["600"],
-  variable: "--font-barlow-condensed",
+  weight: ["400", "500", "600"],
+  variable: "--font-poppins",
   display: "swap",
 });
 
 /** Both variables, for a root element's className. */
-export const fontVariables = `${barlow.variable} ${barlowCondensed.variable}`;
+export const fontVariables = `${cormorant.variable} ${poppins.variable}`;

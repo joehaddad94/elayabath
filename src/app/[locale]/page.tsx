@@ -8,6 +8,7 @@ import { Hero } from "@/components/Hero/Hero";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { PullQuote } from "@/components/PullQuote/PullQuote";
+import { PHOTOS } from "@/lib/imagery";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
 import {
@@ -60,12 +61,11 @@ export default async function HomePage({
     <main id="main">
       <Hero
         title={t.brand.tagline}
-        image={{
-          src: "/rooms/hero-room.webp",
-          alt: "A white free-standing oval bath filled with water on a timber deck, beside a stone wall holding a vessel basin and chrome mixer, looking through full-height glass onto palms and forest in late afternoon light",
-          width: 2048,
-          height: 797,
-        }}
+        tagline
+        // The lightest wide photograph in the archive. The brand asks for
+        // light grounds and soft, warm light; the dusk forest bathroom that
+        // used to open the site is neither.
+        image={PHOTOS.contactBanner}
         lede={t.home.lede}
         actions={
           <>

@@ -61,7 +61,6 @@
 
 .title {
   font-size: 1.35rem;
-  text-transform: uppercase;
   margin: 0;
 }
 
@@ -88,26 +87,5 @@
   margin-top: var(--space-3);
 }
 
-.note {
-  position: relative;
-  border: 1px solid var(--color-accent);
-  padding: var(--space-6);
-  margin-top: calc(var(--space-8) * 2);
-  display: grid;
-  gap: var(--space-3);
-}
 
-.note b {
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-text);
-}
 
-.note p {
-  margin: 0;
-  font-size: 0.92rem;
-  max-width: 70ch;
-}

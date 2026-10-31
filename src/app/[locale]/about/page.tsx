@@ -58,6 +58,7 @@ export default async function AboutPage({
     <main id="main">
       <Hero
         compact
+        tagline
         title={t.brand.tagline}
         image={PHOTOS.aboutBanner}
         crumbLabel={t.common.breadcrumb}

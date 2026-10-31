@@ -4,7 +4,6 @@
 
 .title {
   font-size: clamp(2.3rem, 6vw, 4.4rem);
-  text-transform: uppercase;
   margin: 0;
 }
 
@@ -13,4 +12,9 @@
   max-width: 58ch;
   font-size: clamp(1rem, 1.4vw, 1.12rem);
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+/* Aligned with the title rather than centred under a left-set column. */
+.divider {
+  margin-inline: 0;
 }

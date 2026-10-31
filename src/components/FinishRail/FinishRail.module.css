@@ -40,8 +40,8 @@
 
 .code {
   display: block;
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--accent-text);
 }

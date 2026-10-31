@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs/Breadcrumbs";
 import type { ReactNode } from "react";
 import { Container } from "@/components/Container/Container";
+import { Divider } from "@/components/Divider/Divider";
 import styles from "./Hero.module.css";
 
 export interface HeroProps {
@@ -20,6 +21,9 @@ export interface HeroProps {
   compact?: boolean;
   /** Content below the band, in normal flow. */
   children?: ReactNode;
+  /** Sets the title as the brand's tagline: Cormorant italic, per the brand
+   *  guidelines. */
+  tagline?: boolean;
 }
 
 /**
@@ -37,6 +41,7 @@ export function Hero({
   actions,
   compact = false,
   children,
+  tagline = false,
 }: HeroProps) {
   return (
     <section className={styles.hero}>
@@ -63,11 +68,13 @@ export function Hero({
               <Breadcrumbs label={crumbLabel} items={crumbs} />
             </div>
           )}
-          <h1>{title}</h1>
+          <h1 className={tagline ? styles.tagline : undefined}>{title}</h1>
           {lede && <p className={styles.lede}>{lede}</p>}
           {actions && <div className={styles.actions}>{actions}</div>}
         </Container>
       </figure>
+
+      <Divider />
 
       {children && <Container className={styles.under}>{children}</Container>}
     </section>
