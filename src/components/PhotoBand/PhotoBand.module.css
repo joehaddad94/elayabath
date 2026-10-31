@@ -2,37 +2,33 @@
   padding-block: 0;
 }
 
-/* The photograph, full bleed and untouched: no veil, scrim or tint. */
 .plate {
+  position: relative;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  min-height: clamp(19rem, 46vh, 28rem);
   margin: 0;
-  border-top: var(--rule);
+  border-inline: 0; /* full bleed: hairline top and bottom only */
 }
 
 .shot {
-  display: block;
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
   width: 100%;
-  height: clamp(15rem, 40vh, 26rem);
+  height: 100%;
   object-fit: cover;
 }
 
-/* A solid Deep Burgundy panel under the photograph, one of the brand's "dark
-   panels". The tokens are re-stated for this subtree, as in the footer, so
-   the text and the buttons inside derive their colours from the panel.
-   Off-white on burgundy 14.2:1, champagne on burgundy 9.6:1. */
-.panel {
-  --color-text: var(--color-offwhite);
-  --color-bg: var(--color-burgundy);
-  --color-accent: var(--color-champagne);
-  --color-accent-hover: var(--color-accent-2-300);
-  --color-accent-active: var(--color-accent-2-200);
-  --accent-text: var(--color-champagne);
-  --color-control: color-mix(in srgb, var(--color-offwhite) 55%, transparent);
-  background: var(--color-burgundy);
-  color: var(--color-text);
-}
+
+
 
 .inner {
+  position: relative;
+  z-index: 2;
   padding-block: calc(var(--space-8) * 1.8);
+  color: var(--color-neutral-100);
   display: grid;
   gap: var(--space-4);
   justify-items: start;
@@ -44,16 +40,17 @@
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-champagne);
+  color: color-mix(in srgb, var(--color-neutral-100) 82%, transparent);
 }
 
 .heading {
   margin: 0;
-  max-width: 28ch;
+  max-width: 24ch;
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
   font-size: clamp(1.7rem, 4vw, 2.9rem);
   line-height: 1.05;
+  color: var(--color-neutral-100);
 }
 
 .actions {
@@ -61,4 +58,15 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-2);
+}
+
+/* .btn takes --color-text, which is near-black on the stone ground and would
+   disappear into the photograph. */
+.inner :global(.btn-secondary) {
+  color: var(--color-neutral-100);
+  border-color: color-mix(in srgb, var(--color-neutral-100) 48%, transparent);
+}
+
+.inner :global(.btn-secondary):hover {
+  background: color-mix(in srgb, var(--color-neutral-100) 14%, transparent);
 }

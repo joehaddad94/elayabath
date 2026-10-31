@@ -15,9 +15,6 @@
   --rule: 1px solid var(--color-divider);
   background: var(--color-burgundy);
   color: var(--color-text);
-  /* A hairline on top, so a page that ends on a burgundy photo-band panel
-     doesn't run straight into the footer as one block. */
-  border-top: var(--rule);
   padding-block: calc(var(--space-8) * 2);
 }
 

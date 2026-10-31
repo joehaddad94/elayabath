@@ -31,9 +31,7 @@ export function PhotoBand({
 }) {
   return (
     <section className={styles.band}>
-      {/* The photograph with nothing laid over it, and the words on a solid
-          Deep Burgundy panel beneath it rather than over it. */}
-      <figure className={styles.plate}>
+      <figure className={`${styles.plate} blueprint`}>
         <Image
           className={styles.shot}
           src={image.src}
@@ -42,15 +40,16 @@ export function PhotoBand({
           height={image.height}
           sizes="100vw"
         />
-      </figure>
 
-      <div className={styles.panel}>
-        <Container className={styles.inner}>
+        {/* Text sits directly on the photograph with no overlay, by decision
+            (2026-10-31). Marked so the colour audit measures composited
+            pixels. */}
+        <Container className={styles.inner} data-over-photo="">
           {label && <span className={styles.label}>{label}</span>}
           <p className={styles.heading}>{heading}</p>
           {actions && <div className={styles.actions}>{actions}</div>}
         </Container>
-      </div>
+      </figure>
     </section>
   );
 }

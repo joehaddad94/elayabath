@@ -1,33 +1,58 @@
-/* An opening band: the headline on the cream ground, then a full-bleed room
-   photograph shown as it is, with no veil, scrim or tint over it. */
+/* Full-bleed room photograph with the headline over it.
+   The live site's hero is a 2048px background-image its own page archive
+   never captured, because the crawl followed <img> tags and Elementor
+   serves photography as CSS. Recovered, re-encoded, and used at scale. */
 
 .hero {
   padding-block: 0;
 }
 
-.inner {
-  padding-block: calc(var(--space-8) * 2) calc(var(--space-8) * 1.6);
-}
-
-.small .inner {
-  padding-block: calc(var(--space-8) * 1.4) var(--space-8);
-}
-
 .plate {
+  position: relative;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  min-height: clamp(26rem, 70vh, 44rem);
   margin: 0;
-  border-block: var(--rule);
+  border-inline: 0; /* full bleed: hairline top and bottom only */
+}
+
+.small {
+  min-height: clamp(15rem, 38vh, 23rem);
 }
 
 .shot {
-  display: block;
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
   width: 100%;
-  height: clamp(18rem, 56vh, 38rem);
+  height: 100%;
   object-fit: cover;
 }
 
-.small .shot {
-  height: clamp(11rem, 30vh, 18rem);
+
+/* Narrow screens: the text runs full width, so the side wash would fade out
+   from under the end of every line. At 390px the lede measured 4.03:1
+   against a 4.5 floor. Here the horizontal layer carries all the way across,
+   because at this width there is no right half to protect. */
+
+/* The marks move inside the frame. At -6px the system places them outside
+   the box, which on a full-bleed band is off-screen. Inset, they read as
+   crop marks on a plate, which is what a registration mark is. */
+
+.inner {
+  position: relative;
+  z-index: 2;
+  padding-block: calc(var(--space-8) * 2.2);
+  color: var(--color-neutral-100);
 }
+
+.small .inner {
+  padding-block: calc(var(--space-8) * 1.6);
+}
+
+/* Breadcrumbs default to --color-text and the accent, both of which are
+   tuned for a painted ground. Over a photograph they are re-stated light. */
 
 .crumbs {
   margin-bottom: var(--space-4);
@@ -35,12 +60,24 @@
 
 .crumbs ol {
   padding-block: 0;
+  /* The separator only. Decorative and aria-hidden, so it is exempt from the
+     text minimum, but it still has to be legible. */
+  color: color-mix(in srgb, var(--color-neutral-100) 82%, transparent);
+}
+
+.crumbs a {
+  color: var(--color-neutral-100);
+}
+
+.crumbs span {
+  color: var(--color-neutral-100);
 }
 
 .inner h1 {
-  max-width: 18ch;
-  font-size: clamp(2.9rem, 7.5vw, 5.6rem);
-  line-height: 0.98;
+  color: var(--color-neutral-100);
+  max-width: 15ch;
+  font-size: clamp(2.9rem, 8.5vw, 6.2rem);
+  line-height: 0.94;
   margin: 0 0 var(--space-6);
 }
 
@@ -52,25 +89,32 @@
 
 .small .inner h1 {
   font-size: clamp(2.3rem, 6vw, 4.4rem);
-  max-width: 22ch;
+  max-width: 20ch;
   margin-bottom: 0;
 }
 
-.small .inner h1 + .lede {
-  margin-top: var(--space-4);
-}
-
 .lede {
-  max-width: 52ch;
+  color: color-mix(in srgb, var(--color-neutral-100) 88%, transparent);
+  max-width: 44ch;
   font-size: clamp(1rem, 1.5vw, 1.18rem);
-  color: color-mix(in srgb, var(--color-text) 82%, transparent);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  margin-top: var(--space-8);
+  margin-block: var(--space-8);
+}
+
+/* .btn takes --color-text, which is near-black on the stone ground and would
+   disappear into the photograph. */
+.inner :global(.btn-secondary) {
+  color: var(--color-neutral-100);
+  border-color: color-mix(in srgb, var(--color-neutral-100) 48%, transparent);
+}
+
+.inner :global(.btn-secondary):hover {
+  background: color-mix(in srgb, var(--color-neutral-100) 14%, transparent);
 }
 
 .under {

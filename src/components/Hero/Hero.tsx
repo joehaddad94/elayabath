@@ -44,23 +44,8 @@ export function Hero({
   tagline = false,
 }: HeroProps) {
   return (
-    <section className={`${styles.hero} ${compact ? styles.small : ""}`}>
-      {/* Text first, on the cream ground, and the photograph after it with
-          nothing laid over it. The text used to sit on the photograph behind
-          a dark gradient veil; photographs are now shown clean, and on a
-          plain ground the text's contrast is the palette's own. */}
-      <Container className={styles.inner}>
-        {crumbs && crumbLabel && (
-          <div className={styles.crumbs}>
-            <Breadcrumbs label={crumbLabel} items={crumbs} />
-          </div>
-        )}
-        <h1 className={tagline ? styles.tagline : undefined}>{title}</h1>
-        {lede && <p className={styles.lede}>{lede}</p>}
-        {actions && <div className={styles.actions}>{actions}</div>}
-      </Container>
-
-      <figure className={styles.plate}>
+    <section className={styles.hero}>
+      <figure className={`${styles.plate} ${compact ? styles.small : ""} blueprint`}>
         <Image
           className={styles.shot}
           src={image.src}
@@ -70,6 +55,21 @@ export function Hero({
           priority
           sizes="100vw"
         />
+
+        {/* Text sits directly on the photograph with no overlay, by decision
+            (2026-10-31). Its contrast depends on the photograph, so the
+            attribute tells the colour audit to measure composited pixels
+            rather than read --color-bg underneath. */}
+        <Container className={styles.inner} data-over-photo="">
+          {crumbs && crumbLabel && (
+            <div className={styles.crumbs}>
+              <Breadcrumbs label={crumbLabel} items={crumbs} />
+            </div>
+          )}
+          <h1 className={tagline ? styles.tagline : undefined}>{title}</h1>
+          {lede && <p className={styles.lede}>{lede}</p>}
+          {actions && <div className={styles.actions}>{actions}</div>}
+        </Container>
       </figure>
 
       <Divider />
