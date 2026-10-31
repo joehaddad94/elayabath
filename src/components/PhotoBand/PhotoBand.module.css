@@ -2,74 +2,37 @@
   padding-block: 0;
 }
 
+/* The photograph, full bleed and untouched: no veil, scrim or tint. */
 .plate {
-  position: relative;
-  display: grid;
-  align-items: end;
-  overflow: hidden;
-  min-height: clamp(19rem, 46vh, 28rem);
   margin: 0;
-  border-inline: 0; /* full bleed: hairline top and bottom only */
+  border-top: var(--rule);
 }
 
 .shot {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
+  display: block;
   width: 100%;
-  height: 100%;
+  height: clamp(15rem, 40vh, 26rem);
   object-fit: cover;
 }
 
-/* Lighter than the hero's veil, because this carries one line rather than a
-   headline and a lede, and the photograph is the point of the band. Still two
-   layers: the horizontal one protects the side the text sits on so the rest
-   of the image keeps its contrast. */
-.veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-neutral-900) 72%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 52%, transparent) 42%,
-      color-mix(in srgb, var(--color-neutral-900) 10%, transparent) 78%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-neutral-900) 82%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 52%, transparent) 46%,
-      color-mix(in srgb, var(--color-neutral-900) 18%, transparent) 80%,
-      transparent 100%
-    );
+/* A solid Deep Burgundy panel under the photograph, one of the brand's "dark
+   panels". The tokens are re-stated for this subtree, as in the footer, so
+   the text and the buttons inside derive their colours from the panel.
+   Off-white on burgundy 14.2:1, champagne on burgundy 9.6:1. */
+.panel {
+  --color-text: var(--color-offwhite);
+  --color-bg: var(--color-burgundy);
+  --color-accent: var(--color-champagne);
+  --color-accent-hover: var(--color-accent-2-300);
+  --color-accent-active: var(--color-accent-2-200);
+  --accent-text: var(--color-champagne);
+  --color-control: color-mix(in srgb, var(--color-offwhite) 55%, transparent);
+  background: var(--color-burgundy);
+  color: var(--color-text);
 }
-
-@media (max-width: 62rem) {
-  .veil {
-    background:
-      linear-gradient(
-        to right,
-        color-mix(in srgb, var(--color-neutral-900) 74%, transparent) 0%,
-        color-mix(in srgb, var(--color-neutral-900) 62%, transparent) 60%,
-        color-mix(in srgb, var(--color-neutral-900) 50%, transparent) 100%
-      ),
-      linear-gradient(
-        to top,
-        color-mix(in srgb, var(--color-neutral-900) 84%, transparent) 0%,
-        color-mix(in srgb, var(--color-neutral-900) 60%, transparent) 46%,
-        color-mix(in srgb, var(--color-neutral-900) 20%, transparent) 80%,
-        transparent 100%
-      );
-  }
-}
-
 
 .inner {
-  position: relative;
-  z-index: 2;
   padding-block: calc(var(--space-8) * 1.8);
-  color: var(--color-neutral-100);
   display: grid;
   gap: var(--space-4);
   justify-items: start;
@@ -81,17 +44,16 @@
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-neutral-100) 82%, transparent);
+  color: var(--color-champagne);
 }
 
 .heading {
   margin: 0;
-  max-width: 24ch;
+  max-width: 28ch;
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
   font-size: clamp(1.7rem, 4vw, 2.9rem);
   line-height: 1.05;
-  color: var(--color-neutral-100);
 }
 
 .actions {
@@ -99,15 +61,4 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-2);
-}
-
-/* .btn takes --color-text, which is near-black on the stone ground and would
-   disappear into the photograph. */
-.inner :global(.btn-secondary) {
-  color: var(--color-neutral-100);
-  border-color: color-mix(in srgb, var(--color-neutral-100) 48%, transparent);
-}
-
-.inner :global(.btn-secondary):hover {
-  background: color-mix(in srgb, var(--color-neutral-100) 14%, transparent);
 }

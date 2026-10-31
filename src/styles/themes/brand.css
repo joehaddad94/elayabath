@@ -44,7 +44,7 @@
   --color-divider: color-mix(in srgb, #3a1316 18%, transparent);
 
   /* Warm neutrals between Burgundy Ink and Off-White. 900 and 100 are the
-     dark and light ends the photo veils read. */
+     dark and light ends of the scale. */
   --color-neutral-100: #f4f0eb;
   --color-neutral-200: #e4ddd5;
   --color-neutral-300: #cdc2bb;
