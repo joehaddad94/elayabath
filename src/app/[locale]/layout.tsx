@@ -8,7 +8,6 @@ import { LOCALES, directionOf, isLocale } from "@/lib/i18n/config";
 import { SITE_ORIGIN } from "@/lib/site";
 import { getDictionary } from "@/lib/i18n";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
-import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -18,23 +17,21 @@ export const metadata: Metadata = {
   // metadata export of its own.
   alternates: { canonical: "/" },
   title: {
-    default: "Elaya Bath — Because Bathrooms Matter",
+    default: "Elaya Bath — Soft curves, effortless flow",
     template: "%s — Elaya Bath",
   },
   description:
-    "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
+    "Sanitary ware shaped by soft curves and lasting, considered design.",
   openGraph: {
     type: "website",
     siteName: "Elaya Bath",
-    images: ["/rooms/hero-room.webp"],
+    images: ["/rooms/contact-banner.webp"],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#17191b" },
-    { media: "(prefers-color-scheme: light)", color: "#e6e0d5" },
-  ],
+  // Warm Cream, the brand's page ground. One palette, so one colour.
+  themeColor: "#f0ede6",
 };
 
 /** One locale today. The segment exists so adding Arabic is a dictionary and
@@ -59,15 +56,8 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={directionOf(locale)}
-      data-theme={DEFAULT_THEME}
       className={fontVariables}
-      suppressHydrationWarning
     >
-      <head>
-        {/* Applies a stored palette before first paint. Without this, a
-            visitor who chose Stone sees Ink flash first. */}
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
       <body>
         {/* Sitewide, so the publisher is stated once and every other node
             can point at it by @id rather than repeating itself. */}

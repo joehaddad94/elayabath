@@ -24,9 +24,10 @@
 const en = {
   brand: {
     name: "Elaya Bath",
-    /** verbatim — the homepage slogan. The About page uses an ungrammatical
-     *  variant, "Because Bathroom's Matters"; this is the canonical one. */
-    tagline: "Because Bathrooms Matter",
+    /** From the client's brand guidelines (2026). Replaces the old slogan,
+     *  "Because Bathrooms Matter", pending the client confirming it is
+     *  retired. Set in Cormorant italic wherever it appears. */
+    tagline: "Soft curves, effortless flow.",
   },
 
   nav: {
@@ -37,9 +38,6 @@ const en = {
     catalogue: "Catalogue",
     contact: "Contact Us",
     search: "Search products",
-    /** Names the palette being moved to, not the one in use: the control is
-     *  one button now, so its label has to say what pressing it does. */
-    switchTo: "Switch to the {theme} palette",
     allProducts: "All products",
     categories: "Categories",
     searchSubmit: "Search",
@@ -63,7 +61,9 @@ const en = {
     privacy: "Privacy Policy",
     terms: "Terms of Use",
     returns: "Returns & Refunds",
-    copyright: "Copyright © 2026 Elaya",
+    /** The brand's signature, set in spaced capitals. */
+    signature: "Elaya Bath",
+    copyright: "Copyright © 2026 Elaya Bath",
   },
 
   contactAddresses: {
@@ -110,17 +110,23 @@ const en = {
   },
 
   home: {
-    /** verbatim — the About Us paragraph, which the homepage also uses. */
+    /** draft — a calmer rewrite of the About Us paragraph, which the homepage
+     *  also uses, to fit the brand's "no hype" tone. Needs client approval.
+     *  Their original: "ELAYA BATH was founded with a vision to revolutionize
+     *  the sanitary ware industry by merging innovative technology with
+     *  stunning design." */
     lede:
-      "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
-    /** verbatim — the four-item product list, kept as a list rather than
-     *  flattened into prose the way the live homepage flattens it. */
-    plateIntro: "Our brand offers a diverse range of products.",
+      "Sanitary ware shaped by soft curves and lasting, considered design.",
+    /** draft — the four-item product list, with the adjectives dropped to fit
+     *  the brand's factual tone. Needs client approval. Their original:
+     *  "Elegantly crafted accessories", "Advanced showers", "Stylish toilets",
+     *  "Luxurious bathtubs." */
+    plateIntro: "The range covers the whole bathroom.",
     plateItems: [
-      "Elegantly crafted accessories",
-      "Advanced showers",
-      "Stylish toilets",
-      "Luxurious bathtubs.",
+      "Accessories",
+      "Showers",
+      "Toilets",
+      "Bathtubs",
     ],
     plateFoot:
       "Each product is thoughtfully designed to elevate daily experiences and cater to the evolving needs of our customers.",
@@ -136,10 +142,9 @@ const en = {
   products: {
     title: "Products",
     intro:
-      "The live site drops you into an unfiltered grid of every item, fifteen at a time. Choosing a category first is the difference between forty pages of scrolling and one filtered shelf.",
+      "Choose a category to begin. Each one opens on its own shelf, with filters for type and finish.",
     startWithCategory: "Start with a category",
-    inThisBuild: "in this build",
-    inCatalogue: "in the full catalogue",
+    productCount: "products",
     knowTheCode: "Know the code?",
     knowTheCodeBody:
       "Every item carries a code like E02-SW40034. If you have it from a drawing, a data sheet or the catalogue, skip the browsing.",
@@ -191,8 +196,7 @@ const en = {
     quoteBody:
       "No prices are published. Send the item code and the finish you want, and we come back with pricing, lead time and availability.",
     related: "Other products in this category",
-    datasheetMissing:
-      "Referenced by the live site, but the file could not be retrieved.",
+    datasheetMissing: "Available on request.",
   },
 
   search: {
@@ -346,9 +350,9 @@ const en = {
       "Every product, grouped by category, with item codes, dimensions and the finish range for each piece. The same codes work in the enquiry form.",
     download: "Download the PDF",
     browseInstead: "Browse online instead",
-    missingLabel: "File missing from their server",
+    missingLabel: "Coming soon",
     missingBody:
-      "The live site links to CATALOGUE-ELAYA.pdf from its homepage, its catalogue page and its PDF viewer. That file returns 404. The download below is deliberately inert until the client supplies the document.",
+      "The PDF catalogue is being updated. In the meantime, every product is here online with its item code, dimensions and finishes.",
     sheetsHeading: "Technical data sheets",
     sheetsBody:
       "Separate from the catalogue, each item has its own sheet with dimensions, outlet position and installation requirements. These do still exist and are downloadable from every product page.",

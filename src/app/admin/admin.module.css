@@ -1,3 +1,13 @@
+/* The dashboard is a tool, so it is set almost entirely in Poppins, the
+   brand's face for information. Cormorant stays for page titles (h1, 24px
+   and up), where it reads as a title; at the 12 to 18px of section headings,
+   table text and labels it is hard to read. On <body>, so dialogs and menus
+   rendered in a portal are covered too. */
+.root :is(h2, h3, h4, h5, h6, legend) {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
 /* The dashboard's frame. Built from the site's own tokens, so it reads as the
    same product; denser than the site, because it is a working tool. */
 
@@ -26,7 +36,6 @@
 .signInCard h1 {
   margin: 0 0 var(--space-2);
   font-size: var(--text-lg);
-  text-transform: uppercase;
 }
 
 .lede {
@@ -88,8 +97,8 @@
   gap: var(--space-3);
   text-decoration: none;
   color: var(--color-text);
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: var(--text-sm);
@@ -177,8 +186,8 @@
   height: 28px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-accent) 35%, transparent);
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: var(--text-sm);
   line-height: 1;
 }
@@ -289,7 +298,6 @@
 .pageHead h1 {
   margin: 0;
   font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
-  text-transform: uppercase;
 }
 
 .pageHead p {
@@ -320,8 +328,8 @@ a.stat:hover {
 
 .statValue {
   display: block;
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: var(--text-xl);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -644,7 +652,6 @@ a.stat:hover {
 .problem h1 {
   margin: 0;
   font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
-  text-transform: uppercase;
 }
 
 .problem p {

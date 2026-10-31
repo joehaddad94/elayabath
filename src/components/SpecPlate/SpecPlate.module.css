@@ -6,8 +6,8 @@
 }
 
 .intro {
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: 0.82rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -36,8 +36,8 @@
    makes, not because numbers look technical. */
 .item::before {
   content: "0" counter(item);
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   color: var(--accent-text);

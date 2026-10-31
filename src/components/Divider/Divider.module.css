@@ -1,0 +1,10 @@
+.divider {
+  display: block;
+  width: min(15rem, 60%);
+  height: auto;
+  margin: var(--space-8) auto 0;
+  fill: none;
+  stroke: var(--color-champagne);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+}

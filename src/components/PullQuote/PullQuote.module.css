@@ -9,8 +9,6 @@
   font-weight: var(--font-heading-weight);
   font-size: clamp(2rem, 5.4vw, 3.9rem);
   line-height: 1.02;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
 }
 
 .quote em {

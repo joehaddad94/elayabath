@@ -1,6 +1,0 @@
-/* The icon itself carries the current palette: on ink the filled half reads
-   as light-on-dark, on stone as dark-on-light. It inverts with the ground
-   for free because it is painted in currentColor. */
-.toggle {
-  flex: none;
-}

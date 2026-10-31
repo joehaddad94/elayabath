@@ -15,8 +15,8 @@
 }
 
 .label {
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;

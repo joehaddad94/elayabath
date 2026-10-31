@@ -1,5 +1,6 @@
 import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs/Breadcrumbs";
 import { Container, Section } from "@/components/Container/Container";
+import { Divider } from "@/components/Divider/Divider";
 import styles from "./PageHead.module.css";
 
 /**
@@ -26,6 +27,7 @@ export function PageHead({
         <Breadcrumbs label={crumbLabel} items={crumbs} />
         <h1 className={styles.title}>{title}</h1>
         {lede && <p className={styles.lede}>{lede}</p>}
+        <Divider className={styles.divider} />
       </Container>
     </Section>
   );

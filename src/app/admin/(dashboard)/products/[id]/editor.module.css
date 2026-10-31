@@ -6,7 +6,6 @@
 .head h1 {
   margin: 0;
   font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
-  text-transform: uppercase;
 }
 
 .badges {
@@ -52,8 +51,8 @@
 .section legend {
   padding: 0 var(--space-2);
   font-size: var(--text-md);
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
 }
 
 .grid2 {

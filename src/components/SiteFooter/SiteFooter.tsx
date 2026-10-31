@@ -32,11 +32,10 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         <div className={styles.grid}>
           <div>
             <Image
-              src="/logo.png"
+              src="/logo-offwhite.png"
               alt={t.brand.name}
               width={111}
               height={54}
-              className="invert-on-dark"
             />
           </div>
 
@@ -120,7 +119,10 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           </div>
         </div>
 
-        <div className={styles.bottom}>{t.footer.copyright}</div>
+        <div className={styles.bottom}>
+          <span className={styles.signature}>{t.footer.signature}</span>
+          <span>{t.footer.copyright}</span>
+        </div>
       </Container>
     </footer>
   );

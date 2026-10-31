@@ -116,7 +116,7 @@ export default async function CategoryPage({
         lede={
           category.blurb
             ? category.blurb[0]
-            : `${category.totalInCatalogue} ${category.name.toLowerCase()} in the full catalogue, ${category.count} of them in this build.`
+            : `${category.count} ${category.name.toLowerCase()}, each with an item code, dimensions and finishes.`
         }
       />
 

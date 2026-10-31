@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { fontVariables } from "@/lib/fonts";
-import { DEFAULT_THEME, themeInitScript } from "@/lib/theme";
 import "@/styles/globals.css";
+import styles from "./admin.module.css";
 
 /**
  * The dashboard's own root layout.
@@ -9,7 +9,7 @@ import "@/styles/globals.css";
  * Separate from the public site's, which lives under the [locale] segment:
  * the dashboard is English-only by decision, is never indexed, and has none
  * of the site's header, footer or structured data. It shares the fonts, the
- * design tokens and the palette switch, so it reads as part of the same
+ * design tokens and the brand palette, so it reads as part of the same
  * product.
  */
 export const metadata: Metadata = {
@@ -18,10 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#17191b" },
-    { media: "(prefers-color-scheme: light)", color: "#e6e0d5" },
-  ],
+  themeColor: "#f0ede6",
 };
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
@@ -29,14 +26,9 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
     <html
       lang="en"
       dir="ltr"
-      data-theme={DEFAULT_THEME}
       className={fontVariables}
-      suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
-      <body>{children}</body>
+      <body className={styles.root}>{children}</body>
     </html>
   );
 }

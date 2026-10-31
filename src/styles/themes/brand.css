@@ -1,0 +1,84 @@
+/* Elaya Bath — the brand palette, from the client's brand guidelines (2026).
+
+   One palette, on :root. The guidelines ask for cream or plain light grounds,
+   so the old charcoal "Ink" and limestone "Stone" palettes and the switch
+   between them are gone.
+
+     Deep Burgundy  #450B0B  main colour: the main action, dark panels
+     Warm Cream     #F0EDE6  page ground
+     Off-White      #F4F0EB  surfaces; logo and text on burgundy
+     Champagne Gold #D9C6A5  accent: the curved divider only, never text on cream
+     Burgundy Ink   #3A1316  headings and text on cream
+     Muted Taupe    #8B7775  small labels in print
+
+   Accessibility departures, both deliberate:
+   - Muted Taupe is 3.6:1 on cream, under the 4.5:1 small text needs, so the
+     web uses #75625F (4.9:1) as --color-muted.
+   - Champagne is 1.43:1 on cream, so it is never a focus ring, border or
+     button. Focus and the main action use Deep Burgundy (13.8:1).
+   Palette only: colours, ramps and shadows. No layout lives here. */
+
+:root {
+  --color-bg: #f0ede6;
+  /* Off-White, lighter than the ground, so a card lifts off it. */
+  --color-surface: #f4f0eb;
+  /* A step below the ground, so a card lifts off a banded section too. */
+  --color-band: #e9e4db;
+  --color-text: #3a1316;
+  /* The main action. Cream text on it is 13.8:1. */
+  --color-accent: #450b0b;
+  --color-accent-hover: #5c1a1a;
+  --color-accent-active: #2e0707;
+  --color-accent-2: #d9c6a5;
+
+  /* Brand colours by name, for the few places that mean one specifically. */
+  --color-burgundy: #450b0b;
+  --color-cream: #f0ede6;
+  --color-offwhite: #f4f0eb;
+  --color-champagne: #d9c6a5;
+  /* Muted Taupe, darkened for small text on screen (see above). */
+  --color-muted: #75625f;
+
+  /* A control's boundary has to clear 3:1 against its surroundings. */
+  --color-control: color-mix(in srgb, var(--color-text) 58%, transparent);
+  --color-divider: color-mix(in srgb, #3a1316 18%, transparent);
+
+  /* Warm neutrals between Burgundy Ink and Off-White. 900 and 100 are the
+     dark and light ends the photo veils read. */
+  --color-neutral-100: #f4f0eb;
+  --color-neutral-200: #e4ddd5;
+  --color-neutral-300: #cdc2bb;
+  --color-neutral-400: #b2a4a0;
+  --color-neutral-500: #978683;
+  --color-neutral-600: #8b7775;
+  --color-neutral-700: #6a5654;
+  --color-neutral-800: #4d3437;
+  --color-neutral-900: #2a0e10;
+
+  --color-accent-100: #f3e9e7;
+  --color-accent-200: #e3cbc7;
+  --color-accent-300: #c99790;
+  --color-accent-400: #a8635b;
+  --color-accent-500: #82372f;
+  --color-accent-600: #5c1a1a;
+  --color-accent-700: #450b0b;
+  --color-accent-800: #2e0707;
+  --color-accent-900: #1c0404;
+
+  --color-accent-2-100: #f6f1e8;
+  --color-accent-2-200: #ece2d1;
+  --color-accent-2-300: #e2d4bb;
+  --color-accent-2-400: #d9c6a5;
+  --color-accent-2-500: #c4ab82;
+  --color-accent-2-600: #a68b60;
+  --color-accent-2-700: #7f6a48;
+  --color-accent-2-800: #5a4b33;
+  --color-accent-2-900: #3a3021;
+
+  /* Small accent text on cream: Deep Burgundy, 13.8:1. */
+  --accent-text: #450b0b;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #3a1316 10%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #3a1316 12%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #3a1316 16%, transparent);
+}

@@ -148,9 +148,13 @@
   max-width: 15ch;
   font-size: clamp(2.9rem, 8.5vw, 6.2rem);
   line-height: 0.94;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
   margin: 0 0 var(--space-6);
+}
+
+.inner h1.tagline {
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.02;
 }
 
 .small .inner h1 {

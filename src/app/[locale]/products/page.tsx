@@ -91,10 +91,7 @@ export default async function ProductsPage({
                   </h3>
                   <div className={styles.meta}>
                     <span>
-                      {category.count} {t.products.inThisBuild}
-                    </span>
-                    <span>
-                      {category.totalInCatalogue} {t.products.inCatalogue}
+                      {category.count} {t.products.productCount}
                     </span>
                   </div>
                   <Link
@@ -108,18 +105,6 @@ export default async function ProductsPage({
             ))}
           </div>
 
-          {/* The client's own navigation advertises four categories that have
-              no products at all. Named rather than quietly omitted: it is a
-              content gap for them to fill, not a design decision for us. */}
-          <div className={`${styles.note} blueprint`}>
-            <b>Four empty categories</b>
-            <p>
-              Bathroom Furniture, Shower Trays, Shower Enclosures and
-              Installation Systems appear in the live site&rsquo;s navigation
-              and on its homepage with no products behind them. They are left
-              out here rather than shown as dead ends.
-            </p>
-          </div>
         </Container>
       </Section>
 

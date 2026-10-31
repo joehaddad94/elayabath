@@ -40,7 +40,6 @@ export function CategoryBlock({
                 aria-hidden="true"
                 width={37}
                 height={37}
-                className="invert-on-dark"
               />
             )}
             <h3>{category.name}</h3>

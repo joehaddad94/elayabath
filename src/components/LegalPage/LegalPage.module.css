@@ -49,8 +49,6 @@
 
 .prose h2 {
   font-size: clamp(1.3rem, 2.2vw, 1.7rem);
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
   margin-top: calc(var(--space-8) * 1.8);
   margin-bottom: var(--space-4);
   padding-top: var(--space-6);
@@ -59,8 +57,6 @@
 
 .prose h3 {
   font-size: 1.05rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   margin-top: var(--space-8);
   margin-bottom: var(--space-3);
 }
@@ -89,8 +85,8 @@
 .placeholder {
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   color: var(--accent-text);
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: 0.86em;
   letter-spacing: 0.06em;
   padding: 1px 5px;

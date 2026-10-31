@@ -21,8 +21,6 @@
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
 }
 
 .faq summary::-webkit-details-marker {

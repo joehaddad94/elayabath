@@ -1,5 +1,5 @@
 /* Global layer. Three jobs and nothing else:
-   1. pull in the design system and both palettes
+   1. pull in the design system and the brand palette
    2. set the page rhythm every component measures against
    3. style bare elements, so components never have to
 
@@ -8,8 +8,7 @@
    describe one particular component. */
 
 @import "./system.css";
-@import "./themes/stone.css";
-@import "./themes/ink.css";
+@import "./themes/brand.css";
 
 /* ── page rhythm ──────────────────────────────────────────────────────
    Derived from the system's spacing scale rather than invented, so a
@@ -42,12 +41,7 @@
 }
 
 html {
-  /* The toggle sets data-theme on this element. Declared so a viewer with
-     no stored choice still gets a defined ground before hydration. */
-  color-scheme: dark;
-}
-
-[data-theme="stone"] {
+  /* One light palette: the brand asks for cream or plain light grounds. */
   color-scheme: light;
 }
 
@@ -70,10 +64,42 @@ h5,
 h6 {
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
-  line-height: 1.12;
-  letter-spacing: -0.015em;
+  /* Cormorant sets small and open, so no negative tracking, and slightly
+     looser leading than the condensed face this replaced. */
+  line-height: 1.1;
+  letter-spacing: 0;
   text-wrap: balance;
   margin: 0 0 var(--space-2);
+}
+
+/* Cormorant's x-height is small: at the system's sizes its headings read a
+   size smaller than the sans-serif around them. Scaled up about 15%. */
+h1 {
+  font-size: 48px;
+}
+h2 {
+  font-size: 37px;
+}
+h3 {
+  font-size: 29px;
+}
+h4 {
+  font-size: 23px;
+}
+
+/* At label sizes the serif stops being a title and becomes information, which
+   the brand sets in Poppins. */
+h5,
+h6 {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+/* Small secondary text in Muted Taupe, darkened for the web (4.9:1 on cream;
+   the print value is 3.6:1). */
+figcaption,
+.text-muted {
+  color: var(--color-muted);
 }
 
 p {
@@ -189,6 +215,10 @@ figure.blueprint {
    with their own border, so nothing else is disturbed. */
 .btn {
   border-color: var(--color-control);
+  /* Buttons are information, not titles: Poppins, per the brand. */
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
 .btn-primary {

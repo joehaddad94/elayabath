@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: canonical(routes.about()),
   title: "About Us",
   description:
-    "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
+    "Sanitary ware shaped by soft curves and lasting, considered design.",
 };
 
 export default async function AboutPage({
@@ -58,6 +58,7 @@ export default async function AboutPage({
     <main id="main">
       <Hero
         compact
+        tagline
         title={t.brand.tagline}
         image={PHOTOS.aboutBanner}
         crumbLabel={t.common.breadcrumb}
@@ -69,8 +70,8 @@ export default async function AboutPage({
 
       <Section tight>
         <Container>
-          {/* The whole of the live About page's copy, verbatim. It is one
-              paragraph and a four-item list, and there is nothing else. */}
+          {/* The live About page's copy: one paragraph and a four-item list,
+              rewritten calmer to fit the brand's tone (pending approval). */}
           <div className={styles.intro}>
             <p className={styles.lede}>{t.home.lede}</p>
             <SpecPlate

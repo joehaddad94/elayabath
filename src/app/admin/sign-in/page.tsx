@@ -11,12 +11,11 @@ export default function SignInPage() {
     <main id="main" className={styles.signIn}>
       <div className={styles.signInCard}>
         <Image
-          src="/logo.png"
+          src="/logo-burgundy.png"
           alt="Elaya Bath"
           width={108}
           height={53}
           priority
-          className="invert-on-dark"
         />
         <h1>Dashboard</h1>
         <p className={styles.lede}>Sign in with your staff email address.</p>
