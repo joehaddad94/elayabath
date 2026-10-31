@@ -31,7 +31,9 @@ export function PhotoBand({
 }) {
   return (
     <section className={styles.band}>
-      <figure className={`${styles.plate} blueprint`}>
+      {/* The photograph with nothing laid over it, and the words on a solid
+          Deep Burgundy panel beneath it rather than over it. */}
+      <figure className={styles.plate}>
         <Image
           className={styles.shot}
           src={image.src}
@@ -40,16 +42,15 @@ export function PhotoBand({
           height={image.height}
           sizes="100vw"
         />
-        <div className={styles.veil} />
+      </figure>
 
-        {/* Marked so the colour audit skips it: contrast here is governed by
-            the veil and has to be measured against composited pixels. */}
-        <Container className={styles.inner} data-over-photo="">
+      <div className={styles.panel}>
+        <Container className={styles.inner}>
           {label && <span className={styles.label}>{label}</span>}
           <p className={styles.heading}>{heading}</p>
           {actions && <div className={styles.actions}>{actions}</div>}
         </Container>
-      </figure>
+      </div>
     </section>
   );
 }

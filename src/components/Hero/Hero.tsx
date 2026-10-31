@@ -44,8 +44,23 @@ export function Hero({
   tagline = false,
 }: HeroProps) {
   return (
-    <section className={styles.hero}>
-      <figure className={`${styles.plate} ${compact ? styles.small : ""} blueprint`}>
+    <section className={`${styles.hero} ${compact ? styles.small : ""}`}>
+      {/* Text first, on the cream ground, and the photograph after it with
+          nothing laid over it. The text used to sit on the photograph behind
+          a dark gradient veil; photographs are now shown clean, and on a
+          plain ground the text's contrast is the palette's own. */}
+      <Container className={styles.inner}>
+        {crumbs && crumbLabel && (
+          <div className={styles.crumbs}>
+            <Breadcrumbs label={crumbLabel} items={crumbs} />
+          </div>
+        )}
+        <h1 className={tagline ? styles.tagline : undefined}>{title}</h1>
+        {lede && <p className={styles.lede}>{lede}</p>}
+        {actions && <div className={styles.actions}>{actions}</div>}
+      </Container>
+
+      <figure className={styles.plate}>
         <Image
           className={styles.shot}
           src={image.src}
@@ -55,23 +70,6 @@ export function Hero({
           priority
           sizes="100vw"
         />
-        <div className={styles.veil} />
-
-        {/* Text here sits over a photograph, not a painted background, so
-            its contrast is governed by the two-layer veil above and has to be
-            measured against composited pixels rather than a CSS colour. The
-            attribute marks it so an automated colour audit does not report a
-            false failure by reading --color-bg underneath. */}
-        <Container className={styles.inner} data-over-photo="">
-          {crumbs && crumbLabel && (
-            <div className={styles.crumbs}>
-              <Breadcrumbs label={crumbLabel} items={crumbs} />
-            </div>
-          )}
-          <h1 className={tagline ? styles.tagline : undefined}>{title}</h1>
-          {lede && <p className={styles.lede}>{lede}</p>}
-          {actions && <div className={styles.actions}>{actions}</div>}
-        </Container>
       </figure>
 
       <Divider />

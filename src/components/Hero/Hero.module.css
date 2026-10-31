@@ -1,124 +1,32 @@
-/* Full-bleed room photograph with the headline over it.
-   The live site's hero is a 2048px background-image its own page archive
-   never captured, because the crawl followed <img> tags and Elementor
-   serves photography as CSS. Recovered, re-encoded, and used at scale. */
+/* An opening band: the headline on the cream ground, then a full-bleed room
+   photograph shown as it is, with no veil, scrim or tint over it. */
 
 .hero {
   padding-block: 0;
 }
 
-.plate {
-  position: relative;
-  display: grid;
-  align-items: end;
-  overflow: hidden;
-  min-height: clamp(26rem, 70vh, 44rem);
-  margin: 0;
-  border-inline: 0; /* full bleed: hairline top and bottom only */
-}
-
-.small {
-  min-height: clamp(15rem, 38vh, 23rem);
-}
-
-.shot {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Two layers, not one. A single bottom-up scrim left the headline over the
-   brightest part of the photograph, the lit tub rim and the sunlit palms, at
-   1.2:1 against a 3:1 floor. The horizontal layer darkens only the side the
-   text occupies, so the headline clears its floor without flattening the
-   right half of the shot. Measured against the composited pixels, not judged
-   by eye. */
-.veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-neutral-900) 74%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 58%, transparent) 38%,
-      color-mix(in srgb, var(--color-neutral-900) 12%, transparent) 72%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-neutral-900) 88%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 66%, transparent) 40%,
-      color-mix(in srgb, var(--color-neutral-900) 34%, transparent) 74%,
-      color-mix(in srgb, var(--color-neutral-900) 10%, transparent) 100%
-    );
-}
-
-/* Narrow screens: the text runs full width, so the side wash would fade out
-   from under the end of every line. At 390px the lede measured 4.03:1
-   against a 4.5 floor. Here the horizontal layer carries all the way across,
-   because at this width there is no right half to protect. */
-@media (max-width: 62rem) {
-  .veil {
-    background:
-      linear-gradient(
-        to right,
-        color-mix(in srgb, var(--color-neutral-900) 76%, transparent) 0%,
-        color-mix(in srgb, var(--color-neutral-900) 64%, transparent) 55%,
-        color-mix(in srgb, var(--color-neutral-900) 52%, transparent) 100%
-      ),
-      linear-gradient(
-        to top,
-        color-mix(in srgb, var(--color-neutral-900) 88%, transparent) 0%,
-        color-mix(in srgb, var(--color-neutral-900) 66%, transparent) 40%,
-        color-mix(in srgb, var(--color-neutral-900) 34%, transparent) 74%,
-        color-mix(in srgb, var(--color-neutral-900) 10%, transparent) 100%
-      );
-  }
-}
-
-/* The marks move inside the frame. At -6px the system places them outside
-   the box, which on a full-bleed band is off-screen. Inset, they read as
-   crop marks on a plate, which is what a registration mark is. */
-
 .inner {
-  position: relative;
-  z-index: 2;
-  padding-block: calc(var(--space-8) * 2.2);
-  color: var(--color-neutral-100);
+  padding-block: calc(var(--space-8) * 2) calc(var(--space-8) * 1.6);
 }
 
 .small .inner {
-  padding-block: calc(var(--space-8) * 1.6);
+  padding-block: calc(var(--space-8) * 1.4) var(--space-8);
 }
 
-/* Breadcrumbs default to --color-text and the accent, both of which are
-   tuned for a painted ground. Over a photograph they have to be re-stated in
-   the light-on-dark scale the veil is built for, in both palettes. */
-/* The vertical veil is tuned for the tall homepage plate, where the text
-   block sits in the bottom third. A compact plate is less than half the
-   height, so its content starts around 29% down, in the weakest part of the
-   gradient: the current crumb measured 4.20:1 there against a 4.5 floor.
-   The crumb is already near-white, so the only remaining lever is the
-   backdrop. Raising just the compact variant leaves the homepage hero, which
-   passes comfortably, exactly as it was. */
-.small .veil {
-  background:
-    linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-neutral-900) 80%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 66%, transparent) 42%,
-      color-mix(in srgb, var(--color-neutral-900) 20%, transparent) 76%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-neutral-900) 88%, transparent) 0%,
-      color-mix(in srgb, var(--color-neutral-900) 74%, transparent) 55%,
-      color-mix(in srgb, var(--color-neutral-900) 56%, transparent) 100%
-    );
+.plate {
+  margin: 0;
+  border-block: var(--rule);
+}
+
+.shot {
+  display: block;
+  width: 100%;
+  height: clamp(18rem, 56vh, 38rem);
+  object-fit: cover;
+}
+
+.small .shot {
+  height: clamp(11rem, 30vh, 18rem);
 }
 
 .crumbs {
@@ -127,27 +35,12 @@
 
 .crumbs ol {
   padding-block: 0;
-  /* The separator only. Decorative and aria-hidden, so it is exempt from the
-     text minimum, but it still has to be legible. */
-  color: color-mix(in srgb, var(--color-neutral-100) 82%, transparent);
-}
-
-.crumbs a {
-  color: var(--color-neutral-100);
-}
-
-/* The current page. Measured at 4.20:1 over the brightest part of the
-   contact banner when this was 76%, against a 4.5 floor: the crumbs sit
-   higher in the plate than the heading does, where the veil is weakest. */
-.crumbs span {
-  color: var(--color-neutral-100);
 }
 
 .inner h1 {
-  color: var(--color-neutral-100);
-  max-width: 15ch;
-  font-size: clamp(2.9rem, 8.5vw, 6.2rem);
-  line-height: 0.94;
+  max-width: 18ch;
+  font-size: clamp(2.9rem, 7.5vw, 5.6rem);
+  line-height: 0.98;
   margin: 0 0 var(--space-6);
 }
 
@@ -159,32 +52,25 @@
 
 .small .inner h1 {
   font-size: clamp(2.3rem, 6vw, 4.4rem);
-  max-width: 20ch;
+  max-width: 22ch;
   margin-bottom: 0;
 }
 
+.small .inner h1 + .lede {
+  margin-top: var(--space-4);
+}
+
 .lede {
-  color: color-mix(in srgb, var(--color-neutral-100) 88%, transparent);
-  max-width: 44ch;
+  max-width: 52ch;
   font-size: clamp(1rem, 1.5vw, 1.18rem);
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  margin-block: var(--space-8);
-}
-
-/* .btn takes --color-text, which is near-black on the stone ground and would
-   disappear into the photograph. */
-.inner :global(.btn-secondary) {
-  color: var(--color-neutral-100);
-  border-color: color-mix(in srgb, var(--color-neutral-100) 48%, transparent);
-}
-
-.inner :global(.btn-secondary):hover {
-  background: color-mix(in srgb, var(--color-neutral-100) 14%, transparent);
+  margin-top: var(--space-8);
 }
 
 .under {
