@@ -17,11 +17,11 @@ export const metadata: Metadata = {
   // metadata export of its own.
   alternates: { canonical: "/" },
   title: {
-    default: "Elaya Bath — Soft curves, effortless flow",
+    default: "Elaya Bath — Because Bathrooms Matter",
     template: "%s — Elaya Bath",
   },
   description:
-    "Sanitary ware shaped by soft curves and lasting, considered design.",
+    "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
   openGraph: {
     type: "website",
     siteName: "Elaya Bath",

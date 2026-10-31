@@ -24,10 +24,11 @@
 const en = {
   brand: {
     name: "Elaya Bath",
-    /** From the client's brand guidelines (2026). Replaces the old slogan,
-     *  "Because Bathrooms Matter", pending the client confirming it is
-     *  retired. Set in Cormorant italic wherever it appears. */
-    tagline: "Soft curves, effortless flow.",
+    /** verbatim — the homepage slogan, kept by decision (2026-10-31) over the
+     *  guidelines' "Soft curves, effortless flow.". The About page uses an
+     *  ungrammatical variant, "Because Bathroom's Matters"; this is the
+     *  canonical one. Set in Cormorant italic, as the guidelines set taglines. */
+    tagline: "Because Bathrooms Matter",
   },
 
   nav: {
@@ -110,23 +111,19 @@ const en = {
   },
 
   home: {
-    /** draft — a calmer rewrite of the About Us paragraph, which the homepage
-     *  also uses, to fit the brand's "no hype" tone. Needs client approval.
-     *  Their original: "ELAYA BATH was founded with a vision to revolutionize
-     *  the sanitary ware industry by merging innovative technology with
-     *  stunning design." */
+    /** verbatim — the About Us paragraph, which the homepage also uses. Kept
+     *  as written by decision (2026-10-31), though it is hotter than the
+     *  guidelines' tone. */
     lede:
-      "Sanitary ware shaped by soft curves and lasting, considered design.",
-    /** draft — the four-item product list, with the adjectives dropped to fit
-     *  the brand's factual tone. Needs client approval. Their original:
-     *  "Elegantly crafted accessories", "Advanced showers", "Stylish toilets",
-     *  "Luxurious bathtubs." */
-    plateIntro: "The range covers the whole bathroom.",
+      "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
+    /** verbatim — the four-item product list, kept as a list rather than
+     *  flattened into prose the way the live homepage flattens it. */
+    plateIntro: "Our brand offers a diverse range of products.",
     plateItems: [
-      "Accessories",
-      "Showers",
-      "Toilets",
-      "Bathtubs",
+      "Elegantly crafted accessories",
+      "Advanced showers",
+      "Stylish toilets",
+      "Luxurious bathtubs.",
     ],
     plateFoot:
       "Each product is thoughtfully designed to elevate daily experiences and cater to the evolving needs of our customers.",
