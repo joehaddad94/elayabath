@@ -37,11 +37,13 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // getUser, not getSession: it asks the Auth server rather than trusting
-  // whatever the cookie claims.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims, not getSession: it verifies the token's signature rather than
+  // trusting whatever the cookie claims, and refreshes an expired session.
+  // Unlike getUser it needs no call to the Auth server when the project signs
+  // tokens with asymmetric keys, and this runs before every dashboard click
+  // and prefetch, so that round trip was paid on every navigation.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims.sub ? data.claims : null;
 
   const { pathname, search } = request.nextUrl;
 

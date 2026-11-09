@@ -118,6 +118,7 @@
 }
 
 .nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -135,6 +136,33 @@
 .nav a[aria-current="page"] {
   color: var(--color-text);
   border-bottom-color: var(--color-accent);
+}
+
+/* Always rendered, shown by opacity, so a click never shifts the layout. */
+.navPending {
+  position: absolute;
+  inset: auto 0 -2px;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navPendingOn {
+  opacity: 1;
+  animation: navPending 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes navPending {
+  from {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navPendingOn {
+    animation: none;
+  }
 }
 
 .who {

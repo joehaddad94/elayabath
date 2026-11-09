@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/components/Icon/Icon";
@@ -27,7 +27,13 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
     setOpen(false);
   }
 
-  const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
+  // A section is its first path segment after /admin, so a link that opens a
+  // section part-way in (Site content opens on /admin/site/home) still marks
+  // the whole section.
+  const isActive = (href: string) => {
+    const section = href.split("/").slice(0, 3).join("/");
+    return section === "/admin" ? pathname === "/admin" : pathname === section || pathname.startsWith(`${section}/`);
+  };
   const current = items.find((i) => isActive(i.href))?.label ?? "Menu";
 
   return (
@@ -46,9 +52,17 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
         {items.map((item) => (
           <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>
             {item.label}
+            <Pending />
           </Link>
         ))}
       </nav>
     </>
   );
+}
+
+/** Underlines the section you just clicked the moment you click it, while the
+ *  next screen is on its way, so a click never looks as if it did nothing. */
+function Pending() {
+  const { pending } = useLinkStatus();
+  return <span aria-hidden="true" className={`${styles.navPending} ${pending ? styles.navPendingOn : ""}`} />;
 }
