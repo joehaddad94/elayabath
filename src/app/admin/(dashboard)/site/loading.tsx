@@ -1,11 +1,12 @@
 import { PageSkeleton } from "../PageSkeleton";
+import styles from "./site.module.css";
 
-/**
- * Moving between pages inside this section (a list to one of its items, or
- * one site page to another) re-renders only below the section, where the
- * dashboard-wide loading screen doesn't reach. Without this, the old screen
- * sat frozen until the new one had fully arrived.
- */
+/** Picking another site page: the page list stays (it is in the layout), and
+ *  only the page side shows a placeholder until the new page arrives. */
 export default function Loading() {
-  return <PageSkeleton />;
+  return (
+    <div className={styles.body}>
+      <PageSkeleton />
+    </div>
+  );
 }

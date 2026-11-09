@@ -13,7 +13,6 @@ import {
   PHOTO_MIN_WIDTH,
   SEO_DESCRIPTION_LIMIT,
   SEO_TITLE_LIMIT,
-  SITE_PAGES,
   WIDE_MIN_WIDTH,
   faqValue,
   originalFaq,
@@ -583,94 +582,84 @@ export function SiteEditor({
   /* ── the page ── */
 
   return (
-    <div className={styles.layout}>
-      <nav className={styles.pages} aria-label="Site pages">
-        {SITE_PAGES.map((p) => (
-          <Link key={p.slug} href={`/admin/site/${p.slug}`} aria-current={p.slug === pageSlug ? "page" : undefined}>
-            {p.title}
-          </Link>
-        ))}
-      </nav>
+    <form
+      className={styles.body}
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (dirty && !busy) void send(pending, false);
+      }}
+    >
+      <header className={styles.title}>
+        <h1>{page.title}</h1>
+        <a className="btn btn-secondary" href={page.path} target="_blank" rel="noreferrer">
+          Open the page <Icon name="externalLink" size={16} />
+        </a>
+      </header>
+      <p className={editor.hint}>
+        Save puts this page&apos;s changes on the site straight away. A field left empty shows the original wording.
+        {page.intro && <> {page.intro}</>}
+        {page.introLink && (
+          <>
+            {" "}
+            <Link href={`/admin/site/${page.introLink.page}`}>{page.introLink.label}</Link>
+          </>
+        )}
+      </p>
 
-      <form
-        className={styles.body}
-        noValidate
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (dirty && !busy) void send(pending, false);
-        }}
-      >
-        <header className={styles.title}>
-          <h1>{page.title}</h1>
-          <a className="btn btn-secondary" href={page.path} target="_blank" rel="noreferrer">
-            Open the page <Icon name="externalLink" size={16} />
-          </a>
-        </header>
-        <p className={editor.hint}>
-          Save puts this page&apos;s changes on the site straight away. A field left empty shows the original wording.
-          {page.intro && <> {page.intro}</>}
-          {page.introLink && (
-            <>
-              {" "}
-              <Link href={`/admin/site/${page.introLink.page}`}>{page.introLink.label}</Link>
-            </>
-          )}
-        </p>
+      {page.groups.map((group) => (
+        <fieldset key={group.heading} className={editor.section}>
+          <legend>{group.heading}</legend>
+          {group.note && <p className={editor.hint}>{group.note}</p>}
+          {group.items.map(renderItem)}
+        </fieldset>
+      ))}
 
-        {page.groups.map((group) => (
-          <fieldset key={group.heading} className={editor.section}>
-            <legend>{group.heading}</legend>
-            {group.note && <p className={editor.hint}>{group.note}</p>}
-            {group.items.map(renderItem)}
-          </fieldset>
-        ))}
+      {renderSeo()}
 
-        {renderSeo()}
-
-        <div className={styles.saveBar}>
-          {notice ? (
-            <span className={`${admin.message} ${notice.error ? admin.messageError : ""}`} role={notice.error ? "alert" : "status"} style={{ margin: 0 }}>
-              {notice.text}
-              {notice.reload && (
-                <>
-                  {" "}
-                  <button type="button" className={admin.linkButton} onClick={() => router.refresh()}>
-                    Reload
-                  </button>
-                </>
-              )}
-            </span>
-          ) : (
-            <span>{dirty ? `${count} unsaved change${count === 1 ? "" : "s"} on this page` : "No unsaved changes"}</span>
-          )}
-          <span className={styles.actions}>
-            {notice?.undo && !dirty && (
-              <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void send(notice.undo!, true)}>
-                Undo this save
-              </button>
+      <div className={styles.saveBar}>
+        {notice ? (
+          <span className={`${admin.message} ${notice.error ? admin.messageError : ""}`} role={notice.error ? "alert" : "status"} style={{ margin: 0 }}>
+            {notice.text}
+            {notice.reload && (
+              <>
+                {" "}
+                <button type="button" className={admin.linkButton} onClick={() => router.refresh()}>
+                  Reload
+                </button>
+              </>
             )}
-            {dirty && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={busy}
-                onClick={() => {
-                  setDraft({});
-                  setTileDraft({});
-                  setErrors({});
-                  setNotice(null);
-                }}
-              >
-                Discard
-              </button>
-            )}
-            <button type="submit" className="btn btn-primary" disabled={!dirty || busy}>
-              {busy ? "Saving" : "Save and publish"}
-            </button>
           </span>
-        </div>
-      </form>
-    </div>
+        ) : (
+          <span>{dirty ? `${count} unsaved change${count === 1 ? "" : "s"} on this page` : "No unsaved changes"}</span>
+        )}
+        <span className={styles.actions}>
+          {notice?.undo && !dirty && (
+            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void send(notice.undo!, true)}>
+              Undo this save
+            </button>
+          )}
+          {dirty && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={busy}
+              onClick={() => {
+                setDraft({});
+                setTileDraft({});
+                setErrors({});
+                setNotice(null);
+              }}
+            >
+              Discard
+            </button>
+          )}
+          <button type="submit" className="btn btn-primary" disabled={!dirty || busy}>
+            {busy ? "Saving" : "Save and publish"}
+          </button>
+        </span>
+      </div>
+    </form>
   );
 }
 
