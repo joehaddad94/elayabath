@@ -11,7 +11,8 @@ import { ConfirmProvider } from "./ConfirmDialog";
 /** Sections appear here as they are built, never as dead links. */
 const SECTIONS: AdminNavItem[] = [
   { href: "/admin", label: "Overview" },
-  { href: "/admin/site", label: "Site content" },
+  // Straight to the first page: /admin/site only redirects there, a wasted round trip.
+  { href: "/admin/site/home", label: "Site content" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/finishes", label: "Finishes" },
@@ -38,8 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 }
 
 async function SignedIn({ children }: { children: React.ReactNode }) {
-  const { supabase, email } = await requireStaff();
-  const { data: isOwner } = await supabase.rpc("is_owner");
+  const { email, isOwner } = await requireStaff();
 
   return (
     <ConfirmProvider>

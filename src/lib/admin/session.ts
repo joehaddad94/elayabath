@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import { serverClient } from "@/lib/supabase/server";
 
@@ -15,23 +16,30 @@ import { serverClient } from "@/lib/supabase/server";
  * A signed-in person who has since been removed from the staff list is sent
  * back to sign-in with a reason, rather than shown a dashboard that refuses
  * every query.
+ *
+ * Wrapped in React's cache, so the layout and the page share one check per
+ * request instead of each making their own.
  */
-export async function requireStaff() {
+export const requireStaff = cache(async () => {
   const supabase = await serverClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user?.email) redirect("/admin/sign-in");
+  // getClaims verifies the session's signed token locally (against the
+  // project's published keys) instead of asking the Auth server on every
+  // render. The proxy has already refreshed the session for this request.
+  const { data } = await supabase.auth.getClaims();
+  const email = typeof data?.claims.email === "string" ? data.claims.email : "";
+  if (!email) redirect("/admin/sign-in");
 
-  const { data: isStaff, error } = await supabase.rpc("is_staff");
+  // Both checks at once: one round trip, not two in a row.
+  const [staff, owner] = await Promise.all([supabase.rpc("is_staff"), supabase.rpc("is_owner")]);
   // A check that failed (the database unreachable for a moment) is not an
   // answer: it shows the error screen with "Try again", rather than telling
   // someone they were taken off the staff list.
-  if (error) throw new Error(`The staff check couldn't be made: ${error.message}`);
-  if (!isStaff) redirect("/admin/sign-in?reason=removed");
+  if (staff.error) throw new Error(`The staff check couldn't be made: ${staff.error.message}`);
+  if (!staff.data) redirect("/admin/sign-in?reason=removed");
+  if (owner.error) throw new Error(`The owner check couldn't be made: ${owner.error.message}`);
 
-  return { supabase, email: user.email.toLowerCase() };
-}
+  return { supabase, email: email.toLowerCase(), isOwner: owner.data === true };
+});
 
 /**
  * The gate for the Staff page and its actions: the owner only. Anyone else
@@ -40,9 +48,7 @@ export async function requireStaff() {
  */
 export async function requireOwner() {
   const staff = await requireStaff();
-  const { data: isOwner, error } = await staff.supabase.rpc("is_owner");
-  if (error) throw new Error(`The owner check couldn't be made: ${error.message}`);
-  if (!isOwner) notFound();
+  if (!staff.isOwner) notFound();
   return staff;
 }
 

@@ -15,8 +15,8 @@ export default async function Overview() {
   const { supabase } = await requireStaff();
 
   const head = { count: "exact" as const, head: true };
-  const [visible, hidden, incomplete, categoriesVisible, categories, finishes, sharedCodes] = (
-    await Promise.all([
+  const [counts, { data: usage }] = await Promise.all([
+    Promise.all([
       // What the site shows, counted from the site's own copy.
       supabase.from("published_products").select("product_id", head).eq("status", "active"),
       supabase.from("products").select("id", head).eq("status", "draft"),
@@ -25,14 +25,16 @@ export default async function Overview() {
       supabase.from("categories").select("id", head),
       supabase.from("finishes").select("id", head),
       supabase.from("duplicate_finish_codes").select("code", head),
-    ])
-  ).map((r) => {
+    ]),
+    // Alongside the counts, not after them.
+    supabase.rpc("storage_usage"),
+  ]);
+  const [visible, hidden, incomplete, categoriesVisible, categories, finishes, sharedCodes] = counts.map((r) => {
     // A count that failed is not a zero: show the error screen with "Try again".
     if (r.error) throw new Error(`The overview couldn't be counted: ${r.error.message}`);
     return r.count ?? 0;
   }) as [number, number, number, number, number, number, number];
 
-  const { data: usage } = await supabase.rpc("storage_usage");
   const stored = (usage ?? []).reduce((sum, r) => sum + Number(r.bytes), 0);
 
   // Each card opens what it counts.

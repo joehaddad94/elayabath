@@ -37,7 +37,6 @@ const stateOf = (f: LibraryFinish) => (f.publishedVersion === null ? "Not on the
 const ONLY = ["", "shared", "offsite", "retired", "unused"] as const;
 
 export function FinishLibrary({ finishes, selected, only: initialOnly }: { finishes: LibraryFinish[]; selected?: string; only?: string }) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [family, setFamily] = useState("");
   const [only, setOnly] = useState<(typeof ONLY)[number]>(
@@ -77,7 +76,10 @@ export function FinishLibrary({ finishes, selected, only: initialOnly }: { finis
     }
     setEditing(false);
     setChosenId(id);
-    router.replace(`/admin/finishes?finish=${id}`, { scroll: false });
+    // Only the address changes, so a reload or a shared link opens the same
+    // finish. The library is already here: asking the server to render it
+    // again on every click would be a wasted round trip.
+    window.history.replaceState(window.history.state, "", `/admin/finishes?finish=${id}`);
   };
 
   return (
