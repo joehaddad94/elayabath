@@ -18,7 +18,7 @@ import { storageUrl } from "@/lib/supabase/config";
 /* ── the registry ────────────────────────────────────────────────────── */
 
 export interface TextField {
-  kind: "text" | "textarea" | "lines" | "email";
+  kind: "text" | "textarea" | "lines" | "email" | "url";
   key: string;
   label: string;
   max: number;
@@ -46,7 +46,7 @@ export interface Group {
   items: Item[];
 }
 
-export const PAGE_SLUGS = ["home", "about", "catalogue", "contact", "faq", "products", "category"] as const;
+export const PAGE_SLUGS = ["home", "about", "catalogue", "contact", "faq", "products", "category", "footer"] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 
 export interface SitePage {
@@ -55,6 +55,8 @@ export interface SitePage {
   /** Where it is on the site, for "Open the page". */
   path: string;
   intro?: string;
+  /** Where the text the intro mentions is edited. */
+  introLink?: { page: PageSlug; label: string };
   groups: Group[];
   /** The page's own title and description for search engines. */
   seo?: { title: string; description: string };
@@ -81,7 +83,7 @@ const photo = (key: `photo.${string}`, label: string, fallback: PhotoKey, wide =
 });
 
 const ON_ABOUT = { label: "Also on About Us", page: "about" as const };
-const IN_FOOTER = { label: "Also in the footer on every page" };
+const IN_FOOTER = { label: "Also in the footer", page: "footer" as const };
 
 export const SITE_PAGES: SitePage[] = [
   {
@@ -137,6 +139,7 @@ export const SITE_PAGES: SitePage[] = [
     title: "About Us",
     path: "/about",
     intro: "The headline, introduction and range list at the top of this page are the Homepage's, edited there.",
+    introLink: { page: "home", label: "Edit them on the Homepage." },
     groups: [
       { heading: "Top of the page", items: [photo("photo.about.banner", "Banner photo", "aboutBanner")] },
       {
@@ -316,6 +319,49 @@ export const SITE_PAGES: SitePage[] = [
       },
     ],
   },
+  {
+    slug: "footer",
+    title: "Footer",
+    path: "/",
+    intro: "Shown at the bottom of every page. Its three e-mail addresses are the Contact Us page's, edited there. The logo and the page links stay as they are.",
+    introLink: { page: "contact", label: "Edit the e-mails on Contact Us." },
+    groups: [
+      {
+        heading: "Need assistance?",
+        items: [
+          text("footer.assistance", "Heading", 60),
+          text("footer.technical", "Label before the technical e-mail", 60),
+          text("footer.design", "Label before the design e-mail", 60),
+          text("footer.general", "Label before the general e-mail", 60),
+          text("footer.formPrompt", "Line before the form link", 80),
+          text("footer.formLink", "Form link", 60),
+        ],
+      },
+      {
+        heading: "Column headings",
+        items: [
+          text("footer.company", "Our Company", 60),
+          text("footer.legal", "Legal Area", 60),
+          text("footer.follow", "Follow Us", 60),
+        ],
+      },
+      {
+        heading: "Social links",
+        note: "An icon shows only once it has a link. With none set, the Follow Us column is hidden.",
+        items: [
+          { kind: "url", key: "social.linkedin", label: "LinkedIn", max: 300 },
+          { kind: "url", key: "social.youtube", label: "YouTube", max: 300 },
+          { kind: "url", key: "social.instagram", label: "Instagram", max: 300 },
+          { kind: "url", key: "social.x", label: "X", max: 300 },
+          { kind: "url", key: "social.pinterest", label: "Pinterest", max: 300 },
+        ],
+      },
+      {
+        heading: "Bottom line",
+        items: [text("footer.signature", "Signature", 60), text("footer.copyright", "Copyright", 120)],
+      },
+    ],
+  },
 ];
 
 export function sitePage(slug: string): SitePage | undefined {
@@ -376,6 +422,7 @@ function textSchema(field: TextField) {
   const one = z.string().trim().min(1, "Empty: choose “Use original wording” instead.").max(field.max, `At most ${field.max} characters.`);
   if (field.kind === "lines") return z.array(one).min(1, "At least one item.").max(8, "At most 8 items.");
   if (field.kind === "email") return z.email("That isn't an e-mail address.").max(field.max);
+  if (field.kind === "url") return z.url({ protocol: /^https$/, error: "Paste the full address, starting https://" }).max(field.max);
   return one;
 }
 

@@ -219,15 +219,15 @@ export function SiteEditor({
       </span>
     ) : null;
 
-  const tools = (key: string, extra?: React.ReactNode) => (
+  const tools = (key: string, extra?: React.ReactNode, link = false) => (
     <span className={styles.tools}>
       {extra}
       {isEdited(key) ? (
         <button type="button" className={admin.linkButton} onClick={() => edit(key, null)}>
-          Use original wording
+          {link ? "Remove link" : "Use original wording"}
         </button>
       ) : (
-        <span className={styles.original}>Original wording</span>
+        <span className={styles.original}>{link ? "No link" : "Original wording"}</span>
       )}
     </span>
   );
@@ -246,7 +246,7 @@ export function SiteEditor({
     return kind === "textarea" || kind === "lines" ? (
       <textarea {...common} rows={kind === "lines" ? Math.max(3, value.split("\n").length) : rows} />
     ) : (
-      <input {...common} type={kind === "email" ? "email" : "text"} />
+      <input {...common} type={kind === "email" ? "email" : kind === "url" ? "url" : "text"} placeholder={kind === "url" ? "https://" : undefined} />
     );
   };
 
@@ -268,6 +268,7 @@ export function SiteEditor({
               ) : (
                 <span className={styles.original}>{field.shared.label}</span>
               )),
+            field.kind === "url",
           )}
         </div>
         {textInput(field.key, field.kind, field.label, original)}
@@ -608,10 +609,10 @@ export function SiteEditor({
         <p className={editor.hint}>
           Save puts this page&apos;s changes on the site straight away. A field left empty shows the original wording.
           {page.intro && <> {page.intro}</>}
-          {pageSlug === "about" && (
+          {page.introLink && (
             <>
               {" "}
-              <Link href="/admin/site/home">Edit them on the Homepage.</Link>
+              <Link href={`/admin/site/${page.introLink.page}`}>{page.introLink.label}</Link>
             </>
           )}
         </p>
