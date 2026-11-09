@@ -45,10 +45,3 @@
   letter-spacing: 0.08em;
   color: var(--accent-text);
 }
-
-.note {
-  margin-top: calc(var(--space-8) * 1.2);
-  font-size: 0.85rem;
-  max-width: 62ch;
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
-}

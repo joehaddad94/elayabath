@@ -9,41 +9,36 @@ import styles from "./FinishRail.module.css";
  */
 export function FinishRail({
   finishes,
-  note,
   missingLabel,
 }: {
   finishes: Finish[];
-  note?: string;
   missingLabel: string;
 }) {
   return (
-    <>
-      <div className={styles.rail}>
-        {finishes.map((finish) => (
-          <div key={finish.slug} className={styles.swatch}>
-            {finish.image ? (
-              <Image
-                src={finish.image}
-                alt={`${finish.code} ${finish.name}`}
-                width={96}
-                height={96}
-                // A fixed-size tile: without `sizes`, Next lists a 1x and a 2x file
-                // rather than every width up to 2048px, which on a shelf of sixty
-                // swatches was most of the page's weight.
-              />
-            ) : (
-              <span className={styles.missing} aria-hidden="true">
-                {missingLabel}
-              </span>
-            )}
-            <span className={styles.name}>
-              <span className={styles.code}>{finish.code}</span>
-              {finish.name}
+    <div className={styles.rail}>
+      {finishes.map((finish) => (
+        <div key={finish.slug} className={styles.swatch}>
+          {finish.image ? (
+            <Image
+              src={finish.image}
+              alt={`${finish.code} ${finish.name}`}
+              width={96}
+              height={96}
+              // A fixed-size tile: without `sizes`, Next lists a 1x and a 2x file
+              // rather than every width up to 2048px, which on a shelf of sixty
+              // swatches was most of the page's weight.
+            />
+          ) : (
+            <span className={styles.missing} aria-hidden="true">
+              {missingLabel}
             </span>
-          </div>
-        ))}
-      </div>
-      {note && <p className={styles.note}>{note}</p>}
-    </>
+          )}
+          <span className={styles.name}>
+            <span className={styles.code}>{finish.code}</span>
+            {finish.name}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }

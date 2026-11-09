@@ -178,10 +178,10 @@ export default async function HomePage({
             index="03"
             label={t.common.finishes}
             count={`${rail.length} ${t.common.of} ${meta.finishesInCatalogue}`}
+            note={t.category.swatchNote}
           />
           <FinishRail
             finishes={rail}
-            note={t.category.swatchNote}
             missingLabel={t.category.noSwatch}
           />
         </Container>
