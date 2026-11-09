@@ -67,6 +67,16 @@ const en = {
     copyright: "Copyright © 2026 Elaya Bath",
   },
 
+  /** The footer's social links. Empty until the client gives the addresses:
+   *  an icon shows only once its link is set in Site content. */
+  social: {
+    linkedin: "" as string,
+    youtube: "" as string,
+    instagram: "" as string,
+    x: "" as string,
+    pinterest: "" as string,
+  },
+
   contactAddresses: {
     technical: "Salessupport@elayabath.com",
     design: "Design@elayabath.com",

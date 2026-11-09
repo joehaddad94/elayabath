@@ -61,6 +61,17 @@ describe("site content fields", () => {
     expect(faqFor({ "faq.items": [{ q: "", a: "A", visible: true }] })).toBeNull();
   });
 
+  it("takes footer text and https social links only", () => {
+    const t = applyText(en, {
+      "footer.follow": "Find us",
+      "social.linkedin": "https://linkedin.com/company/elaya",
+      "social.x": "javascript:alert(1)",
+    });
+    expect(t.footer.follow).toBe("Find us");
+    expect(t.social.linkedin).toBe("https://linkedin.com/company/elaya");
+    expect(t.social.x).toBe("");
+  });
+
   it("refuses keys it doesn't know", () => {
     expect(schemaFor("nav.home")).toBeUndefined();
     expect(schemaFor("seo.nowhere.title")).toBeUndefined();

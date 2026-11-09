@@ -7,13 +7,13 @@ import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./SiteFooter.module.css";
 
-const SOCIAL: ReadonlyArray<{ name: IconName; label: string }> = [
+const SOCIAL = [
   { name: "linkedin", label: "LinkedIn" },
   { name: "youtube", label: "YouTube" },
   { name: "instagram", label: "Instagram" },
   { name: "x", label: "X" },
   { name: "pinterest", label: "Pinterest" },
-];
+] as const satisfies ReadonlyArray<{ name: IconName; label: string }>;
 
 /**
  * Two changes from the live site's footer.
@@ -25,6 +25,9 @@ const SOCIAL: ReadonlyArray<{ name: IconName; label: string }> = [
 export async function SiteFooter({ locale }: { locale: Locale }) {
   const t = await getSiteDictionary(locale);
   const mail = t.contactAddresses;
+  // Only the networks with a link set in Site content: an icon to "#" is a
+  // dead end.
+  const social = SOCIAL.flatMap((item) => (t.social[item.name] ? [{ ...item, href: t.social[item.name] }] : []));
 
   return (
     <footer className={styles.foot}>
@@ -102,21 +105,23 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
             </ul>
           </div>
 
-          <div>
-            <h2>{t.footer.follow}</h2>
-            <div className={styles.social}>
-              {SOCIAL.map((item) => (
-                <a
-                  key={item.name}
-                  className="btn btn-icon"
-                  href="#"
-                  aria-label={item.label}
-                >
-                  <Icon name={item.name} />
-                </a>
-              ))}
+          {social.length > 0 && (
+            <div>
+              <h2>{t.footer.follow}</h2>
+              <div className={styles.social}>
+                {social.map((item) => (
+                  <a
+                    key={item.name}
+                    className="btn btn-icon"
+                    href={item.href}
+                    aria-label={item.label}
+                  >
+                    <Icon name={item.name} />
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.bottom}>
