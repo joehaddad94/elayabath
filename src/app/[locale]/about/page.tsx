@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
@@ -9,19 +8,15 @@ import { PullQuote } from "@/components/PullQuote/PullQuote";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { SpecPlate } from "@/components/SpecPlate/SpecPlate";
 import { getCatalogueMeta, getCategories } from "@/lib/catalogue";
-import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
-import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./about.module.css";
-import { canonical } from "@/lib/seo";
+import { photoFor } from "@/lib/site-content/fields";
+import { getSiteContent, getSiteDictionary, pageMetadata } from "@/lib/site-content/read";
 
-export const metadata: Metadata = {
-  alternates: canonical(routes.about()),
-  title: "About Us",
-  description:
-    "ELAYA BATH was founded with a vision to revolutionize the sanitary ware industry by merging innovative technology with stunning design.",
-};
+export function generateMetadata() {
+  return pageMetadata("about", routes.about());
+}
 
 export default async function AboutPage({
   params,
@@ -31,7 +26,7 @@ export default async function AboutPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
-  const t = getDictionary(locale);
+  const [t, content] = await Promise.all([getSiteDictionary(locale), getSiteContent()]);
   const [meta, categories] = await Promise.all([getCatalogueMeta(), getCategories()]);
 
   // Counted from the catalogue, never asserted. The live About page makes no
@@ -60,7 +55,7 @@ export default async function AboutPage({
         compact
         tagline
         title={t.brand.tagline}
-        image={PHOTOS.aboutBanner}
+        image={photoFor(content, "photo.about.banner")}
         crumbLabel={t.common.breadcrumb}
         crumbs={[
           { label: t.nav.home, href: routes.home(locale) },
@@ -99,7 +94,7 @@ export default async function AboutPage({
       <Section band>
         <Container>
           <EditorialBlock
-            image={PHOTOS.materials}
+            image={photoFor(content, "photo.about.materials")}
             label={t.about.materialsLabel}
             heading={t.about.materialsHeading}
             flip
@@ -143,7 +138,7 @@ export default async function AboutPage({
       </Section>
 
       <PhotoBand
-        image={PHOTOS.shopBanner}
+        image={photoFor(content, "photo.about.band")}
         label={t.about.bandLabel}
         heading={t.about.bandHeading}
         actions={

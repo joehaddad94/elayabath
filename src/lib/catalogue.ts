@@ -19,6 +19,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { HOMEPAGE_PRODUCTS } from "@/content/homepage";
+import { categoryAsset } from "./site-content/fields";
 import { tags } from "./cache-tags";
 import type { Selection, SortKey } from "./product-filters";
 import { storageUrl } from "./supabase/config";
@@ -202,23 +203,27 @@ export async function getRedirect(slug: string): Promise<string | undefined> {
   return target.data?.slug ?? undefined;
 }
 
-/** The homepage's products, in the order HOMEPAGE_PRODUCTS lists them.
- *  Hidden or deleted ones drop out. */
-export async function getHomepageProducts(): Promise<Product[]> {
+/**
+ * The homepage's products, in order, each with its product id (the hero is
+ * chosen by id). `ids` is the list chosen in Site content; until someone
+ * chooses, it is the fixed list in src/content/homepage.ts. Hidden or
+ * deleted products drop out.
+ */
+export async function getHomepageProducts(
+  ids: readonly string[] | null,
+): Promise<Array<{ id: string; product: Product }>> {
   "use cache";
   cacheLife("max");
   cacheTag(tags.products);
 
-  const { data, error } = await publicClient()
-    .from("published_products")
-    .select("slug, snapshot")
-    .eq("status", "active")
-    .in("slug", [...HOMEPAGE_PRODUCTS]);
+  const base = publicClient().from("published_products").select("product_id, slug, snapshot").eq("status", "active");
+  const { data, error } = ids ? await base.in("product_id", [...ids]) : await base.in("slug", [...HOMEPAGE_PRODUCTS]);
   if (error) fail("homepage products", error);
-  const bySlug = new Map((data ?? []).map((row) => [row.slug, row.snapshot as unknown as ProductSnapshot]));
-  return HOMEPAGE_PRODUCTS.flatMap((slug) => {
-    const s = bySlug.get(slug);
-    return s ? [toProduct(s)] : [];
+  const rows = data ?? [];
+  const byKey = new Map(rows.map((row) => [ids ? row.product_id : row.slug, row]));
+  return (ids ?? HOMEPAGE_PRODUCTS).flatMap((key) => {
+    const row = byKey.get(key);
+    return row ? [{ id: row.product_id, product: toProduct(row.snapshot as unknown as ProductSnapshot) }] : [];
   });
 }
 
@@ -326,8 +331,8 @@ async function toCategory(s: CategorySnapshot): Promise<Category> {
     blurb: s.blurb.length > 0 ? s.blurb : null,
     count: shelf.total,
     totalInCatalogue: shelf.total,
-    image: s.image,
-    icon: s.icon,
+    image: categoryAsset(s.image),
+    icon: categoryAsset(s.icon),
     productTypes: shelf.facets.type,
     materials: shelf.facets.material,
     finishes: shelf.facets.colour.map((c) => c.value).sort(),
@@ -429,31 +434,34 @@ export async function searchProducts(query: string, limit = 40): Promise<SearchE
 
 /* ── misc ───────────────────────────────────────────────────────────── */
 
-/** Numbers the site states. `products` counts what is live; the rest are the
- *  client's full-catalogue figures, recorded at seed. */
+/** Numbers the site states, counted from what is live: products and
+ *  finishes on the site, and categories in the menu. Counted rather than
+ *  typed in, so they stay true as the catalogue changes. */
 export async function getCatalogueMeta(): Promise<CatalogueMeta> {
   "use cache";
   cacheLife("max");
-  cacheTag(tags.meta, tags.products);
+  cacheTag(tags.meta, tags.products, tags.categories, tags.finishes);
 
   const client = publicClient();
-  const [meta, live] = await Promise.all([
-    client.from("catalogue_meta").select("*").maybeSingle(),
+  const [live, categories, finishes] = await Promise.all([
     client
       .from("published_products")
       .select("published_at", { count: "exact" })
       .eq("status", "active")
       .order("published_at", { ascending: false })
       .limit(1),
+    getCategories(),
+    client.from("published_finishes").select("slug", { count: "exact", head: true }).eq("status", "active"),
   ]);
-  if (meta.error) fail("meta", meta.error);
   if (live.error) fail("live count", live.error);
+  if (finishes.error) fail("finish count", finishes.error);
   const latest = live.data?.[0]?.published_at ?? new Date().toISOString();
+  const products = live.count ?? 0;
   return {
     generatedAt: latest.slice(0, 10),
-    products: live.count ?? 0,
-    productsInCatalogue: meta.data?.products_in_catalogue ?? live.count ?? 0,
-    categoriesInCatalogue: meta.data?.categories_in_catalogue ?? 0,
-    finishesInCatalogue: meta.data?.finishes_in_catalogue ?? 0,
+    products,
+    productsInCatalogue: products,
+    categoriesInCatalogue: categories.length,
+    finishesInCatalogue: finishes.count ?? 0,
   };
 }

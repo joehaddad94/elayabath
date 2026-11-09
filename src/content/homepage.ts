@@ -1,11 +1,11 @@
 /**
- * The products the homepage shows, in order: fixed here in code, not chosen
- * on the dashboard. The first bathtub in the list is the hero's product
- * photograph; the grid shows the first 12.
+ * The homepage's products before anyone chooses them in the dashboard's
+ * Site content tab. Once a list is saved there, this one is no longer used;
+ * it also decides which product pages are built ahead at deploy.
  *
  * Taken from what the homepage showed before the dashboard's Homepage screen
  * was removed (the seeded featured set, by name). A product that is hidden
- * or gone simply drops out. To change the homepage, edit this list.
+ * or gone simply drops out.
  */
 export const HOMEPAGE_PRODUCTS: readonly string[] = [
   "e02-sw30008", // ALCO, bathtub

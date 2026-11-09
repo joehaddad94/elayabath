@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -7,19 +6,17 @@ import { Hero } from "@/components/Hero/Hero";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import { getCatalogueMeta, getCategories } from "@/lib/catalogue";
-import { getDictionary } from "@/lib/i18n";
+import { format } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
-import { PHOTOS, categoryInset } from "@/lib/imagery";
+import { categoryInset } from "@/lib/imagery";
+import { photoFor } from "@/lib/site-content/fields";
+import { getSiteContent, getSiteDictionary, pageMetadata } from "@/lib/site-content/read";
 import { routes } from "@/lib/routes";
 import styles from "./products.module.css";
-import { canonical } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: canonical(routes.products()),
-  title: "Products",
-  description:
-    "Browse washbasins, toilets, tapware, bathtubs, showers and accessories by category, with item codes and finishes.",
-};
+export function generateMetadata() {
+  return pageMetadata("products", routes.products());
+}
 
 export default async function ProductsPage({
   params,
@@ -29,15 +26,19 @@ export default async function ProductsPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
-  const t = getDictionary(locale);
-  const [categories, meta] = await Promise.all([getCategories(), getCatalogueMeta()]);
+  const [t, content, categories, meta] = await Promise.all([
+    getSiteDictionary(locale),
+    getSiteContent(),
+    getCategories(),
+    getCatalogueMeta(),
+  ]);
 
   return (
     <main id="main">
       <Hero
         compact
         title={t.products.title}
-        image={PHOTOS.shopBanner}
+        image={photoFor(content, "photo.products.banner")}
         crumbLabel={t.common.breadcrumb}
         crumbs={[
           { label: t.nav.home, href: routes.home(locale) },
@@ -49,7 +50,7 @@ export default async function ProductsPage({
         <Container>
           <SectionHead
             label={t.products.startWithCategory}
-            count={`${categories.length} ${t.common.of} ${meta.categoriesInCatalogue}`}
+            count={String(categories.length)}
           />
 
           <p className={styles.intro}>{t.products.intro}</p>
@@ -109,9 +110,13 @@ export default async function ProductsPage({
       </Section>
 
       <PhotoBand
-        image={PHOTOS.contactBanner}
+        image={photoFor(content, "photo.products.band")}
         label={t.category.finishesHeading}
-        heading={t.home.bandHeading}
+        heading={format(t.home.bandHeading, {
+          products: meta.productsInCatalogue,
+          categories: meta.categoriesInCatalogue,
+          finishes: meta.finishesInCatalogue,
+        })}
         actions={
           <Link className="btn btn-secondary" href={routes.catalogue(locale)}>
             {t.common.downloadCatalogue}

@@ -22,7 +22,8 @@ import {
   getRedirect,
   getRelatedProducts,
 } from "@/lib/catalogue";
-import { format, getDictionary } from "@/lib/i18n";
+import { format } from "@/lib/i18n";
+import { getSiteDictionary } from "@/lib/site-content/read";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
 import { getPreviewProduct } from "@/lib/preview";
 import { categoryBand } from "@/lib/imagery";
@@ -37,9 +38,9 @@ import styles from "./product.module.css";
  * published after a deploy gets its page.
  */
 export async function generateStaticParams() {
-  const products = await getHomepageProducts();
+  const products = await getHomepageProducts(null);
   return LOCALES.flatMap((locale) =>
-    products.map((product) => ({ locale, slug: product.slug })),
+    products.map(({ product }) => ({ locale, slug: product.slug })),
   );
 }
 
@@ -87,7 +88,7 @@ export default async function ProductPage({
     notFound();
   }
 
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   const [category, finishes, related] = await Promise.all([
     getCategory(product.categorySlug),
     getFinishesFor(product),

@@ -81,6 +81,45 @@ export type Database = {
         }
         Relationships: []
       }
+      discontinued_products_2026_10: {
+        Row: {
+          moved_at: string
+          product_id: string
+          sku: string
+          slug: string
+          was_on_site: boolean
+        }
+        Insert: {
+          moved_at?: string
+          product_id: string
+          sku: string
+          slug: string
+          was_on_site: boolean
+        }
+        Update: {
+          moved_at?: string
+          product_id?: string
+          sku?: string
+          slug?: string
+          was_on_site?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discontinued_products_2026_10_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "admin_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discontinued_products_2026_10_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finishes: {
         Row: {
           code: string
@@ -781,6 +820,27 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           created_at: string
@@ -969,6 +1029,10 @@ export type Database = {
         }
         Returns: number
       }
+      save_site_content: {
+        Args: { p_clear?: string[]; p_set: Json }
+        Returns: Json
+      }
       search_catalogue: {
         Args: { p_limit?: number; p_query: string }
         Returns: Json
@@ -999,10 +1063,7 @@ export type Database = {
           files: number
         }[]
       }
-      sync_product: {
-        Args: { p_id: string; p_note?: string }
-        Returns: number
-      }
+      sync_product: { Args: { p_id: string; p_note?: string }; Returns: number }
       unused_media: {
         Args: { p_grace?: string }
         Returns: {
