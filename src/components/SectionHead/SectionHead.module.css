@@ -35,3 +35,18 @@
   letter-spacing: 0.1em;
   color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
+
+/* The caption takes over the head's space below, so the content keeps the
+   same distance from the rule's block either way. */
+.withNote {
+  margin-bottom: 0;
+}
+
+.note {
+  margin: var(--space-3) 0 calc(var(--space-8) * 1.5);
+  max-width: 75ch;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+}

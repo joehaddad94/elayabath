@@ -163,10 +163,10 @@ export default async function CategoryPage({
             <SectionHead
               label={t.category.finishesHeading}
               count={format(t.category.finishesLede, { n: finishes.length })}
+              note={t.category.swatchNote}
             />
             <FinishRail
               finishes={finishes}
-              note={t.category.swatchNote}
               missingLabel={t.category.noSwatch}
             />
           </Container>
