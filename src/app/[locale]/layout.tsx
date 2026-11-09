@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader/SiteHeader";
 import { LOCALES, directionOf, isLocale } from "@/lib/i18n/config";
 import { SITE_ORIGIN } from "@/lib/site";
-import { getDictionary } from "@/lib/i18n";
+import { getSiteDictionary } from "@/lib/site-content/read";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
 import "@/styles/globals.css";
 
@@ -63,7 +63,7 @@ export default async function LocaleLayout({
             can point at it by @id rather than repeating itself. */}
         <JsonLd
           graph={[
-            organizationSchema(getDictionary(locale).contactAddresses),
+            organizationSchema((await getSiteDictionary(locale)).contactAddresses),
             websiteSchema(),
           ]}
         />

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
 import { EnquiryForm } from "@/components/EnquiryForm/EnquiryForm";
@@ -7,19 +6,15 @@ import { Hero } from "@/components/Hero/Hero";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { Note } from "@/components/Note/Note";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
-import { getDictionary } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
-import { PHOTOS } from "@/lib/imagery";
 import { routes } from "@/lib/routes";
 import styles from "./contact.module.css";
-import { canonical } from "@/lib/seo";
+import { photoFor } from "@/lib/site-content/fields";
+import { getSiteContent, getSiteDictionary, pageMetadata } from "@/lib/site-content/read";
 
-export const metadata: Metadata = {
-  alternates: canonical(routes.contact()),
-  title: "Contact Us",
-  description:
-    "Regional offices for MEA, Africa, Europe and the US, plus technical, design and general enquiries.",
-};
+export function generateMetadata() {
+  return pageMetadata("contact", routes.contact());
+}
 
 export default async function ContactPage({
   params,
@@ -29,7 +24,7 @@ export default async function ContactPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
-  const t = getDictionary(locale);
+  const [t, content] = await Promise.all([getSiteDictionary(locale), getSiteContent()]);
   const mail = t.contactAddresses;
 
   // The live site splits these across three places: two regional addresses on
@@ -73,7 +68,7 @@ export default async function ContactPage({
       <Hero
         compact
         title={t.contact.title}
-        image={PHOTOS.contactBanner}
+        image={photoFor(content, "photo.contact.banner")}
         crumbLabel={t.common.breadcrumb}
         crumbs={[
           { label: t.nav.home, href: routes.home(locale) },
@@ -117,7 +112,7 @@ export default async function ContactPage({
           "send an enquiry", which a heading alone was doing. Not the hero's
           photograph repeated. */}
       <PhotoBand
-        image={PHOTOS.aboutBanner}
+        image={photoFor(content, "photo.contact.band")}
         label={t.contact.formLabel}
         heading={t.contact.formHeading}
       />

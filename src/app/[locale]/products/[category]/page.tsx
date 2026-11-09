@@ -15,7 +15,8 @@ import {
   getFinish,
   getShelf,
 } from "@/lib/catalogue";
-import { format, getDictionary } from "@/lib/i18n";
+import { format } from "@/lib/i18n";
+import { getSiteDictionary } from "@/lib/site-content/read";
 import { categoryBand, categoryBanner, categoryInset } from "@/lib/imagery";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
 import { EMPTY_SELECTION } from "@/lib/product-filters";
@@ -69,7 +70,7 @@ export default async function CategoryPage({
   const category = await getCategory(slug);
   if (!category) notFound();
 
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   // The first page of the unfiltered shelf comes with the page, which keeps
   // the page static. Filters, sorting and further pages are fetched.
   const initial = await getShelf(slug, EMPTY_SELECTION, "default", SHELF_PAGE, 0);

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getCategories } from "@/lib/catalogue";
-import { getDictionary } from "@/lib/i18n";
+import { getSiteDictionary } from "@/lib/site-content/read";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import { ShortlistLink } from "@/components/Shortlist/ShortlistLink";
@@ -18,7 +18,7 @@ import styles from "./SiteHeader.module.css";
  * and there is nothing to sign in to.
  */
 export async function SiteHeader({ locale }: { locale: Locale }) {
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
 
   // Read here, in a server component, and handed down as plain data. NavLinks
   // is a client component and must never import the catalogue itself.

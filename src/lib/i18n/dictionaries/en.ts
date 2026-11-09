@@ -132,7 +132,9 @@ const en = {
     quoteAttribution: "Elaya Bath",
     productsLabel: "Products",
     bandLabel: "The whole range",
-    bandHeading: "596 products, 50 categories, 87 finishes",
+    /** Counted from the live catalogue, never typed in, so it stays true as
+     *  products are added or hidden. */
+    bandHeading: "{products} products, {categories} categories, {finishes} finishes",
     productsMeta: "{shown} of {total} categories",
   },
 

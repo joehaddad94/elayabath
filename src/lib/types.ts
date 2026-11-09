@@ -127,11 +127,11 @@ export interface SearchEntry {
 }
 
 export interface CatalogueMeta {
-  /** When the ingest last ran. */
+  /** When a product last went live. */
   generatedAt: string;
-  /** How many products this build ships. */
+  /** How many products are live. */
   products: number;
-  /** How many exist in the client's full catalogue. */
+  /** The same live counts, as the pages state them. */
   productsInCatalogue: number;
   categoriesInCatalogue: number;
   finishesInCatalogue: number;

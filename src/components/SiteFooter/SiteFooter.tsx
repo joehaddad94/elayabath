@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/Icon/Icon";
 import { Container } from "@/components/Container/Container";
-import { getDictionary } from "@/lib/i18n";
+import { getSiteDictionary } from "@/lib/site-content/read";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import styles from "./SiteFooter.module.css";
@@ -22,8 +22,8 @@ const SOCIAL: ReadonlyArray<{ name: IconName; label: string }> = [
  * exists on the live site and nothing anywhere links to it, which is how
  * nobody has noticed it still governs the return of VHS tapes.
  */
-export function SiteFooter({ locale }: { locale: Locale }) {
-  const t = getDictionary(locale);
+export async function SiteFooter({ locale }: { locale: Locale }) {
+  const t = await getSiteDictionary(locale);
   const mail = t.contactAddresses;
 
   return (

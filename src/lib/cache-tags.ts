@@ -15,4 +15,6 @@ export const tags = {
   categories: "categories",
   finishes: "finishes",
   meta: "catalogue-meta",
+  /** The site's own words and photos, edited in Site content. */
+  siteContent: "site-content",
 } as const;

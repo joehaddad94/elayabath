@@ -14,13 +14,18 @@ export function PullQuote({
   attribution: string;
   emphasise?: string;
 }) {
-  const [before, after] = emphasise ? text.split(emphasise) : [text, ""];
+  // The text is editable in Site content, so the emphasised word may no
+  // longer be in it: then nothing is emphasised, rather than the word being
+  // added to the end.
+  const at = emphasise ? text.indexOf(emphasise) : -1;
+  const before = at < 0 ? text : text.slice(0, at);
+  const after = at < 0 ? "" : text.slice(at + emphasise!.length);
 
   return (
     <div className={styles.quote}>
       <blockquote>
         {before}
-        {emphasise && <em>{emphasise}</em>}
+        {at >= 0 && <em>{emphasise}</em>}
         {after}
       </blockquote>
       <cite className={styles.cite}>{attribution}</cite>
