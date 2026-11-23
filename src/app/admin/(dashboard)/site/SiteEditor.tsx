@@ -7,7 +7,6 @@ import { Icon } from "@/components/Icon/Icon";
 import { MAX_PHOTO_BYTES, formatBytes, preparePhoto } from "@/lib/admin/media";
 import {
   FAQ_KEY,
-  HOME_HERO_KEY,
   HOME_PRODUCTS_KEY,
   HOME_PRODUCTS_MAX,
   PHOTO_MIN_WIDTH,
@@ -405,12 +404,6 @@ export function SiteEditor({
   const savedIds = Array.isArray(saved[HOME_PRODUCTS_KEY]) ? (saved[HOME_PRODUCTS_KEY] as string[]) : initialIds;
   const productIds = (Array.isArray(draft[HOME_PRODUCTS_KEY]) ? draft[HOME_PRODUCTS_KEY] : savedIds) as string[];
   const productList = productIds.flatMap((id) => (known.has(id) ? [known.get(id)!] : []));
-  // As the site picks it: the starred product while it is listed with a
-  // photo, otherwise the first bathtub.
-  const heroId =
-    productList.find((p) => p.id === stored(HOME_HERO_KEY) && p.imageUrl)?.id ??
-    productList.find((p) => p.category === "Bathtubs")?.id ??
-    productList[0]?.id;
   const setProducts = (list: PickerProduct[]) => edit(HOME_PRODUCTS_KEY, list.map((p) => p.id));
 
   const renderProducts = () => (
@@ -424,7 +417,6 @@ export function SiteEditor({
         }}
       />
       {errorFor(HOME_PRODUCTS_KEY)}
-      {errorFor(HOME_HERO_KEY)}
       {productList.length === 0 ? (
         <p className={editor.hint}>No products chosen: the homepage shows none.</p>
       ) : (
@@ -447,13 +439,6 @@ export function SiteEditor({
                 {p.hidden && <span className={styles.code}> · Hidden, so not shown</span>}
               </span>
               <span className={styles.row}>
-                {p.id === heroId ? (
-                  <span className={`${admin.badge}`}>Hero photo</span>
-                ) : p.imageUrl ? (
-                  <button type="button" className={admin.linkButton} onClick={() => edit(HOME_HERO_KEY, p.id)}>
-                    Use in hero
-                  </button>
-                ) : null}
                 <button
                   type="button"
                   className="btn btn-icon btn-secondary"
@@ -667,7 +652,7 @@ export function SiteEditor({
  *  edit that changes nothing never stores a copy of the original. */
 function normalise(key: string, raw: unknown): unknown {
   if (raw === null || raw === undefined) return null;
-  if (key === HOME_PRODUCTS_KEY || key === HOME_HERO_KEY) return raw;
+  if (key === HOME_PRODUCTS_KEY) return raw;
   if (key === FAQ_KEY) return same(raw, originalFaq()) ? null : raw;
   if (key.startsWith("photo.")) {
     const v = raw as PhotoValue;

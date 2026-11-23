@@ -19,7 +19,7 @@ import {
 import { format } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
-import { HOME_HERO_KEY, HOME_PRODUCTS_KEY, photoFor, tileAlt } from "@/lib/site-content/fields";
+import { HOME_PRODUCTS_KEY, photoFor, tileAlt } from "@/lib/site-content/fields";
 import { getSiteContent, getSiteDictionary, pageMetadata } from "@/lib/site-content/read";
 import styles from "./page.module.css";
 
@@ -51,12 +51,8 @@ export default async function HomePage({
   // page. The live homepage leads with four, one of which has no products
   // behind it at all.
   const featured = categories.filter((c) => c.blurb && c.image);
-  // The product starred in Site content, if it is still live with a photo;
-  // otherwise the first bathtub, as before anyone chose.
-  const hero =
-    picked.find((p) => p.id === content[HOME_HERO_KEY] && p.product.image)?.product ??
-    products.find((p) => p.categorySlug === "bathtubs") ??
-    products[0];
+  // Chosen in Site content with its caption; the ALCO bath until then.
+  const feature = photoFor(content, "photo.home.feature");
   const grid = products.slice(0, 12);
   const rail = finishes.slice(0, 18);
 
@@ -87,21 +83,19 @@ export default async function HomePage({
           foot={t.home.plateFoot}
         />
 
-        {hero?.image && (
-          <figure className={`${styles.heroProduct} blueprint`}>
-            <Image
-              src={hero.image.src}
-              alt={hero.image.alt}
-              width={hero.image.width}
-              height={hero.image.height}
-              sizes="(max-width: 62rem) 100vw, 30rem"
-            />
-            <figcaption>
-              <span>{hero.name}</span>
-              <span>{hero.type.name}</span>
-            </figcaption>
-          </figure>
-        )}
+        <figure className={`${styles.heroProduct} blueprint`}>
+          <Image
+            src={feature.src}
+            alt={feature.alt}
+            width={feature.width}
+            height={feature.height}
+            sizes="(max-width: 62rem) 100vw, 30rem"
+          />
+          <figcaption>
+            <span>{t.home.featureName}</span>
+            <span>{t.home.featureLabel}</span>
+          </figcaption>
+        </figure>
       </Hero>
 
       <Section band>
