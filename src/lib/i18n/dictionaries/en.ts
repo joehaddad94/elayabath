@@ -138,6 +138,9 @@ const en = {
     plateFoot:
       "Each product is thoughtfully designed to elevate daily experiences and cater to the evolving needs of our customers.",
     /** verbatim — the pull quote, capital M and curly quotes intact. */
+    /** The caption under the photo beside the opening list, set in capitals. */
+    featureName: "ALCO",
+    featureLabel: "Free Standing Bathtub",
     quote: "‘All toilets look the same’, is a widely believed Myth.",
     quoteAttribution: "Elaya Bath",
     productsLabel: "Products",

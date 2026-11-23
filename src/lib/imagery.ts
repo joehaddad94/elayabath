@@ -94,6 +94,14 @@ export const PHOTOS = {
     width: 817,
     height: 670,
   },
+  /** A product cut-out, not a room: the ALCO bath. The original photo beside
+   *  the homepage's opening list, until one is chosen in Site content. */
+  heroFeature: {
+    src: "/products/e02-sw30008.webp",
+    alt: "ALCO, free standing bathtub, 1600 x 780 x 525 mm",
+    width: 600,
+    height: 600,
+  },
 } as const satisfies Record<string, Photo>;
 
 export type PhotoKey = keyof typeof PHOTOS;

@@ -104,6 +104,9 @@ export const SITE_PAGES: SitePage[] = [
           { kind: "lines", key: "home.plateItems", label: "Range list: items, one per line", max: 80, shared: ON_ABOUT },
           area("home.plateFoot", "Range list: closing line", 300, { shared: ON_ABOUT }),
           photo("photo.home.hero", "Background photo", "contactBanner"),
+          photo("photo.home.feature", "Photo beside the range list", "heroFeature", false),
+          text("home.featureName", "Caption under that photo, left", 40),
+          text("home.featureLabel", "Caption under that photo, right", 40),
         ],
       },
       {
@@ -124,7 +127,7 @@ export const SITE_PAGES: SitePage[] = [
       },
       {
         heading: "Products on the homepage",
-        note: `Up to ${HOME_PRODUCTS_MAX}, in this order. The starred one's photo sits in the hero. A product that is hidden drops off by itself.`,
+        note: `Up to ${HOME_PRODUCTS_MAX}, in this order. A product that is hidden drops off by itself.`,
         items: [{ kind: "homeProducts" }],
       },
     ],
@@ -389,7 +392,6 @@ export const TILE_CAPTIONS: Record<string, string> = {
 export const tileAltKey = (slug: string) => `home.tileAlt.${slug}`;
 export const seoKey = (page: PageSlug, part: "title" | "description") => `seo.${page}.${part}`;
 export const HOME_PRODUCTS_KEY = "home.products";
-export const HOME_HERO_KEY = "home.heroProduct";
 export const FAQ_KEY = "faq.items";
 
 /* ── values ──────────────────────────────────────────────────────────── */
@@ -432,7 +434,6 @@ export function schemaFor(key: string): z.ZodType | undefined {
   if (field) return textSchema(field);
   if (PHOTO_FIELDS.has(key)) return photoValue;
   if (key === HOME_PRODUCTS_KEY) return z.array(z.uuid()).max(HOME_PRODUCTS_MAX, `At most ${HOME_PRODUCTS_MAX} products.`);
-  if (key === HOME_HERO_KEY) return z.uuid();
   if (key === FAQ_KEY) return faqValue;
   if (/^home\.tileAlt\.[a-z0-9-]+$/.test(key)) return z.string().trim().min(1, "Describe the photo for people who can't see it.").max(300);
   const seo = /^seo\.([a-z]+)\.(title|description)$/.exec(key);

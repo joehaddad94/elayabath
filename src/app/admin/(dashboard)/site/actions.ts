@@ -5,7 +5,7 @@ import { z } from "zod";
 import { publishCategory } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 import { tags } from "@/lib/cache-tags";
-import { HOME_HERO_KEY, schemaFor } from "@/lib/site-content/fields";
+import { schemaFor } from "@/lib/site-content/fields";
 import type { Json } from "@/lib/supabase/database.types";
 import { toPickerProduct, type PickerProduct } from "./picker";
 
@@ -63,12 +63,6 @@ export async function saveSiteContent(input: unknown): Promise<SaveResult> {
   }
   if (clear.some((key) => !schemaFor(key))) return { ok: false, error: "That save isn't valid. Reload the page." };
   if (Object.keys(fields).length) return { ok: false, error: "Some fields need attention.", fields };
-
-  // The hero photo comes from a product, so the starred one needs a photo.
-  if (typeof values[HOME_HERO_KEY] === "string") {
-    const { data: hero } = await supabase.from("admin_products").select("image_path").eq("id", values[HOME_HERO_KEY]).maybeSingle();
-    if (!hero?.image_path) return { ok: false, error: "The starred product has no photo, so it can't be the hero.", fields: { [HOME_HERO_KEY]: "Choose a product with a photo." } };
-  }
 
   // Tiles first: they are the part that can be refused for being out of date.
   const versions: Record<string, number> = {};
