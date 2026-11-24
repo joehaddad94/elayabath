@@ -1,8 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon/Icon";
+import { storageUrl } from "@/lib/supabase/config";
+import { Spinner } from "../../Spinner";
+import { uploadProductPhoto } from "./Media";
 import styles from "./editor.module.css";
 import type { FinishOption } from "./ProductEditor";
 
@@ -14,15 +17,24 @@ import type { FinishOption } from "./ProductEditor";
  * the same with a keyboard and on a phone. The library is filtered as you
  * type by name or code; a code shared by two finishes (P08 today) is marked
  * wherever it appears, so the right one gets picked.
+ *
+ * Each chosen finish can carry a photograph of the product in that finish,
+ * which the site shows when a buyer picks it. Without one the site shows the
+ * main photo, so adding them is never required.
  */
 export function FinishPicker({
+  productId,
   library,
   value,
+  photos,
   onChange,
 }: {
+  productId: string;
   library: FinishOption[];
   value: string[];
-  onChange: (next: string[]) => void;
+  /** Finish id to its photo's storage path. */
+  photos: Record<string, string>;
+  onChange: (next: string[], photos: Record<string, string>) => void;
 }) {
   const [query, setQuery] = useState("");
   // The library stays closed until someone searches or asks for it, so a
@@ -44,8 +56,15 @@ export function FinishPicker({
     const next = [...value];
     const [item] = next.splice(index, 1);
     next.splice(index + by, 0, item!);
-    onChange(next);
+    onChange(next, photos);
   };
+
+  const without = (id: string) => Object.fromEntries(Object.entries(photos).filter(([k]) => k !== id));
+
+  const setPhoto = (id: string, path: string | null) =>
+    onChange(value, path ? { ...without(id), [id]: path } : without(id));
+
+  const remove = (id: string) => onChange(value.filter((v) => v !== id), without(id));
 
   return (
     <div className={styles.finishes}>
@@ -66,6 +85,12 @@ export function FinishPicker({
                     {f?.retired && <span className={styles.flag}> · retired</span>}
                   </span>
                 </span>
+                <FinishPhoto
+                  productId={productId}
+                  name={f?.name ?? "this finish"}
+                  path={photos[id] ?? null}
+                  onChange={(path) => setPhoto(id, path)}
+                />
                 <span className={styles.rowButtons}>
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`Move ${f?.name ?? "finish"} up`}>
                     <Icon name="arrowUp" />
@@ -73,7 +98,7 @@ export function FinishPicker({
                   <button type="button" className="btn btn-icon btn-secondary" disabled={index === value.length - 1} onClick={() => move(index, 1)} aria-label={`Move ${f?.name ?? "finish"} down`}>
                     <Icon name="arrowDown" />
                   </button>
-                  <button type="button" className="btn btn-icon btn-secondary" onClick={() => onChange(value.filter((v) => v !== id))} aria-label={`Remove ${f?.name ?? "finish"}`}>
+                  <button type="button" className="btn btn-icon btn-secondary" onClick={() => remove(id)} aria-label={`Remove ${f?.name ?? "finish"}`}>
                     <Icon name="close" />
                   </button>
                 </span>
@@ -104,7 +129,7 @@ export function FinishPicker({
         <ul className={styles.options} aria-label="Finishes you can add">
           {matches.map((f) => (
             <li key={f.id}>
-              <button type="button" className={styles.option} onClick={() => onChange([...value, f.id])}>
+              <button type="button" className={styles.option} onClick={() => onChange([...value, f.id], photos)}>
                 <Swatch finish={f} />
                 <span className={styles.finishName}>
                   {f.name}
@@ -122,6 +147,68 @@ export function FinishPicker({
         )}
       </div>
     </div>
+  );
+}
+
+/** One finish's photo: a thumbnail with Remove, or an Add photo button. */
+function FinishPhoto({
+  productId,
+  name,
+  path,
+  onChange,
+}: {
+  productId: string;
+  name: string;
+  path: string | null;
+  onChange: (path: string | null) => void;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const upload = async (file: File | undefined) => {
+    if (!file) return;
+    setProblem(null);
+    setBusy(true);
+    try {
+      onChange((await uploadProductPhoto(productId, file)).path);
+    } catch (e) {
+      setProblem(e instanceof Error ? e.message : `${file.name} couldn't be uploaded.`);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <span className={styles.finishPhoto}>
+      {path ? (
+        <>
+          <Image src={storageUrl("product-media", path)} alt="" width={44} height={44} className={styles.finishThumb} />
+          <button type="button" className="btn btn-secondary" onClick={() => onChange(null)} aria-label={`Remove the ${name} photo`}>
+            Remove photo
+          </button>
+        </>
+      ) : (
+        <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => input.current?.click()} aria-label={`Add a photo in ${name}`}>
+          {busy ? <><Spinner />Uploading</> : "Add photo"}
+        </button>
+      )}
+      <input
+        ref={input}
+        type="file"
+        accept="image/*,.heic,.heif"
+        hidden
+        aria-label={`Photo in ${name}`}
+        onChange={(e) => {
+          void upload(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+      {problem && (
+        <span className={styles.problems} role="alert">
+          {problem}
+        </span>
+      )}
+    </span>
   );
 }
 

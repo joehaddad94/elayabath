@@ -435,3 +435,25 @@
     justify-content: space-between;
   }
 }
+
+/* A finish's own photo, between its name and its order buttons. */
+.finishPhoto {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.finishThumb {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: var(--color-bg);
+  border: 1px solid var(--color-divider);
+}
+
+@media (max-width: 40rem) {
+  .chosenItem {
+    flex-wrap: wrap;
+  }
+}

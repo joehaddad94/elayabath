@@ -35,19 +35,21 @@ export async function saveProduct(input: { id: string; version: number; form: un
     for (const issue of parsed.error.issues) fields[String(issue.path[0])] ??= issue.message;
     return { ok: false, error: "Some fields need attention.", fields };
   }
-  const { finishes, images, ...fields } = parsed.data;
+  const { finishes, finishImages, images, ...fields } = parsed.data;
 
-  const [{ data: current }, { data: stored }] = await Promise.all([
+  const [{ data: current }, { data: stored }, { data: storedFinishes }] = await Promise.all([
     supabase.from("products").select("datasheet_path").eq("id", id.data).maybeSingle(),
     supabase.from("product_images").select("path").eq("product_id", id.data),
+    supabase.from("product_finishes").select("image_path").eq("product_id", id.data).not("image_path", "is", null),
   ]);
   if (!current) return { ok: false, error: "This product no longer exists." };
 
   // Files the product already has are fine; a new one must be an upload into
   // this product's own folder, so a save can't claim some other file.
   const folder = uploadFolder(id.data);
-  const known = new Set((stored ?? []).map((i) => i.path));
-  if (images.some((i) => !known.has(i.path) && !i.path.startsWith(folder))) {
+  const known = new Set([...(stored ?? []).map((i) => i.path), ...(storedFinishes ?? []).map((f) => f.image_path)]);
+  const paths = [...images.map((i) => i.path), ...Object.values(finishImages)];
+  if (paths.some((p) => !known.has(p) && !p.startsWith(folder))) {
     return { ok: false, error: "A photograph didn't come from this product's uploads. Remove it and upload it again." };
   }
   if (fields.datasheet_path && fields.datasheet_path !== current.datasheet_path && !fields.datasheet_path.startsWith(folder)) {
@@ -102,6 +104,24 @@ export async function saveProduct(input: { id: string; version: number; form: un
     const message = describeWriteError(error ?? { message: "" });
     const field = error?.message.includes("sku") ? "sku" : error?.message.includes("slug") ? "slug" : null;
     return { ok: false, error: message, fields: field && error?.code === "23505" ? { [field]: message } : undefined };
+  }
+
+  // Each finish's own photo, or none. save_product leaves the column alone,
+  // so it is written here, one request for the whole list, before the site
+  // follows: the published snapshot reads it.
+  if (finishes.length > 0) {
+    const { error: photoError } = await supabase.from("product_finishes").upsert(
+      finishes.map((finish_id, position) => ({
+        product_id: id.data,
+        finish_id,
+        position,
+        image_path: finishImages[finish_id] ?? null,
+      })),
+      { onConflict: "product_id,finish_id" },
+    );
+    if (photoError) {
+      return { ok: false, error: `Saved, but the finish photos couldn't be: ${describeWriteError(photoError)} Save again to retry.` };
+    }
   }
 
   // Saved; now the site follows. A failure here leaves the save in place and

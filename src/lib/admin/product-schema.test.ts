@@ -15,6 +15,7 @@ const valid = {
   datasheet_path: null,
   images: [],
   finishes: [],
+  finishImages: {},
 };
 
 describe("slugFromSku", () => {

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -9,6 +8,7 @@ import { FinishPicker } from "@/components/FinishPicker/FinishPicker";
 import { Icon } from "@/components/Icon/Icon";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
+import { ProductPhoto } from "@/components/ProductPhoto/ProductPhoto";
 import { PreviewBanner } from "@/components/PreviewBanner/PreviewBanner";
 import { ProductGrid } from "@/components/ProductGrid/ProductGrid";
 import { QuoteAction } from "@/components/QuoteAction/QuoteAction";
@@ -112,6 +112,15 @@ export default async function ProductPage({
   // component so it never has to reach the catalogue itself.
   const codeFor = Object.fromEntries(finishes.map((f) => [f.slug, f.code]));
 
+  // The photo of the product in each finish that has one; picking any other
+  // finish leaves the main photo up.
+  const finishPhotos = Object.fromEntries(
+    finishes.flatMap((f) => {
+      const src = product.finishImages?.[f.slug];
+      return src ? [[f.slug, { src, alt: `${product.name} in ${f.name}` }]] : [];
+    }),
+  );
+
   const crumbs = [
     { label: t.nav.home, href: routes.home(locale) },
     { label: t.products.title, href: routes.products(locale) },
@@ -151,19 +160,12 @@ export default async function ProductPage({
         <Container className={styles.pdp}>
           <div className={styles.media}>
             <figure className={`${styles.figure} blueprint`}>
-              {product.image ? (
-                <Image
-                  src={product.image.src}
-                  alt={product.image.alt}
-                  width={product.image.width}
-                  height={product.image.height}
-                  sizes="(max-width: 62rem) 100vw, 34rem"
-                  priority
-                
-                />
-              ) : (
-                <span className={styles.noPhoto}>{t.common.noPhoto}</span>
-              )}
+              <ProductPhoto
+                image={product.image}
+                finishPhotos={finishPhotos}
+                sizes="(max-width: 62rem) 100vw, 34rem"
+                noPhoto={<span className={styles.noPhoto}>{t.common.noPhoto}</span>}
+              />
             </figure>
           </div>
 
