@@ -120,6 +120,19 @@
   transform: rotate(180deg);
 }
 
+/* Set by NavLinks after an item is picked or Escape is pressed. Same
+   specificity as the open rules above and later, so it wins over both. */
+.section[data-closed] .panel {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s 0.14s;
+}
+
+.section[data-closed] .chevron {
+  transform: none;
+}
+
 .panel ul {
   list-style: none;
   margin: 0;
