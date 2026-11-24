@@ -414,7 +414,17 @@ export function ProductEditor({
 
           <fieldset className={styles.section}>
             <legend>Finishes</legend>
-            <FinishPicker library={library} value={form.finishes} onChange={(next) => set("finishes", next)} />
+            <p className={styles.hint}>Add a photo of the product in a finish and the site shows it when a buyer picks that finish. Without one, it shows the main photo.</p>
+            <FinishPicker
+              productId={product.id}
+              library={library}
+              value={form.finishes}
+              photos={form.finishImages}
+              onChange={(finishes, finishImages) => {
+                set("finishes", finishes);
+                set("finishImages", finishImages);
+              }}
+            />
             {error("finishes")}
           </fieldset>
         </div>

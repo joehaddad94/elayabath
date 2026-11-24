@@ -74,6 +74,9 @@ export const productForm = z.object({
     .array(z.uuid())
     .max(300)
     .refine((ids) => new Set(ids).size === ids.length, "A finish is listed twice."),
+  /** A photograph of the product in a finish, keyed by finish id. Optional:
+   *  a finish without one shows the main photo on the site. */
+  finishImages: z.record(z.uuid(), z.string().regex(STORAGE_PATH, "That photograph isn't a stored file.")),
 });
 
 export type ProductForm = z.input<typeof productForm>;

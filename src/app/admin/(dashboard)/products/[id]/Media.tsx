@@ -21,6 +21,19 @@ type Images = ProductImage[];
 /** Year-long caching is safe because every upload has a new name. */
 const CACHE = "31536000";
 
+/** Reduces a photo and uploads it into the product's own folder. Throws a
+ *  message fit to show. The file joins the product only when it is saved. */
+export async function uploadProductPhoto(productId: string, file: File) {
+  const photo = await preparePhoto(file);
+  if (photo.blob.size > MAX_PHOTO_BYTES) throw new Error(`${file.name} is still over ${formatBytes(MAX_PHOTO_BYTES)} after reducing it.`);
+  const path = `${uploadFolder(productId)}${crypto.randomUUID()}.${photo.extension}`;
+  const { error } = await browserClient()
+    .storage.from("product-media")
+    .upload(path, photo.blob, { contentType: photo.blob.type, cacheControl: CACHE, upsert: false });
+  if (error) throw new Error(`${file.name} couldn't be uploaded: ${error.message}`);
+  return { path, width: photo.width, height: photo.height };
+}
+
 /**
  * The product's photographs, in the order the site shows them; the first is
  * the main photo on cards and at the top of the page.
@@ -50,17 +63,10 @@ export function Gallery({
     const photos = files.filter((f) => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name));
     const refused = files.filter((f) => !photos.includes(f)).map((f) => `${f.name} isn't a photograph.`);
     setProblems(refused);
-    const client = browserClient();
     for (const [index, file] of photos.entries()) {
       setProgress(`Preparing and uploading ${index + 1} of ${photos.length}`);
       try {
-        const photo = await preparePhoto(file);
-        if (photo.blob.size > MAX_PHOTO_BYTES) throw new Error(`${file.name} is still over ${formatBytes(MAX_PHOTO_BYTES)} after reducing it.`);
-        const path = `${uploadFolder(productId)}${crypto.randomUUID()}.${photo.extension}`;
-        const { error } = await client.storage
-          .from("product-media")
-          .upload(path, photo.blob, { contentType: photo.blob.type, cacheControl: CACHE, upsert: false });
-        if (error) throw new Error(`${file.name} couldn't be uploaded: ${error.message}`);
+        const { path, ...photo } = await uploadProductPhoto(productId, file);
         onChange((current) => [
           ...current,
           { path, alt: defaultAlt, caption: null, width: photo.width, height: photo.height },

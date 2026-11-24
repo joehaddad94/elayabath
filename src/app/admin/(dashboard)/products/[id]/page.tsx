@@ -26,7 +26,7 @@ export default async function ProductPage({
 
   const [product, links, images, live, categories, types, finishes, duplicates, history] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
-    supabase.from("product_finishes").select("finish_id").eq("product_id", id).order("position"),
+    supabase.from("product_finishes").select("finish_id, image_path").eq("product_id", id).order("position"),
     supabase.from("product_images").select("path, alt, caption, width, height").eq("product_id", id).order("position").order("created_at"),
     supabase.from("published_products").select("slug").eq("product_id", id).maybeSingle(),
     supabase.from("categories").select("id, slug, name, status").order("position"),
@@ -73,6 +73,9 @@ export default async function ProductPage({
       datasheet_path: p.datasheet_path,
       images: images.data ?? [],
       finishes: (links.data ?? []).map((l) => l.finish_id),
+      finishImages: Object.fromEntries(
+        (links.data ?? []).flatMap((l) => (l.image_path ? [[l.finish_id, l.image_path]] : [])),
+      ),
     },
   };
 

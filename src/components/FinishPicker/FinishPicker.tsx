@@ -42,7 +42,9 @@ export function FinishPicker({
     getSearch,
     getServerSearch,
   );
-  const selected = readFinish(search) ?? finishes[0]?.slug;
+  // Nothing is chosen until the buyer picks: the quote, the shortlist and the
+  // photo all follow the same explicit choice.
+  const selected = readFinish(search);
 
   const groups = useMemo(() => groupFinishesByFamily(finishes), [finishes]);
 
@@ -55,7 +57,7 @@ export function FinishPicker({
     );
   }
 
-  const current = finishes.find((f) => f.slug === selected) ?? finishes[0];
+  const current = finishes.find((f) => f.slug === selected);
 
   return (
     <div className={styles.picker}>
