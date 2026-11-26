@@ -9,7 +9,7 @@ import { listLink, type ListFilters } from "@/lib/admin/links";
 import admin from "../../admin.module.css";
 import { useConfirm } from "../ConfirmDialog";
 import { Spinner } from "../Spinner";
-import { bulkUpdate, restoreCategories, setProductStatus, type BulkResult } from "./actions";
+import { bulkUpdate, restorePlaces, setProductStatus, type BulkResult } from "./actions";
 import { rememberList, useListMemory } from "./listMemory";
 import { PhotoViewer, useHoverPreview, type PhotoProduct } from "./PhotoViewer";
 import s from "./list.module.css";
@@ -22,6 +22,11 @@ export interface Option {
 export interface TypeOption {
   id: string;
   name: string;
+}
+export interface CollectionOption {
+  id: string;
+  name: string;
+  categoryId: string;
 }
 
 export type SortKey = "site" | "name" | "code" | "edited" | "missing";
@@ -37,12 +42,14 @@ export const SORTS: Record<SortKey, string> = {
 export interface Filters {
   q: string;
   category: string;
+  /** A collection's id, "none" for products without one, or "" for all. */
+  collection: string;
   status: "" | "visible" | "hidden";
   missing: boolean;
   sort: SortKey;
 }
 
-const NO_FILTERS: Filters = { q: "", category: "", status: "", missing: false, sort: "site" };
+const NO_FILTERS: Filters = { q: "", category: "", collection: "", status: "", missing: false, sort: "site" };
 
 /** A message at the foot of the screen. Errors stay until closed; anything
  *  with an Undo stays long enough to use it. */
@@ -80,11 +87,13 @@ export function ProductsList({
   initialFilters,
   categories,
   types,
+  collections,
 }: {
   initialRows: ProductRow[];
   initialFilters: Partial<Filters>;
   categories: Option[];
   types: TypeOption[];
+  collections: CollectionOption[];
 }) {
   const confirm = useConfirm();
   const ids = useId();
@@ -93,7 +102,7 @@ export function ProductsList({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [ticked, setTicked] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
-  const [bulkBusy, setBulkBusy] = useState<"show" | "hide" | "category" | null>(null);
+  const [bulkBusy, setBulkBusy] = useState<"show" | "hide" | "collection" | null>(null);
   const [moveTo, setMoveTo] = useState("");
   const [toast, setToast] = useState<Toast | null>(null);
   const [viewing, setViewing] = useState<PhotoProduct | null>(null);
@@ -102,6 +111,7 @@ export function ProductsList({
 
   const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const typeName = useMemo(() => new Map(types.map((t) => [t.id, t.name])), [types]);
+  const collectionById = useMemo(() => new Map(collections.map((c) => [c.id, c])), [collections]);
   const order = useMemo(() => new Map(initialRows.map((r, i) => [r.id, i])), [initialRows]);
 
   // What a search looks through, worked out once per row rather than per
@@ -111,12 +121,19 @@ export function ProductsList({
       new Map(
         rows.map((r) => [
           r.id,
-          [r.sku, r.name, r.dimensions, categoryById.get(r.category_id)?.name, r.type_id ? typeName.get(r.type_id) : ""]
+          [
+            r.sku,
+            r.name,
+            r.dimensions,
+            categoryById.get(r.category_id)?.name,
+            r.collection_id ? collectionById.get(r.collection_id)?.name : "",
+            r.type_id ? typeName.get(r.type_id) : "",
+          ]
             .join(" ")
             .toLowerCase(),
         ]),
       ),
-    [rows, categoryById, typeName],
+    [rows, categoryById, collectionById, typeName],
   );
 
   // Typing stays instant; the list catches up a frame later.
@@ -127,6 +144,8 @@ export function ProductsList({
     const list = rows.filter(
       (r) =>
         (!category || r.category_id === category) &&
+        (filters.collection === "" ||
+          (filters.collection === "none" ? r.collection_id === null : r.collection_id === filters.collection)) &&
         (filters.status === "" || (filters.status === "visible") === (r.status === "active")) &&
         (!filters.missing || r.missing.length > 0) &&
         words.every((w) => haystack.get(r.id)!.includes(w)),
@@ -140,10 +159,13 @@ export function ProductsList({
       missing: (a, b) => b.missing.length - a.missing.length || bySite(a, b),
     };
     return list.sort(sorts[filters.sort]);
-  }, [rows, query, filters.category, filters.status, filters.missing, filters.sort, categories, haystack, order]);
+  }, [rows, query, filters.category, filters.collection, filters.status, filters.missing, filters.sort, categories, haystack, order]);
 
-  const filtered = filters.q !== "" || filters.category !== "" || filters.status !== "" || filters.missing;
-  const activeFilters = [filters.category, filters.status, filters.missing].filter(Boolean).length;
+  const filtered = filters.q !== "" || filters.category !== "" || filters.collection !== "" || filters.status !== "" || filters.missing;
+  const activeFilters = [filters.category, filters.collection, filters.status, filters.missing].filter(Boolean).length;
+  // The collection filter offers the chosen category's collections only.
+  const chosenCategory = categories.find((c) => c.slug === filters.category)?.id;
+  const collectionChoices = chosenCategory ? collections.filter((c) => c.categoryId === chosenCategory) : collections;
 
   // The address carries the filters, so a view can be bookmarked, and the
   // editor can come back to it.
@@ -151,6 +173,7 @@ export function ProductsList({
     const link = listLink({
       q: filters.q.trim(),
       category: filters.category,
+      collection: filters.collection,
       status: filters.status || undefined,
       missing: filters.missing,
     } satisfies ListFilters);
@@ -194,10 +217,10 @@ export function ProductsList({
   const allTicked = shown.length > 0 && tickedShown.length === shown.length;
   const toShow = tickedShown.filter((r) => r.status !== "active");
   const toHide = tickedShown.filter((r) => r.status === "active");
-  const moveTarget = categoryById.get(moveTo);
-  const toMove = tickedShown.filter((r) => r.category_id !== moveTo);
-  // A category every ticked product is already in is no place to move them.
-  const tickedCategories = new Set(tickedShown.map((r) => r.category_id));
+  const moveTarget = collectionById.get(moveTo);
+  const toMove = tickedShown.filter((r) => r.collection_id !== moveTo);
+  // A collection every ticked product is already in is no place to move them.
+  const tickedCollections = new Set(tickedShown.map((r) => r.collection_id));
 
   const tickAll = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -254,7 +277,7 @@ export function ProductsList({
     else say({ text: result.message, undo: result.count > 0 ? undo : undefined });
   };
 
-  const runBulk = async (action: "show" | "hide" | "category") => {
+  const runBulk = async (action: "show" | "hide" | "collection") => {
     const targets = action === "show" ? toShow : action === "hide" ? toHide : toMove;
     if (targets.length === 0) return;
     const n = plural(targets.length, "product");
@@ -276,19 +299,21 @@ export function ProductsList({
               confirmLabel: "Hide from site",
             }
           : {
-              title: `Move ${n} to ${moveTarget?.name}?`,
-              body: "Their product type is cleared, since types belong to a category. You can undo this for 30 seconds.",
+              title: `Move ${n} to ${moveTarget?.name} (${categoryById.get(moveTarget?.categoryId ?? "")?.name})?`,
+              body: targets.some((r) => r.category_id !== moveTarget?.categoryId)
+                ? "Those from another category move to this one, and their product type is cleared, since types belong to a category. You can undo this for 30 seconds."
+                : "You can undo this for 30 seconds.",
               confirmLabel: "Move",
             },
     );
     if (!go) return;
 
     setBulkBusy(action);
-    const before = targets.map((r) => ({ id: r.id, category_id: r.category_id, type_id: r.type_id }));
+    const before = targets.map((r) => ({ id: r.id, category_id: r.category_id, collection_id: r.collection_id, type_id: r.type_id }));
     const result = await reach(
       bulkUpdate({
         action,
-        categoryId: action === "category" ? moveTo : undefined,
+        collectionId: action === "collection" ? moveTo : undefined,
         ids: targets.map((r) => r.id),
       }),
     );
@@ -297,8 +322,8 @@ export function ProductsList({
     const changed = new Set("rows" in result ? result.rows?.map((r) => r.id) : []);
     const undo = async () => {
       const back = await reach(
-        action === "category"
-          ? restoreCategories(before.filter((b) => changed.has(b.id)))
+        action === "collection"
+          ? restorePlaces(before.filter((b) => changed.has(b.id)))
           : bulkUpdate({ action: action === "show" ? "hide" : "show", ids: [...changed] }),
       );
       merge("rows" in back ? back.rows : undefined);
@@ -337,7 +362,7 @@ export function ProductsList({
           <input
             className="input"
             type="search"
-            placeholder="Name, item code, type, size"
+            placeholder="Name, item code, collection, type, size"
             value={filters.q}
             onChange={(e) => set("q", e.target.value)}
           />
@@ -354,10 +379,35 @@ export function ProductsList({
         <div id={`${ids}-filters`} className={`${s.filters} ${filtersOpen ? s.filtersOpen : ""}`}>
           <label className={s.field}>
             <span>Category</span>
-            <select className="input" value={filters.category} onChange={(e) => set("category", e.target.value)}>
+            <select
+              className="input"
+              value={filters.category}
+              onChange={(e) => {
+                const slug = e.target.value;
+                const id = categories.find((c) => c.slug === slug)?.id;
+                setFilters((f) => ({
+                  ...f,
+                  category: slug,
+                  // A collection from another category would match nothing.
+                  collection: f.collection === "" || f.collection === "none" || !id || collectionById.get(f.collection)?.categoryId === id ? f.collection : "",
+                }));
+              }}
+            >
               <option value="">All categories</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.slug}>{c.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className={s.field}>
+            <span>Collection</span>
+            <select className="input" value={filters.collection} onChange={(e) => set("collection", e.target.value)}>
+              <option value="">All collections</option>
+              <option value="none">No collection (not on the site)</option>
+              {collectionChoices.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {chosenCategory ? c.name : `${c.name} · ${categoryById.get(c.categoryId)?.name ?? ""}`}
+                </option>
               ))}
             </select>
           </label>
@@ -439,7 +489,7 @@ export function ProductsList({
             <span />
             <span />
             <span>Product</span>
-            <span>Category and type</span>
+            <span>Collection and type</span>
             <span>Missing</span>
             <span>Last edited</span>
             <span>On the site</span>
@@ -447,6 +497,7 @@ export function ProductsList({
           {shown.map((r) => {
             const visible = r.status === "active";
             const category = categoryById.get(r.category_id)?.name ?? "";
+            const collection = r.collection_id ? collectionById.get(r.collection_id)?.name : null;
             const type = r.type_id ? typeName.get(r.type_id) : null;
             return (
               <li key={r.id} className={`${s.row} ${visible ? "" : s.hidden} ${ticked.has(r.id) ? s.ticked : ""}`}>
@@ -483,7 +534,7 @@ export function ProductsList({
                   <span className={s.sku}>{r.sku}</span>
                 </span>
                 <span className={s.meta}>
-                  {category}
+                  {collection ? `${collection} · ${category}` : <span className={s.warn}>No collection, not on the site · {category}</span>}
                   {type ? ` · ${type}` : <span className={s.faint}> · no type</span>}
                 </span>
                 <span className={s.missing}>
@@ -532,21 +583,29 @@ export function ProductsList({
             </button>
           )}
           <span className={s.move}>
-            <select className="input" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} aria-label="Move to category">
-              <option value="">Move to…</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id} disabled={tickedCategories.size === 1 && tickedCategories.has(c.id)}>
-                  {c.name}
-                </option>
-              ))}
+            <select className="input" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} aria-label="Move to collection">
+              <option value="">Move to collection…</option>
+              {categories.map((c) => {
+                const own = collections.filter((x) => x.categoryId === c.id);
+                if (own.length === 0) return null;
+                return (
+                  <optgroup key={c.id} label={c.name}>
+                    {own.map((x) => (
+                      <option key={x.id} value={x.id} disabled={tickedCollections.size === 1 && tickedCollections.has(x.id)}>
+                        {x.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
             <button
               type="button"
               className="btn btn-secondary"
               disabled={bulkBusy !== null || !moveTarget || toMove.length === 0}
-              onClick={() => void runBulk("category")}
+              onClick={() => void runBulk("collection")}
             >
-              {bulkBusy === "category" && <Spinner />}
+              {bulkBusy === "collection" && <Spinner />}
               {moveTarget && toMove.length > 0 ? `Move ${toMove.length}` : "Move"}
             </button>
           </span>

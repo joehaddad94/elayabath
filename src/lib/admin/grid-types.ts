@@ -6,6 +6,8 @@ export interface ProductRow {
   sku: string;
   name: string;
   category_id: string;
+  /** Null when it has none, and so isn't on the site. */
+  collection_id: string | null;
   type_id: string | null;
   status: "draft" | "active";
   dimensions: string | null;

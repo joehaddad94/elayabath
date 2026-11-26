@@ -16,6 +16,9 @@ export const routes = {
   products: (l: Locale = DEFAULT_LOCALE) => localePath(l, "/products"),
   category: (slug: string, l: Locale = DEFAULT_LOCALE) =>
     localePath(l, `/products/${slug}`),
+  /** A collection lives under its category: /products/tapware/flux. */
+  collection: (category: string, slug: string, l: Locale = DEFAULT_LOCALE) =>
+    localePath(l, `/products/${category}/${slug}`),
   product: (slug: string, l: Locale = DEFAULT_LOCALE) =>
     localePath(l, `/product/${slug}`),
   /** The root of the product detail section. A detail page is `/product/x`,

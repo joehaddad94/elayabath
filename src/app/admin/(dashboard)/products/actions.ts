@@ -5,9 +5,7 @@ import { LIST_COLUMNS, toProductRow, type ProductRow } from "@/lib/admin/grid-ro
 import { syncProducts } from "@/lib/admin/publish";
 import { requireStaff } from "@/lib/admin/session";
 import { storageUrl } from "@/lib/supabase/config";
-import type { TablesUpdate } from "@/lib/supabase/database.types";
 
-type ProductPatch = TablesUpdate<"products">;
 type Client = Awaited<ReturnType<typeof requireStaff>>["supabase"];
 
 /** The list rows of these products, as they are now. */
@@ -58,8 +56,8 @@ export async function setProductStatus(input: { id: string; version: number; sta
 /* ── bulk actions ─────────────────────────────────────────────────────── */
 
 const bulkInput = z.object({
-  action: z.enum(["show", "hide", "category"]),
-  categoryId: z.uuid().optional(),
+  action: z.enum(["show", "hide", "collection"]),
+  collectionId: z.uuid().optional(),
   // The ticked rows.
   ids: z.array(z.uuid()).min(1).max(5000),
 });
@@ -74,27 +72,55 @@ export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<Bulk
   const { supabase } = await requireStaff();
   const parsed = bulkInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Tick the products to act on first." };
-  const { action, categoryId, ids } = parsed.data;
-  if (action === "category" && !categoryId) return { ok: false, error: "Choose a category." };
+  const { action, collectionId, ids } = parsed.data;
 
-  // A type belongs to one category, so a product that moves loses its type.
-  const patch: ProductPatch =
-    action === "show" ? { status: "active" }
-    : action === "hide" ? { status: "draft" }
-    : { category_id: categoryId, type_id: null };
+  let target: { id: string; category_id: string } | null = null;
+  if (action === "collection") {
+    if (!collectionId) return { ok: false, error: "Choose a collection." };
+    const { data } = await supabase.from("collections").select("id, category_id").eq("id", collectionId).maybeSingle();
+    if (!data) return { ok: false, error: "That collection no longer exists. Reload the page." };
+    target = data;
+  }
 
   const changed: string[] = [];
-  for (let i = 0; i < ids.length; i += 200) {
-    let query = supabase.from("products").update(patch).in("id", ids.slice(i, i + 200));
-    // Only rows the action changes, so "changed" and the undo are exact.
-    if (action === "category") query = query.neq("category_id", categoryId!);
-    else query = query.neq("status", patch.status!);
-    const { data, error } = await query.select("id");
-    if (error) {
-      return { ok: false, error: `Stopped after ${changed.length}: ${error.message}`, rows: await freshRows(supabase, changed) };
+  let moved = 0;
+  // Each update, a slice at a time, touching only rows it changes, so
+  // "changed" and the undo are exact.
+  const run = async (changesCategory: boolean, narrow: (ids: string[]) => PromiseLike<{ data: Array<{ id: string }> | null; error: { message: string } | null }>) => {
+    for (let i = 0; i < ids.length; i += 200) {
+      const { data, error } = await narrow(ids.slice(i, i + 200));
+      if (error) return error.message;
+      changed.push(...(data ?? []).map((r) => r.id));
+      if (changesCategory) moved += (data ?? []).length;
     }
-    changed.push(...(data ?? []).map((r) => r.id));
+    return null;
+  };
+
+  let failure: string | null = null;
+  if (action !== "collection") {
+    const status = action === "show" ? "active" : "draft";
+    failure = await run(false, (slice) =>
+      supabase.from("products").update({ status }).in("id", slice).neq("status", status).select("id"),
+    );
+  } else {
+    const t = target!;
+    const notThere = `collection_id.is.null,collection_id.neq.${t.id}`;
+    // Already in the collection's category: only the collection changes.
+    failure = await run(false, (slice) =>
+      supabase.from("products").update({ collection_id: t.id }).in("id", slice).eq("category_id", t.category_id).or(notThere).select("id"),
+    );
+    // From another category: the category follows, and the type goes, since
+    // a type belongs to one category.
+    failure ??= await run(true, (slice) =>
+      supabase
+        .from("products")
+        .update({ collection_id: t.id, category_id: t.category_id, type_id: null })
+        .in("id", slice)
+        .neq("category_id", t.category_id)
+        .select("id"),
+    );
   }
+  if (failure) return { ok: false, error: `Stopped after ${changed.length}: ${failure}`, rows: await freshRows(supabase, changed) };
 
   const { failed } = await syncProducts(supabase, changed);
   const rows = await freshRows(supabase, changed);
@@ -105,35 +131,35 @@ export async function bulkUpdate(input: z.input<typeof bulkInput>): Promise<Bulk
   const message =
     action === "show" ? `${n} now on the site.`
     : action === "hide" ? `${n} taken off the site.`
-    : `${n} moved. Their type was cleared, since types belong to a category.`;
+    : `${n} moved.${moved > 0 ? ` ${moved} changed category, so their type was cleared.` : ""}`;
   return { ok: true, count: changed.length, message, rows };
 }
 
 const restoreInput = z
-  .array(z.object({ id: z.uuid(), category_id: z.uuid(), type_id: z.uuid().nullable() }))
+  .array(z.object({ id: z.uuid(), category_id: z.uuid(), collection_id: z.uuid().nullable(), type_id: z.uuid().nullable() }))
   .min(1)
   .max(5000);
 
-/** Undoes a bulk move: each product goes back to the category and type it
- *  had, and the site follows. */
-export async function restoreCategories(input: z.input<typeof restoreInput>): Promise<BulkResult> {
+/** Undoes a bulk move: each product goes back to the collection, category
+ *  and type it had, and the site follows. */
+export async function restorePlaces(input: z.input<typeof restoreInput>): Promise<BulkResult> {
   const { supabase } = await requireStaff();
   const parsed = restoreInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "That undo isn't valid. Reload the page." };
 
-  // One update per category and type, rather than one per product.
+  // One update per place, rather than one per product.
   const groups = new Map<string, string[]>();
   for (const e of parsed.data) {
-    const key = `${e.category_id}|${e.type_id ?? ""}`;
+    const key = `${e.category_id}|${e.collection_id ?? ""}|${e.type_id ?? ""}`;
     groups.set(key, [...(groups.get(key) ?? []), e.id]);
   }
   const changed: string[] = [];
   for (const [key, ids] of groups) {
-    const [category_id, type_id] = key.split("|");
+    const [category_id, collection_id, type_id] = key.split("|");
     for (let i = 0; i < ids.length; i += 200) {
       const { data, error } = await supabase
         .from("products")
-        .update({ category_id, type_id: type_id || null })
+        .update({ category_id, collection_id: collection_id || null, type_id: type_id || null })
         .in("id", ids.slice(i, i + 200))
         .select("id");
       if (error) return { ok: false, error: `Stopped after ${changed.length}: ${error.message}`, rows: await freshRows(supabase, changed) };

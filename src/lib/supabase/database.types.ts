@@ -81,6 +81,57 @@ export type Database = {
         }
         Relationships: []
       }
+      collections: {
+        Row: {
+          category_id: string
+          created_at: string
+          description: string
+          id: string
+          image_path: string | null
+          name: string
+          slug: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_path?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_path?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collections_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collections_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_counts"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
       discontinued_products_2026_10: {
         Row: {
           moved_at: string
@@ -463,6 +514,7 @@ export type Database = {
       products: {
         Row: {
           category_id: string
+          collection_id: string | null
           created_at: string
           datasheet_path: string | null
           description: string
@@ -485,6 +537,7 @@ export type Database = {
         }
         Insert: {
           category_id: string
+          collection_id?: string | null
           created_at?: string
           datasheet_path?: string | null
           description?: string
@@ -507,6 +560,7 @@ export type Database = {
         }
         Update: {
           category_id?: string
+          collection_id?: string | null
           created_at?: string
           datasheet_path?: string | null
           description?: string
@@ -541,6 +595,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "category_counts"
             referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collection_counts"
+            referencedColumns: ["collection_id"]
+          },
+          {
+            foreignKeyName: "products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "products_import_job_id_fkey"
@@ -649,6 +717,7 @@ export type Database = {
       published_products: {
         Row: {
           category_slug: string
+          collection_id: string | null
           featured: boolean
           featured_rank: number | null
           finish_count: number
@@ -666,6 +735,7 @@ export type Database = {
         }
         Insert: {
           category_slug: string
+          collection_id?: string | null
           featured?: boolean
           featured_rank?: number | null
           finish_count?: number
@@ -683,6 +753,7 @@ export type Database = {
         }
         Update: {
           category_slug?: string
+          collection_id?: string | null
           featured?: boolean
           featured_rank?: number | null
           finish_count?: number
@@ -699,6 +770,20 @@ export type Database = {
           type_slug?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "published_products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collection_counts"
+            referencedColumns: ["collection_id"]
+          },
+          {
+            foreignKeyName: "published_products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "published_products_product_id_fkey"
             columns: ["product_id"]
@@ -870,6 +955,8 @@ export type Database = {
           category_name: string | null
           category_position: number | null
           category_slug: string | null
+          collection_id: string | null
+          collection_name: string | null
           completeness: number | null
           dimensions: string | null
           featured: boolean | null
@@ -908,6 +995,20 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
+            foreignKeyName: "products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collection_counts"
+            referencedColumns: ["collection_id"]
+          },
+          {
+            foreignKeyName: "products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "products_import_job_id_fkey"
             columns: ["import_job_id"]
             isOneToOne: false
@@ -933,6 +1034,14 @@ export type Database = {
       category_counts: {
         Row: {
           category_id: string | null
+          live: number | null
+          products: number | null
+        }
+        Relationships: []
+      }
+      collection_counts: {
+        Row: {
+          collection_id: string | null
           live: number | null
           products: number | null
         }
@@ -981,8 +1090,15 @@ export type Database = {
     Functions: {
       apply_import: { Args: { p_job: string; p_limit?: number }; Returns: Json }
       can_publish: { Args: never; Returns: boolean }
+      collection_cards: { Args: { p_category?: string }; Returns: Json }
+      collection_page: {
+        Args: { p_category: string; p_slug: string }
+        Returns: Json
+      }
+      collection_slug: { Args: { p_name: string }; Returns: string }
       delete_draft_product: { Args: { p_id: string }; Returns: undefined }
       delete_unused_finish: { Args: { p_id: string }; Returns: undefined }
+      group_into_collections: { Args: never; Returns: number }
       hook_before_user_created: { Args: { event: Json }; Returns: Json }
       is_owner: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
@@ -1034,6 +1150,10 @@ export type Database = {
         Returns: Json
       }
       search_catalogue: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: Json
+      }
+      search_collections: {
         Args: { p_limit?: number; p_query: string }
         Returns: Json
       }

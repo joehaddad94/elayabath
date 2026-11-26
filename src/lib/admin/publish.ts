@@ -91,6 +91,14 @@ export async function publishCategory(supabase: Client, id: string, note?: strin
   return {};
 }
 
+/** A collection's name, address, description or photo changed: every page
+ *  that shows collections (menus, category and collection pages, search,
+ *  product pages' link back) reads them under one tag. Collections have no
+ *  draft: a save is live. */
+export function refreshCollections(): void {
+  updateTag(tags.collections);
+}
+
 /** Puts a saved finish live. Every page that names finishes reads the finish
  *  library under one tag, and the shelves' colour filters under another. */
 export async function publishFinish(supabase: Client, id: string, note?: string): Promise<{ error?: string }> {

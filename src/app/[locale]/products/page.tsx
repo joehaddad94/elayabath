@@ -1,14 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container, Section } from "@/components/Container/Container";
+import { CollectionGrid } from "@/components/CollectionGrid/CollectionGrid";
 import { Hero } from "@/components/Hero/Hero";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
-import { getCatalogueMeta, getCategories } from "@/lib/catalogue";
+import { getCatalogueMeta, getCategories, getCollections } from "@/lib/catalogue";
 import { format } from "@/lib/i18n";
 import { isLocale } from "@/lib/i18n/config";
-import { categoryInset } from "@/lib/imagery";
 import { photoFor } from "@/lib/site-content/fields";
 import { getSiteContent, getSiteDictionary, pageMetadata } from "@/lib/site-content/read";
 import { routes } from "@/lib/routes";
@@ -26,10 +25,11 @@ export default async function ProductsPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
-  const [t, content, categories, meta] = await Promise.all([
+  const [t, content, categories, collections, meta] = await Promise.all([
     getSiteDictionary(locale),
     getSiteContent(),
     getCategories(),
+    getCollections(),
     getCatalogueMeta(),
   ]);
 
@@ -48,64 +48,24 @@ export default async function ProductsPage({
 
       <Section tight>
         <Container>
-          <SectionHead
-            label={t.products.startWithCategory}
-            count={String(categories.length)}
-          />
+          <SectionHead label={t.products.allCollections} count={String(collections.length)} />
 
           <p className={styles.intro}>{t.products.intro}</p>
 
-          <div className={styles.grid}>
-            {categories.map((category) => (
-              <article key={category.slug} className={`card blueprint ${styles.card}`}>
-                <Link
-                  className={styles.media}
-                  href={routes.category(category.slug, locale)}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                >
-                  {/* Three of the six have no photograph of their own and
-                      were falling back to a line-art icon, so half the grid
-                      was drawings beside photographs. categoryInset borrows
-                      a real frame for those. */}
-                  <Image
-                    src={category.image ?? categoryInset(category.slug).src}
-                    alt=""
-                    width={817}
-                    height={670}
-                    sizes="(max-width: 48rem) 100vw, 24rem"
-                    className={styles.photo}
-                  />
-                </Link>
-
-                <div className={styles.body}>
-                  <span className={styles.kicker}>
-                    {category.productTypes
-                      .slice(0, 3)
-                      .map((type) => type.label)
-                      .join(" · ")}
-                  </span>
-                  <h3 className={styles.title}>
-                    <Link href={routes.category(category.slug, locale)}>
-                      {category.name}
-                    </Link>
-                  </h3>
-                  <div className={styles.meta}>
-                    <span>
-                      {category.count} {t.products.productCount}
-                    </span>
-                  </div>
-                  <Link
-                    className={`btn btn-quote btn-block ${styles.cta}`}
-                    href={routes.category(category.slug, locale)}
-                  >
-                    {t.common.viewAll}
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-
+          {/* Every collection, grouped under its category in menu order. */}
+          {categories.map((category) => {
+            const own = collections.filter((c) => c.categorySlug === category.slug);
+            if (own.length === 0) return null;
+            return (
+              <section key={category.slug} className={styles.group} aria-labelledby={`group-${category.slug}`}>
+                <h2 id={`group-${category.slug}`} className={styles.groupTitle}>
+                  <Link href={routes.category(category.slug, locale)}>{category.name}</Link>
+                  <span className={styles.groupCount}>{own.length}</span>
+                </h2>
+                <CollectionGrid collections={own} locale={locale} t={t} />
+              </section>
+            );
+          })}
         </Container>
       </Section>
 

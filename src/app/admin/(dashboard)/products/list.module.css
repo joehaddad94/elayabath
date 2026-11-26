@@ -272,6 +272,12 @@
   color: color-mix(in srgb, var(--color-text) 72%, transparent);
 }
 
+/* A product with no collection is off the site whatever its switch says. */
+.warn {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
 .status {
   position: relative;
   z-index: 1;

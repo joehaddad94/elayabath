@@ -34,9 +34,12 @@ export interface EditorProduct {
   live: { slug: string } | null;
   /** Never on the site, so nothing links to it and it can be deleted. */
   deletable: boolean;
-  form: Omit<ProductForm, "dimensions" | "type_id" | "status" | "datasheet_path"> & {
+  form: Omit<ProductForm, "dimensions" | "type_id" | "status" | "datasheet_path" | "collection_id"> & {
     dimensions: string;
     type_id: string | null;
+    /** Null for a product that has none yet (from an import, or moved to
+     *  another category): the editor asks for one before saving. */
+    collection_id: string | null;
     status: "draft" | "active";
     datasheet_path: string | null;
   };
@@ -55,7 +58,7 @@ const toState = (form: EditorProduct["form"]): FormState => {
   return { ...rest, featuresText: features.join("\n") };
 };
 
-const toPayload = ({ featuresText, ...rest }: FormState): ProductForm => ({
+const toPayload = ({ featuresText, ...rest }: FormState) => ({
   ...rest,
   features: featuresText.split("\n"),
 });
@@ -80,6 +83,7 @@ export function ProductEditor({
   created,
   categories,
   types,
+  collections,
   library,
 }: {
   product: EditorProduct;
@@ -87,6 +91,7 @@ export function ProductEditor({
   created: boolean;
   categories: Array<Option & { slug: string; hidden: boolean }>;
   types: Array<Option & { slug: string; categoryId: string }>;
+  collections: Array<Option & { categoryId: string }>;
   library: FinishOption[];
 }) {
   const router = useRouter();
@@ -317,22 +322,48 @@ export function ProductEditor({
                 {error("sku")}
               </div>
               <div className={styles.field}>
-                <label htmlFor={`${ids}-category_id`} className={styles.label}>Category</label>
+                <label htmlFor={`${ids}-collection_id`} className={styles.label}>Collection</label>
+                {/* The collection sets the category: a collection belongs to one. */}
                 <select
-                  {...field("category_id")}
+                  {...field("collection_id")}
                   className="input"
-                  value={form.category_id}
+                  value={form.collection_id ?? ""}
                   onChange={(e) => {
-                    const category = e.target.value;
-                    const keepType = types.some((t) => t.id === form.type_id && t.categoryId === category);
-                    setForm((f) => ({ ...f, category_id: category, type_id: keepType ? f.type_id : null }));
+                    const chosen = collections.find((c) => c.id === e.target.value);
+                    if (!chosen) return;
+                    const keepType = types.some((t) => t.id === form.type_id && t.categoryId === chosen.categoryId);
+                    setForm((f) => ({ ...f, collection_id: chosen.id, category_id: chosen.categoryId, type_id: keepType ? f.type_id : null }));
+                    setErrors((current) => {
+                      const next = { ...current };
+                      delete next.collection_id;
+                      return next;
+                    });
                   }}
                 >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.hidden ? `${c.name} (hidden)` : c.name}</option>
-                  ))}
+                  {form.collection_id === null && (
+                    <option value="" disabled>
+                      Choose a collection
+                    </option>
+                  )}
+                  {categories.map((c) => {
+                    const own = collections.filter((x) => x.categoryId === c.id);
+                    if (own.length === 0) return null;
+                    return (
+                      <optgroup key={c.id} label={c.hidden ? `${c.name} (hidden)` : c.name}>
+                        {own.map((x) => (
+                          <option key={x.id} value={x.id}>{x.name}</option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
                 </select>
-                {error("category_id")}
+                {error("collection_id")}
+                <span className={styles.hint}>
+                  {form.collection_id === null
+                    ? "It has no collection, so it isn't on the site. "
+                    : `In ${categories.find((c) => c.id === form.category_id)?.name ?? "its category"}. `}
+                  <Link href="/admin/collections#new-collection">New collection</Link>
+                </span>
                 {categories.find((c) => c.id === form.category_id)?.hidden && (
                   <span className={styles.hint}>
                     This category is hidden: the product can be visible, but it has no category page or menu entry until

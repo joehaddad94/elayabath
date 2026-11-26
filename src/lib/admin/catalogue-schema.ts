@@ -69,3 +69,20 @@ export type FinishForm = z.input<typeof finishForm>;
 /** Blurb paragraphs are edited as one text, separated by blank lines. */
 export const blurbFromText = (text: string) => text.split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, " ").trim());
 export const blurbToText = (blurb: string[]) => blurb.join("\n\n");
+
+export const collectionForm = z.object({
+  name: z.string().trim().min(1, "A name is required.").max(80, "A name can be at most 80 characters."),
+  slug,
+  description: z.string().trim().max(1200, "The description can be at most 1,200 characters."),
+  image_path: z
+    .string()
+    .regex(/^(?!.*\.\.)[A-Za-z0-9][A-Za-z0-9_./-]*$/, "That photo isn't a stored file.")
+    .nullable(),
+});
+
+export type CollectionForm = z.input<typeof collectionForm>;
+
+/** A collection's photos live in the site-media bucket, one folder each. */
+export function collectionFolder(collectionId: string): string {
+  return `collections/${collectionId}/`;
+}

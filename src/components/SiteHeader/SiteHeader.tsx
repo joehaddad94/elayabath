@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getCategories } from "@/lib/catalogue";
+import { getCategories, getCollections } from "@/lib/catalogue";
 import { getSiteDictionary } from "@/lib/site-content/read";
 import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
@@ -22,7 +22,10 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
 
   // Read here, in a server component, and handed down as plain data. NavLinks
   // is a client component and must never import the catalogue itself.
-  const categories = await getCategories();
+  const [categories, collections] = await Promise.all([getCategories(), getCollections()]);
+  // A category's count in the menu is its collections, which is what its
+  // page lists.
+  const collectionsIn = (slug: string) => collections.filter((c) => c.categorySlug === slug).length;
 
   const items = [
     { href: routes.about(locale), label: t.nav.about },
@@ -30,11 +33,11 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
       href: routes.products(locale),
       label: t.nav.products,
       match: [routes.productSection(locale)],
-      panelAllLabel: t.nav.allProducts,
+      panelAllLabel: t.nav.allCollections,
       panel: categories.map((category) => ({
         href: routes.category(category.slug, locale),
         label: category.name,
-        count: category.count,
+        count: collectionsIn(category.slug),
       })),
     },
     { href: routes.catalogue(locale), label: t.nav.catalogue },

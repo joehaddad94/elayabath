@@ -1,0 +1,59 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireStaff } from "@/lib/admin/session";
+import { storageUrl } from "@/lib/supabase/config";
+import styles from "../../../admin.module.css";
+import { CollectionEditor } from "./CollectionEditor";
+
+export const metadata: Metadata = { title: "Edit collection" };
+
+export default async function CollectionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  const { supabase } = await requireStaff();
+
+  const [{ data: collection }, { data: products }] = await Promise.all([
+    supabase.from("collections").select("id, name, slug, description, image_path, category_id, categories(name, slug)").eq("id", id).maybeSingle(),
+    supabase
+      .from("admin_products")
+      .select("id, sku, name, status, image_path")
+      .eq("collection_id", id)
+      .order("position")
+      .order("name"),
+  ]);
+  if (!collection) notFound();
+
+  const list = (products ?? []).map((p) => ({
+    id: p.id!,
+    sku: p.sku ?? "",
+    name: p.name ?? "",
+    visible: p.status === "active",
+    imageUrl: p.image_path ? storageUrl("product-media", p.image_path) : null,
+  }));
+
+  return (
+    <>
+      <p className={styles.crumbs}>
+        <Link href="/admin/collections">Collections</Link> / {collection.categories?.name} / {collection.name}
+      </p>
+      <CollectionEditor
+        key={collection.id}
+        collection={{
+          id: collection.id,
+          categoryName: collection.categories?.name ?? "",
+          categorySlug: collection.categories?.slug ?? "",
+          form: {
+            name: collection.name,
+            slug: collection.slug,
+            description: collection.description,
+            image_path: collection.image_path,
+          },
+        }}
+        photoUrl={collection.image_path ? storageUrl("site-media", collection.image_path) : null}
+        fallbackUrl={list.find((p) => p.visible && p.imageUrl)?.imageUrl ?? null}
+        products={list}
+      />
+    </>
+  );
+}

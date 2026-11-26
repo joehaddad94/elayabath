@@ -5,7 +5,12 @@ import styles from "../../../admin.module.css";
 import { Spinner } from "../../Spinner";
 import { createProduct, type CreateState } from "../[id]/actions";
 
-export function NewProductForm({ categories }: { categories: Array<{ id: string; name: string }> }) {
+export function NewProductForm({
+  groups,
+}: {
+  /** Collections under their category, in menu order. */
+  groups: Array<{ name: string; collections: Array<{ id: string; name: string }> }>;
+}) {
   const [state, action, pending] = useActionState<CreateState, FormData>(createProduct, {});
   const fieldError = (key: string) =>
     state.fields?.[key] ? (
@@ -31,18 +36,24 @@ export function NewProductForm({ categories }: { categories: Array<{ id: string;
         {fieldError("name")}
       </div>
       <div className={styles.field}>
-        <label htmlFor="new-category">Category</label>
-        <select id="new-category" name="category_id" className="input" required defaultValue={state.values?.category_id ?? ""} {...described("category_id")}>
+        <label htmlFor="new-collection">Collection</label>
+        <select id="new-collection" name="collection_id" className="input" required defaultValue={state.values?.collection_id ?? ""} {...described("collection_id")}>
           <option value="" disabled>
-            Choose a category
+            Choose a collection
           </option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
+          {groups.map((g) =>
+            g.collections.length === 0 ? null : (
+              <optgroup key={g.name} label={g.name}>
+                {g.collections.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </optgroup>
+            ),
+          )}
         </select>
-        {fieldError("category_id")}
+        {fieldError("collection_id")}
       </div>
       <div>
         <button type="submit" className="btn btn-primary" disabled={pending}>

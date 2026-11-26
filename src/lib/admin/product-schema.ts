@@ -66,6 +66,10 @@ export type ProductImage = z.input<typeof productImage>;
 
 export const productForm = z.object({
   ...productFields,
+  /** Required in the editor: a product without a collection is not on the
+   *  site. Its category is the collection's. (Not in productFields: an
+   *  import leaves a product's collection alone.) */
+  collection_id: z.uuid("Choose a collection."),
   images: z.array(productImage).max(40, "At most 40 photographs.").refine(
     (list) => new Set(list.map((i) => i.path)).size === list.length,
     "A photograph is listed twice.",
@@ -99,6 +103,7 @@ export function describeWriteError(error: { code?: string; message: string }): s
     if (error.message.includes("slug")) return "Another product already uses this web address.";
     return "That clashes with another product.";
   }
-  if (error.code === "23503") return "The category or type chosen no longer exists. Reload and choose again.";
+  if (error.code === "23503") return "The collection, category or type chosen no longer exists. Reload and choose again.";
+  if (error.code === "PT422") return error.message;
   return "That couldn't be saved. Try again.";
 }

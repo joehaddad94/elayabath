@@ -13,6 +13,9 @@ export const tags = {
   /** One product's page. */
   product: (slug: string) => `product:${slug}`,
   categories: "categories",
+  /** Collection names, descriptions and photos (which products are in one
+   *  is product data, under `products`). */
+  collections: "collections",
   finishes: "finishes",
   meta: "catalogue-meta",
   /** The site's own words and photos, edited in Site content. */

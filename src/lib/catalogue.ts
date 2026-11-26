@@ -28,11 +28,12 @@ import {
   FINISH_FAMILY_NAMES,
   type CatalogueMeta,
   type Category,
+  type Collection,
   type Finish,
   type FinishFamily,
   type Product,
   type ProductImage,
-  type SearchEntry,
+  type SearchResults,
   type ShelfPage,
 } from "./types";
 
@@ -82,6 +83,19 @@ interface FinishSnapshot {
   family: FinishFamily;
   image: string | null;
   status: "active" | "retired";
+}
+
+interface CollectionSnapshot {
+  slug: string;
+  name: string;
+  description: string;
+  categorySlug: string;
+  categoryName: string;
+  /** Its own photo, a path in site-media. */
+  photo: string | null;
+  /** Its first product's photo, as that product's snapshot holds it. */
+  cover?: StoredImage | null;
+  count?: number;
 }
 
 interface Facets {
@@ -135,6 +149,23 @@ export function productFromSnapshot(snapshot: unknown): Product {
   return toProduct(snapshot as ProductSnapshot);
 }
 
+function toCollection(s: CollectionSnapshot): Collection {
+  const image: Collection["image"] = s.photo
+    ? { src: storageUrl("site-media", s.photo), width: 1200, height: 900, alt: "", product: false }
+    : s.cover
+      ? { ...toImage(s.cover), alt: "", product: true }
+      : null;
+  return {
+    slug: s.slug,
+    name: s.name,
+    description: s.description,
+    categorySlug: s.categorySlug,
+    categoryName: s.categoryName,
+    image,
+    count: s.count ?? 0,
+  };
+}
+
 function toFinish(s: FinishSnapshot): Finish {
   return {
     slug: s.slug,
@@ -169,15 +200,17 @@ function fail(what: string, error: { message: string } | null): never {
 export async function getProduct(slug: string): Promise<Product | undefined> {
   "use cache";
   cacheLife("max");
-  cacheTag(tags.product(slug));
+  cacheTag(tags.product(slug), tags.collections);
 
   const { data, error } = await publicClient()
     .from("published_products")
-    .select("snapshot")
+    .select("snapshot, collection:collections(slug, name)")
     .eq("slug", slug)
     .maybeSingle();
   if (error) fail(`product ${slug}`, error);
-  return data ? toProduct(data.snapshot as unknown as ProductSnapshot) : undefined;
+  if (!data) return undefined;
+  const product = toProduct(data.snapshot as unknown as ProductSnapshot);
+  return data.collection ? { ...product, collection: data.collection } : product;
 }
 
 /** Where an old slug now lives, if its product was renamed. */
@@ -320,6 +353,39 @@ export async function getShelf(
   };
 }
 
+/* ── collections ────────────────────────────────────────────────────── */
+
+/** The collections on the site, in menu order and then catalogue order:
+ *  one category's, or every category's. A collection appears once it has a
+ *  product on the site. */
+export async function getCollections(categorySlug?: string): Promise<Collection[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.collections, tags.categories, tags.products);
+
+  const { data, error } = await publicClient().rpc("collection_cards", { p_category: categorySlug });
+  if (error) fail(`collections ${categorySlug ?? "all"}`, error);
+  return ((data ?? []) as unknown as CollectionSnapshot[]).map(toCollection);
+}
+
+/** One collection and its products on the site, in catalogue order. */
+export async function getCollection(
+  categorySlug: string,
+  slug: string,
+): Promise<{ collection: Collection; products: Product[] } | undefined> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.collections, tags.categories, tags.products);
+
+  const { data, error } = await publicClient().rpc("collection_page", { p_category: categorySlug, p_slug: slug });
+  if (error) fail(`collection ${categorySlug}/${slug}`, error);
+  if (!data) return undefined;
+  const page = data as unknown as CollectionSnapshot & { products: ProductSnapshot[] };
+  const products = page.products.map(toProduct);
+  const cover = page.products.find((p) => p.image)?.image ?? null;
+  return { collection: toCollection({ ...page, cover, count: products.length }), products };
+}
+
 /* ── categories ─────────────────────────────────────────────────────── */
 
 async function toCategory(s: CategorySnapshot): Promise<Category> {
@@ -417,19 +483,26 @@ export async function getFinishesFor(product: Product): Promise<Finish[]> {
 
 /* ── search ─────────────────────────────────────────────────────────── */
 
-/** Matching runs in the database (public.search_catalogue), so a visitor no
- *  longer downloads the whole index to search it. */
-export async function searchProducts(query: string, limit = 40): Promise<SearchEntry[]> {
+/** Matching runs in the database (public.search_collections and
+ *  public.search_catalogue), so a visitor never downloads the whole index to
+ *  search it. Matching collections come first, then matching products; an
+ *  exact item code still puts its product first among the products. */
+export async function searchCatalogue(query: string, limit = 40): Promise<SearchResults> {
   "use cache";
   cacheLife("max");
-  cacheTag(tags.products);
+  cacheTag(tags.products, tags.collections);
 
-  const { data, error } = await publicClient().rpc("search_catalogue", {
-    p_query: query,
-    p_limit: limit,
-  });
-  if (error) fail("search", error);
-  return (data ?? []) as unknown as SearchEntry[];
+  const client = publicClient();
+  const [collections, products] = await Promise.all([
+    client.rpc("search_collections", { p_query: query, p_limit: 8 }),
+    client.rpc("search_catalogue", { p_query: query, p_limit: limit }),
+  ]);
+  if (collections.error) fail("search collections", collections.error);
+  if (products.error) fail("search", products.error);
+  return {
+    collections: (collections.data ?? []) as unknown as SearchResults["collections"],
+    products: (products.data ?? []) as unknown as SearchResults["products"],
+  };
 }
 
 /* ── misc ───────────────────────────────────────────────────────────── */

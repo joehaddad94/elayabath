@@ -14,6 +14,7 @@ const SECTIONS: AdminNavItem[] = [
   // Straight to the first page: /admin/site only redirects there, a wasted round trip.
   { href: "/admin/site/home", label: "Site content" },
   { href: "/admin/products", label: "Products" },
+  { href: "/admin/collections", label: "Collections" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/finishes", label: "Finishes" },
   { href: "/admin/imports", label: "Import" },

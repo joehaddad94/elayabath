@@ -56,6 +56,13 @@ export async function saveProduct(input: { id: string; version: number; form: un
     return { ok: false, error: "The data sheet didn't come from this product's uploads. Upload it again." };
   }
 
+  // The category is the collection's: a collection belongs to one.
+  const { data: collection } = await supabase.from("collections").select("category_id").eq("id", fields.collection_id).maybeSingle();
+  if (!collection) {
+    return { ok: false, error: "Some fields need attention.", fields: { collection_id: "That collection no longer exists. Reload and choose again." } };
+  }
+  fields.category_id = collection.category_id;
+
   // A type belongs to one category, so it must match the category chosen.
   if (fields.type_id) {
     const { data: fits } = await supabase
@@ -147,7 +154,7 @@ export type CreateState = {
   error?: string;
   fields?: Record<string, string>;
   /** What was typed, so a refused form comes back filled in. */
-  values?: { sku: string; name: string; category_id: string };
+  values?: { sku: string; name: string; collection_id: string };
   /** Counts refusals, so the form can be rebuilt with what was typed. */
   attempt?: number;
 };
@@ -155,19 +162,20 @@ export type CreateState = {
 const createInput = z.object({
   sku: productFields.sku,
   name: productFields.name,
-  category_id: productFields.category_id,
+  collection_id: z.uuid("Choose a collection."),
 });
 
 /** A new product starts hidden, with just enough to be found: its item
- *  code, its name and its category. Everything else is filled in the
- *  editor, and it goes on the site when it is made visible there. */
+ *  code, its name and its collection (which sets its category). Everything
+ *  else is filled in the editor, and it goes on the site when it is made
+ *  visible there. */
 export async function createProduct(previous: CreateState, formData: FormData): Promise<CreateState> {
   const refused = (state: Omit<CreateState, "attempt">): CreateState => ({ ...state, attempt: (previous.attempt ?? 0) + 1 });
   const { supabase } = await requireStaff();
   const values = {
     sku: String(formData.get("sku") ?? ""),
     name: String(formData.get("name") ?? ""),
-    category_id: String(formData.get("category_id") ?? ""),
+    collection_id: String(formData.get("collection_id") ?? ""),
   };
   const parsed = createInput.safeParse(values);
   if (!parsed.success) {
@@ -189,9 +197,12 @@ export async function createProduct(previous: CreateState, formData: FormData): 
     return refused({ error: "Some fields need attention.", fields: { sku: "This code's web address still redirects to another product." }, values });
   }
 
+  const { data: collection } = await supabase.from("collections").select("category_id").eq("id", parsed.data.collection_id).maybeSingle();
+  if (!collection) return refused({ error: "Some fields need attention.", fields: { collection_id: "That collection no longer exists." }, values });
+
   const { data, error } = await supabase
     .from("products")
-    .insert({ ...parsed.data, slug, status: "draft" })
+    .insert({ ...parsed.data, category_id: collection.category_id, slug, status: "draft" })
     .select("id")
     .single();
   if (error) {

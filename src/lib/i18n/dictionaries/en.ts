@@ -39,7 +39,7 @@ const en = {
     catalogue: "Catalogue",
     contact: "Contact Us",
     search: "Search products",
-    allProducts: "All products",
+    allCollections: "All collections",
     categories: "Categories",
     searchSubmit: "Search",
     /** Shorter than the search page's own placeholder, which is clipped by
@@ -154,32 +154,16 @@ const en = {
   products: {
     title: "Products",
     intro:
-      "Choose a category to begin. Each one opens on its own shelf, with filters for type and finish.",
+      "Every collection in the range, by category. Each one opens on its products, with item codes, dimensions and finishes.",
     startWithCategory: "Start with a category",
-    productCount: "products",
+    /** The All collections page: every collection, grouped by category. */
+    allCollections: "All collections",
     knowTheCode: "Know the code?",
     knowTheCodeBody:
       "Every item carries a code like E02-SW40034. If you have it from a drawing, a data sheet or the catalogue, skip the browsing.",
   },
 
   category: {
-    filters: "Filter products",
-    clearAll: "Clear all",
-    loadMore: "Show {n} more",
-    loading: "Loading",
-    sortBy: "Sort",
-    applied: "Applied filters",
-    remove: "Remove this filter",
-    sortLabels: {
-      default: "Catalogue order",
-      name: "Name A–Z",
-      "name-desc": "Name Z–A",
-      finishes: "Most finishes",
-      code: "Item code",
-    },
-    showing: "Showing {shown} of {total}",
-    noResults:
-      "Nothing matches that combination. Clear a filter to widen the results.",
     /** The inset block. Most categories carry no second blurb paragraph, so
      *  this is what stands in: true of every category, and useful. */
     insetLabel: "How to specify",
@@ -218,6 +202,20 @@ const en = {
     resultsFor: "Results for “{q}”",
     noResults: "Nothing found. Try an item code, or browse by category.",
     hint: "Search by product name, item code, type or category.",
+    collections: "Collections",
+    products: "Products",
+    collectionLabel: "Collection",
+  },
+
+  collection: {
+    /** On a collection card and the collection page. */
+    count: "{n} products",
+    countOne: "1 product",
+    view: "View collection",
+    productsHeading: "Products in this collection",
+    /** Under a product's name, linking back to its collection. */
+    partOf: "Part of the {name} collection",
+    others: "Other collections in {category}",
   },
 
   notFound: {

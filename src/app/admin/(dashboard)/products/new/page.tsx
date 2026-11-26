@@ -8,7 +8,10 @@ export const metadata: Metadata = { title: "New product" };
 
 export default async function NewProductPage() {
   const { supabase } = await requireStaff();
-  const { data: categories } = await supabase.from("categories").select("id, name, status").order("position");
+  const [{ data: categories }, { data: collections }] = await Promise.all([
+    supabase.from("categories").select("id, name, status").order("position"),
+    supabase.from("collections").select("id, name, category_id").order("name"),
+  ]);
 
   return (
     <>
@@ -18,11 +21,17 @@ export default async function NewProductPage() {
       <div className={styles.pageHead}>
         <div>
           <h1>New product</h1>
-          <p>It starts hidden, with a code, a name and a category. Everything else is filled in next.</p>
+          <p>
+            It starts hidden, with a code, a name and a collection (which sets its category). Everything else is filled in next.
+            For a new collection, make it in <Link href="/admin/collections#new-collection">Collections</Link> first.
+          </p>
         </div>
       </div>
       <NewProductForm
-        categories={(categories ?? []).map((c) => ({ id: c.id, name: c.status === "active" ? c.name : `${c.name} (hidden)` }))}
+        groups={(categories ?? []).map((c) => ({
+          name: c.status === "active" ? c.name : `${c.name} (hidden)`,
+          collections: (collections ?? []).filter((x) => x.category_id === c.id).map((x) => ({ id: x.id, name: x.name })),
+        }))}
       />
     </>
   );

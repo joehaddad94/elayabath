@@ -1,7 +1,7 @@
 /**
  * Fill a dictionary string's {named} placeholders.
  *
- *   format(t.category.showing, { shown: 12, total: 50 })
+ *   format(t.collection.count, { n: 12 })
  *
  * Dictionary values are plain strings so they can cross into client
  * components and, later, live in a JSON file per language. A placeholder with

@@ -106,7 +106,7 @@ try {
   await time("publish 120 products in the database", async () => {
     for (const p of sample ?? []) await db.rpc("publish_product", { p_id: p.id, p_note: "load test" });
   });
-  await time("public shelf, first page", async () => void (await fetch(`${BASE}/api/shelf?category=${encodeURIComponent("washbasins")}`)));
+  await time("public category page", async () => void (await fetch(`${BASE}/products/washbasins`)));
   await time("public search", async () => void (await fetch(`${BASE}/api/search?q=load`)));
 } finally {
   // ── remove everything the test made ──
