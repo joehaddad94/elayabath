@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import styles from "../../admin.module.css";
@@ -43,40 +44,57 @@ export function NewCollectionForm({ categories }: { categories: Array<{ id: stri
   );
 }
 
-/** Puts every product without a collection into one named after it. */
-export function GroupProducts({ count }: { count: number }) {
+/**
+ * The notice about products without a collection, with the button that puts
+ * them all in collections by name. It stays mounted when the count reaches
+ * zero, so the outcome of a run is still shown after the page refreshes.
+ */
+export function GroupProducts({ count, seeLink }: { count: number; seeLink: string }) {
   const router = useRouter();
   const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const n = `${count} product${count === 1 ? "" : "s"}`;
 
-  return (
-    <p>
-      <button
-        type="button"
-        className="btn btn-secondary"
-        disabled={busy}
-        onClick={async () => {
-          const go = await confirm({
-            title: `Put ${n} in collections by name?`,
-            body: "Each goes into the collection with its name in its category, which is made if there isn't one. Visible products then appear on the site.",
-            confirmLabel: "Put in collections",
-          });
-          if (!go) return;
-          setBusy(true);
-          const outcome = await groupProducts().catch(() => ({ ok: false, message: "That didn't reach the server. Try again." }));
-          setBusy(false);
-          setResult(outcome);
-          router.refresh();
-        }}
-      >
-        {busy && <Spinner />}
-        Put {n} in collections by name
-      </button>
-      {result && (
-        <span role={result.ok ? "status" : "alert"}> {result.message}</span>
-      )}
+  const outcome = result && (
+    <p className={`${styles.message} ${result.ok ? "" : styles.messageError}`} role={result.ok ? "status" : "alert"}>
+      {result.message}
     </p>
+  );
+  if (count === 0) return outcome;
+
+  return (
+    <div className={styles.message}>
+      <p>
+        {n} {count === 1 ? "has" : "have"} no collection, so {count === 1 ? "it isn't" : "they aren't"} on the site even if
+        visible. <Link href={seeLink}>See {count === 1 ? "it" : "them"}</Link>, give each one a collection in its editor, or
+        put them all in collections named after them:
+      </p>
+      <p>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          disabled={busy}
+          onClick={async () => {
+            const go = await confirm({
+              title: `Put ${n} in collections by name?`,
+              body: "Each goes into the collection with its name in its category, which is made if there isn't one. Visible products then appear on the site.",
+              confirmLabel: "Put in collections",
+            });
+            if (!go) return;
+            setBusy(true);
+            setResult(null);
+            const done = await groupProducts().catch(() => ({ ok: false, message: "That didn't reach the server. Try again." }));
+            setBusy(false);
+            setResult(done);
+            router.refresh();
+          }}
+        >
+          {busy && <Spinner />}
+          Put {n} in collections by name
+        </button>
+      </p>
+      {outcome}
+    </div>
   );
 }

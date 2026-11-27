@@ -71,6 +71,7 @@ export default async function ProductsPage({
         categories={categories.data}
         types={types.data}
         collections={collections.data.map((c) => ({ id: c.id, name: c.name, categoryId: c.category_id }))}
+        initialMoveTo={collections.data.some((c) => c.id === one("move")) ? one("move") : ""}
       />
     </>
   );

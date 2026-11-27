@@ -88,9 +88,13 @@ export function ProductsList({
   categories,
   types,
   collections,
+  initialMoveTo = "",
 }: {
   initialRows: ProductRow[];
   initialFilters: Partial<Filters>;
+  /** A collection chosen in advance for the bulk move, when the list was
+   *  opened from a collection's "Add products". */
+  initialMoveTo?: string;
   categories: Option[];
   types: TypeOption[];
   collections: CollectionOption[];
@@ -103,7 +107,7 @@ export function ProductsList({
   const [ticked, setTicked] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
   const [bulkBusy, setBulkBusy] = useState<"show" | "hide" | "collection" | null>(null);
-  const [moveTo, setMoveTo] = useState("");
+  const [moveTo, setMoveTo] = useState(initialMoveTo);
   const [toast, setToast] = useState<Toast | null>(null);
   const [viewing, setViewing] = useState<PhotoProduct | null>(null);
   const preview = useHoverPreview();
@@ -466,6 +470,12 @@ export function ProductsList({
           </button>
         )}
       </div>
+
+      {initialMoveTo !== "" && moveTo === initialMoveTo && moveTarget && tickedShown.length === 0 && (
+        <p className={admin.message} role="status">
+          Tick the products that belong in {moveTarget.name}, then press Move.
+        </p>
+      )}
 
       {shown.length === 0 ? (
         <div className={s.empty}>

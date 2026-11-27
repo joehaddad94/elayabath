@@ -33,11 +33,20 @@ export function CollectionEditor({
   photoUrl,
   fallbackUrl,
   products,
+  onSite,
+  offSiteReason,
+  addProductsLink,
 }: {
   collection: { id: string; categoryName: string; categorySlug: string; form: Form };
   photoUrl: string | null;
   fallbackUrl: string | null;
   products: Product[];
+  /** Whether the site shows it: a live product in it, in a live category. */
+  onSite: boolean;
+  offSiteReason: string | null;
+  /** The Products list, on this collection's category, ready to move ticked
+   *  products here. */
+  addProductsLink: string;
 }) {
   const ids = useId();
   const confirm = useConfirm();
@@ -58,7 +67,7 @@ export function CollectionEditor({
       return next;
     });
   };
-  const live = products.some((p) => p.visible);
+  const live = onSite;
   const shownPhoto = form.image_path ? (form.image_path === collection.form.image_path ? photoUrl : storageUrl("site-media", form.image_path)) : null;
 
   const save = async () => {
@@ -92,7 +101,7 @@ export function CollectionEditor({
     }
     setBase(form);
     setErrors({});
-    setNotice({ text: live ? result.message : "Saved. It shows on the site once one of its products is visible." });
+    setNotice({ text: live ? result.message : `Saved. It isn't on the site yet: ${offSiteReason?.toLowerCase() ?? ""}` });
   };
 
   const uploadPhoto = async (file: File | undefined) => {
@@ -149,6 +158,7 @@ export function CollectionEditor({
         <p className={editor.badges}>
           <span className={admin.badge}>{collection.categoryName}</span>
           <span className={`${admin.badge} ${live ? "" : admin.badgeWarn}`}>{live ? "On the site" : "Not on the site"}</span>
+          {offSiteReason && <span className={admin.muted}>{offSiteReason}</span>}
           {dirty && <span className={`${admin.badge} ${admin.badgeWarn}`}>Unsaved changes</span>}
           {live && (
             <Link href={`/products/${collection.categorySlug}/${base.slug}`} target="_blank" className={admin.linkButton}>
@@ -278,8 +288,13 @@ export function CollectionEditor({
         <h2 id={`${ids}-products`} className={admin.sectionTitle}>
           Products in it ({products.length})
         </h2>
+        <p>
+          <Link href={addProductsLink} className="btn btn-secondary">
+            Add products
+          </Link>
+        </p>
         {products.length === 0 ? (
-          <p className={editor.hint}>None yet. Choose this collection in a product&apos;s editor to put it here.</p>
+          <p className={editor.hint}>None yet. Use Add products, tick the ones that belong here and move them.</p>
         ) : (
           <table className={admin.table}>
             <thead>
@@ -303,8 +318,9 @@ export function CollectionEditor({
           </table>
         )}
         <p className={editor.hint}>
-          Products appear on its page in the category&apos;s order, set in Categories. To move a product to another collection,
-          open it and choose the collection there.
+          Products appear on its page in the category&apos;s order, set in Categories. Add products opens the Products list
+          on this category with this collection chosen: tick products and press Move. A product&apos;s own editor can change
+          its collection too.
         </p>
       </section>
     </div>

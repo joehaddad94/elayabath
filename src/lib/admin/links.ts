@@ -7,6 +7,8 @@ export interface ListFilters {
   collection?: string;
   status?: "visible" | "hidden";
   missing?: boolean;
+  /** A collection's id, chosen in advance as where ticked products move. */
+  move?: string;
 }
 
 /** A link to the Products list with these filters set, in the same form the
@@ -18,6 +20,7 @@ export function listLink(filters: ListFilters): string {
   if (filters.collection) params.set("collection", filters.collection);
   if (filters.status) params.set("status", filters.status);
   if (filters.missing) params.set("missing", "1");
+  if (filters.move) params.set("move", filters.move);
   const query = params.toString();
   return `/admin/products${query ? `?${query}` : ""}`;
 }
