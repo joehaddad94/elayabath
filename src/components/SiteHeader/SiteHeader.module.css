@@ -65,11 +65,13 @@
    you were on read quieter than the ones you were not. Full-strength text
    makes it the brightest item, and the rule underneath carries the state
    without depending on hue at all. */
-.link[aria-current="page"] {
+.link[aria-current="page"],
+.link[data-active] {
   color: var(--color-text);
 }
 
-.link[aria-current="page"]::after {
+.link[aria-current="page"]::after,
+.link[data-active]::after {
   content: "";
   position: absolute;
   inset-inline: 0;
@@ -84,9 +86,22 @@
   transition: transform 0.15s ease;
 }
 
+/* The button that opens the category menu, dressed as the links beside it. */
+.toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The plain link stands in for the button where the menu is off. */
+.narrowOnly {
+  display: none;
+}
+
 /* ── the category menu ─────────────────────────────────────────────────
-   CSS only: no state, no JavaScript, works before hydration and with
-   scripting off. Hover for pointers, focus-within for keyboards. */
+   Opened and closed by NavLinks through `data-open`. */
 .panel {
   position: absolute;
   inset-inline-start: calc(var(--space-4) * -1);
@@ -99,38 +114,21 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
-  /* `visibility` is what makes the links focusable, so it must flip the
-     instant the section takes focus: if it rides the transition, a keyboard
-     visitor tabs past the menu before it exists. Opening is therefore
-     immediate and only the close is delayed, which is what lets the fade out
+  /* `visibility` is what makes the links focusable, so it flips the instant
+     the menu opens and only the close is delayed, which lets the fade out
      still be seen. */
   transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s 0.14s;
 }
 
-.section:hover .panel,
-.section:focus-within .panel {
+.section[data-open] .panel {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s;
 }
 
-.section:hover .chevron,
-.section:focus-within .chevron {
+.section[data-open] .chevron {
   transform: rotate(180deg);
-}
-
-/* Set by NavLinks after an item is picked or Escape is pressed. Same
-   specificity as the open rules above and later, so it wins over both. */
-.section[data-closed] .panel {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s 0.14s;
-}
-
-.section[data-closed] .chevron {
-  transform: none;
 }
 
 .panel ul {
@@ -253,7 +251,7 @@
    That row used to wrap, which at 320px put the header at 140px: a sticky
    bar eating 17% of the viewport for the whole session. It is one line now,
    scrolling sideways if it has to, and the type and padding come down with
-   it. The menu is off here: there is no hover on a phone, and the products
+   it. The menu is off here, since this row would clip it, and the products
    index it leads to already lists the categories. */
 @media (max-width: 62rem) {
   .nav {
@@ -302,8 +300,13 @@
     }
   }
 
-  .panel {
+  .panel,
+  .toggle {
     display: none;
+  }
+
+  .narrowOnly {
+    display: inline-flex;
   }
 
   .chevron {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type KeyboardEvent, type MouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Icon } from "@/components/Icon/Icon";
 import { isActive } from "@/lib/nav";
 import styles from "./SiteHeader.module.css";
@@ -33,76 +33,98 @@ export interface NavItem {
  * links beside it, so the current page read as quieter than its neighbours
  * rather than louder.
  *
- * A client component only because `aria-current` depends on the URL, and the
- * header is rendered once in the layout rather than per page. The category
- * data arrives as plain props from the server component above: a client
- * component must never import `lib/catalogue.ts`, which pulls every product
- * record into the browser bundle.
+ * The category data arrives as plain props from the server component above: a
+ * client component must never import `lib/catalogue.ts`, which pulls every
+ * product record into the browser bundle.
  *
- * The menu opens in CSS, on hover and focus-within, so it works before
- * hydration and with scripting off. Below
- * the wrap breakpoint it is switched off entirely and the item behaves as the
- * plain link it always was, because there is no hover on a phone and the
- * index page it leads to already lists the categories.
+ * A section with a menu is a disclosure button: a click or tap opens it, and
+ * picking an item, Escape, a click outside or focus leaving it closes it. It
+ * used to open on hover while also being a link to the products index, so one
+ * control did two things: it flashed open as the pointer crossed the header,
+ * a click navigated instead of opening, and on a touch screen it could never
+ * be opened at all. The index is the menu's first entry instead.
  *
- * What CSS cannot do is close it. The header lives in the layout and survives
- * navigation, so after a click the link keeps focus and `:focus-within` held
- * the menu open until the visitor clicked somewhere else. Picking an item or
- * pressing Escape therefore marks the section closed, which overrides hover
- * and focus until the pointer comes back in or focus re-enters from outside.
+ * Below the wrap breakpoint the header row scrolls sideways and would clip the
+ * menu, so there the item stays the plain link it always was: CSS swaps the
+ * button for it.
  */
 export function NavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const [closed, setClosed] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const [shownFor, setShownFor] = useState(pathname);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
 
-  function closeOnPick(event: MouseEvent<HTMLDivElement>, href: string) {
-    if (!(event.target as Element).closest("a")) return;
-    setClosed(href);
-    // Drop the focus the click left behind, or `:focus-within` reopens the
-    // menu as soon as the pointer leaves.
-    (document.activeElement as HTMLElement | null)?.blur();
+  // Back and forward navigate without a click on the menu: close it then too.
+  if (shownFor !== pathname) {
+    setShownFor(pathname);
+    setOpen(null);
   }
 
-  function closeOnEscape(event: KeyboardEvent<HTMLDivElement>, href: string) {
-    if (event.key !== "Escape") return;
-    // Back to the section's own link, so a keyboard visitor keeps their place.
-    event.currentTarget.querySelector<HTMLElement>("a")?.focus();
-    setClosed(href);
+  // Close on a press anywhere outside the open section.
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      if (!sectionRef.current?.contains(event.target as Node)) setOpen(null);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  function closeOnEscape(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Escape" || !open) return;
+    setOpen(null);
+    // Back to the button, so a keyboard visitor keeps their place.
+    event.currentTarget.querySelector<HTMLElement>("button")?.focus();
   }
 
   return (
     <div className={styles.links}>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const active = isActive(pathname, item.href, item.match);
-        const link = (
+        const link = (className: string | undefined) => (
           <Link
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={styles.link}
+            className={className}
           >
             {item.label}
-            {item.panel && (
-              <Icon name="chevron" size={13} className={styles.chevron} />
-            )}
           </Link>
         );
 
-        if (!item.panel) return <div key={item.href}>{link}</div>;
+        if (!item.panel) return <div key={item.href}>{link(styles.link)}</div>;
 
+        const expanded = open === item.href;
         return (
           <div
             key={item.href}
+            ref={expanded ? sectionRef : undefined}
             className={styles.section}
-            data-closed={closed === item.href ? "" : undefined}
-            onClick={(event) => closeOnPick(event, item.href)}
-            onKeyDown={(event) => closeOnEscape(event, item.href)}
-            onPointerEnter={() => setClosed(null)}
-            onFocus={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) setClosed(null);
+            data-open={expanded ? "" : undefined}
+            onKeyDown={closeOnEscape}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setOpen(null);
             }}
           >
-            {link}
-            <div className={styles.panel}>
+            {link(`${styles.link} ${styles.narrowOnly}`)}
+            <button
+              type="button"
+              className={`${styles.link} ${styles.toggle}`}
+              aria-expanded={expanded}
+              aria-controls={`${panelId}-${index}`}
+              data-active={active ? "" : undefined}
+              onClick={() => setOpen(expanded ? null : item.href)}
+            >
+              {item.label}
+              <Icon name="chevron" size={13} className={styles.chevron} />
+            </button>
+            <div
+              id={`${panelId}-${index}`}
+              className={styles.panel}
+              onClick={(event) => {
+                if ((event.target as Element).closest("a")) setOpen(null);
+              }}
+            >
               <ul>
                 {item.panelAllLabel && (
                   <li>
