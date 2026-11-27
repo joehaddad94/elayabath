@@ -2,7 +2,7 @@
 -- the site, the category check, and what visitors can read.
 
 begin;
-select plan(16);
+select plan(20);
 
 delete from public.published_products;
 delete from public.published_categories;
@@ -51,6 +51,21 @@ select is(
   'Tapware,Showers', 'search finds a collection in every category, in menu order');
 select is(jsonb_array_length(public.search_collections('flux show')), 1, 'adding the category narrows it');
 reset role;
+
+-- The Collections screen's status reads what the site reads.
+select is((select live from public.collection_counts cc join public.collections c on c.id = cc.collection_id
+            where c.slug = 'flux' and c.category_id = '00000000-0000-0000-0000-00000000c001'), 2,
+  'counts list live products');
+select is((select live || '/' || products from public.collection_counts cc join public.collections c on c.id = cc.collection_id
+            where c.slug = 'aria'), '0/1', 'a collection with nothing published counts none live');
+update public.published_categories set status = 'draft' where category_id = '00000000-0000-0000-0000-00000000c001';
+select ok(not (select category_live from public.collection_counts cc join public.collections c on c.id = cc.collection_id
+                where c.slug = 'flux' and c.category_id = '00000000-0000-0000-0000-00000000c001'),
+  'a collection in a hidden category is not on the site');
+select ok((select category_live from public.collection_counts cc join public.collections c on c.id = cc.collection_id
+            where c.slug = 'flux' and c.category_id = '00000000-0000-0000-0000-00000000c002'),
+  'one in a live category is');
+update public.published_categories set status = 'active' where category_id = '00000000-0000-0000-0000-00000000c001';
 
 -- Staff: a collection must be in the product's category.
 set local role authenticated;

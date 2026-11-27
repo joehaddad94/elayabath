@@ -1041,9 +1041,25 @@ export type Database = {
       }
       collection_counts: {
         Row: {
+          category_live: boolean | null
           collection_id: string | null
+          first_position: number | null
           live: number | null
           products: number | null
+        }
+        Insert: {
+          category_live?: never
+          collection_id?: string | null
+          first_position?: never
+          live?: never
+          products?: never
+        }
+        Update: {
+          category_live?: never
+          collection_id?: string | null
+          first_position?: never
+          live?: never
+          products?: never
         }
         Relationships: []
       }
