@@ -82,6 +82,23 @@ export interface Product {
   datasheet: string | null;
   /** Only visible products are on the site. Absent means active. */
   status?: "active";
+  /** The collection it belongs to. Every product on the site has one; it is
+   *  absent only in a staff preview of the working copy. */
+  collection?: { slug: string; name: string };
+}
+
+/** A named group of products inside one category, e.g. FLUX in Tapware.
+ *  The site lists collections where it used to list products. */
+export interface Collection {
+  slug: string;
+  name: string;
+  description: string;
+  categorySlug: string;
+  categoryName: string;
+  /** The collection's own photo, or its first product's, or null. */
+  image: { src: string; width: number; height: number; alt: string; product: boolean } | null;
+  /** Products of it on the site. */
+  count: number;
 }
 
 export interface ProductImage {
@@ -124,6 +141,21 @@ export interface SearchEntry {
   k: string; // sku
   t: string; // type
   c: string; // category name
+}
+
+/** A collection matching a search. */
+export interface CollectionHit {
+  s: string; // slug
+  n: string; // name
+  cs: string; // category slug
+  c: string; // category name
+  k: number; // products on the site
+}
+
+/** What a search returns: matching collections above matching products. */
+export interface SearchResults {
+  collections: CollectionHit[];
+  products: SearchEntry[];
 }
 
 export interface CatalogueMeta {

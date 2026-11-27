@@ -127,6 +127,9 @@ export default async function ProductPage({
     ...(category
       ? [{ label: category.name, href: routes.category(category.slug, locale) }]
       : []),
+    ...(product.collection
+      ? [{ label: product.collection.name, href: routes.collection(product.categorySlug, product.collection.slug, locale) }]
+      : []),
     { label: product.name },
   ];
 
@@ -172,6 +175,13 @@ export default async function ProductPage({
           <div>
             <span className={styles.kicker}>{product.type.name}</span>
             <h1 className={styles.title}>{product.name}</h1>
+            {product.collection && (
+              <p className={styles.collection}>
+                <Link href={routes.collection(product.categorySlug, product.collection.slug, locale)}>
+                  {format(t.collection.partOf, { name: product.collection.name })}
+                </Link>
+              </p>
+            )}
             <p className={styles.sku}>
               {t.common.itemCode} <b>{product.sku}</b>
             </p>

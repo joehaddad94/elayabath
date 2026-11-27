@@ -28,6 +28,11 @@ insert into public.products (id, sku, slug, name, category_id, type_id, descript
 values ('00000000-0000-0000-0000-00000000d001', 'T-1', 't-1', 'Basin',
         '00000000-0000-0000-0000-00000000c001', '00000000-0000-0000-0000-00000000e001',
         'The first description.', '600 x 400 mm', 'draft');
+
+-- Collections (2026-11-26): a product is on the site only in a collection.
+alter table public.products disable trigger products_stamp;
+select public.group_into_collections();
+alter table public.products enable trigger products_stamp;
 insert into public.product_finishes (product_id, finish_id, position, image_path) values
   ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000f001', 0, 'finishes/t-1--white.webp');
 insert into public.product_images (product_id, path, alt, position) values

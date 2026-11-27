@@ -30,6 +30,11 @@ insert into public.products (id, sku, slug, name, category_id, type_id, status, 
   ('00000000-0000-0000-0000-00000000d001', 'T-1', 't-1', 'Alpha', '00000000-0000-0000-0000-00000000c001', '00000000-0000-0000-0000-00000000e001', 'draft', 0),
   ('00000000-0000-0000-0000-00000000d002', 'T-2', 't-2', 'Beta',  '00000000-0000-0000-0000-00000000c001', null, 'draft', 1),
   ('00000000-0000-0000-0000-00000000d003', 'T-3', 't-3', 'Gamma', '00000000-0000-0000-0000-00000000c001', null, 'draft', 2);
+
+-- Collections (2026-11-26): a product is on the site only in a collection.
+alter table public.products disable trigger products_stamp;
+select public.group_into_collections();
+alter table public.products enable trigger products_stamp;
 insert into public.product_finishes (product_id, finish_id) values
   ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000f001');
 

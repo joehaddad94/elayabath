@@ -88,7 +88,7 @@ export function productSchema(product: Product, url: string) {
   };
 }
 
-export function categorySchema(category: Category, url: string, productUrls: string[]) {
+export function categorySchema(category: Pick<Category, "name">, url: string, productUrls: string[]) {
   return {
     "@type": "CollectionPage",
     name: category.name,

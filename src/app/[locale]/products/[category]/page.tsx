@@ -7,19 +7,18 @@ import { FinishRail } from "@/components/FinishRail/FinishRail";
 import { Hero } from "@/components/Hero/Hero";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
 import { PhotoBand } from "@/components/PhotoBand/PhotoBand";
-import { ProductBrowser, SHELF_PAGE } from "@/components/ProductBrowser/ProductBrowser";
+import { CollectionGrid } from "@/components/CollectionGrid/CollectionGrid";
 import { SectionHead } from "@/components/SectionHead/SectionHead";
 import {
   getCategories,
   getCategory,
+  getCollections,
   getFinish,
-  getShelf,
 } from "@/lib/catalogue";
 import { format } from "@/lib/i18n";
 import { getSiteDictionary } from "@/lib/site-content/read";
 import { categoryBand, categoryBanner, categoryInset } from "@/lib/imagery";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
-import { EMPTY_SELECTION } from "@/lib/product-filters";
 import { routes } from "@/lib/routes";
 import {
   breadcrumbSchema,
@@ -70,11 +69,8 @@ export default async function CategoryPage({
   const category = await getCategory(slug);
   if (!category) notFound();
 
-  const t = await getSiteDictionary(locale);
-  // The first page of the unfiltered shelf comes with the page, which keeps
-  // the page static. Filters, sorting and further pages are fetched.
-  const initial = await getShelf(slug, EMPTY_SELECTION, "default", SHELF_PAGE, 0);
-  const products = initial.products;
+  // A category lists its collections; each collection lists its products.
+  const [t, collections] = await Promise.all([getSiteDictionary(locale), getCollections(slug)]);
 
   // Only the finishes this category actually contains, so the filter never
   // offers a colour that would return nothing.
@@ -100,7 +96,7 @@ export default async function CategoryPage({
           categorySchema(
             category,
             routes.category(category.slug),
-            products.map((p) => routes.product(p.slug)),
+            collections.map((c) => routes.collection(c.categorySlug, c.slug)),
           ),
           breadcrumbSchema(crumbs),
         ]}
@@ -123,13 +119,8 @@ export default async function CategoryPage({
 
       <Section tight>
         <Container>
-          <ProductBrowser
-            category={category}
-            initial={initial}
-            finishes={finishes}
-            locale={locale}
-            t={t}
-          />
+          <SectionHead label={t.search.collections} count={String(collections.length)} />
+          <CollectionGrid collections={collections} locale={locale} t={t} priorityCount={4} />
         </Container>
       </Section>
 

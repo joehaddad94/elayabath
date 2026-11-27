@@ -6,6 +6,7 @@ const valid = {
   slug: "e01-sw10001",
   name: "PONTUS",
   category_id: "00000000-0000-4000-8000-000000000001",
+  collection_id: "00000000-0000-4000-8000-000000000002",
   type_id: null,
   description: "",
   dimensions: "",
@@ -28,6 +29,10 @@ describe("slugFromSku", () => {
 describe("productForm", () => {
   it("accepts a product with only the required fields", () => {
     expect(productForm.safeParse(valid).success).toBe(true);
+  });
+
+  it("requires a collection, since a product without one is not on the site", () => {
+    expect(productForm.safeParse({ ...valid, collection_id: null }).success).toBe(false);
   });
 
   it("stores empty dimensions as nothing, not an empty string", () => {

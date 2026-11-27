@@ -24,7 +24,7 @@ export default async function ProductsPage({
   const params = await searchParams;
   const one = (key: string) => (typeof params[key] === "string" ? params[key] : "");
 
-  const [rows, categories, types] = await Promise.all([
+  const [rows, categories, types, collections] = await Promise.all([
     fetchAll((from, to) =>
       supabase
         .from("admin_products")
@@ -37,16 +37,18 @@ export default async function ProductsPage({
     ),
     supabase.from("categories").select("id, slug, name").order("position"),
     supabase.from("product_types").select("id, name").order("name"),
+    supabase.from("collections").select("id, name, category_id").order("name"),
   ]);
   // A failed read is not an empty catalogue: show the error screen, with
   // "Try again".
-  if (categories.error || types.error) throw new Error("The categories couldn't be loaded.");
+  if (categories.error || types.error || collections.error) throw new Error("The categories couldn't be loaded.");
 
   const status = one("status");
   const sort = one("sort");
   const initialFilters: Partial<Filters> = {
     q: one("q").slice(0, 100),
     category: one("category"),
+    collection: one("collection"),
     status: status === "visible" || status === "hidden" ? status : "",
     missing: one("missing") === "1",
     sort: sort in SORTS ? (sort as SortKey) : "site",
@@ -68,6 +70,7 @@ export default async function ProductsPage({
         initialFilters={initialFilters}
         categories={categories.data}
         types={types.data}
+        collections={collections.data.map((c) => ({ id: c.id, name: c.name, categoryId: c.category_id }))}
       />
     </>
   );

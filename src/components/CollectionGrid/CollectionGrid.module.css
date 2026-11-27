@@ -1,0 +1,102 @@
+/* The product grid's measure, so a collection page and the listings above it
+   line up. */
+.grid {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.card {
+  padding: 0;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.media {
+  display: block;
+  text-decoration: none;
+}
+
+/* Both kinds of photo hold the same square, so a row of cards lines up. */
+.photo,
+.cutout {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+/* The collection's own photo: a scene, cropped to fill. */
+.photo {
+  object-fit: cover;
+}
+
+/* A product's photo: a cut-out, shown whole, as a product card shows it. */
+.cutout {
+  object-fit: contain;
+  padding: var(--space-4);
+}
+
+.noPhoto {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 100%;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+}
+
+.body {
+  padding: var(--space-4);
+  border-top: var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* A series name: Poppins in spaced capitals, per the brand guidelines. */
+.title {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.title a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  min-width: 24px;
+}
+
+.title a:hover {
+  color: var(--accent-text);
+}
+
+.meta {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.cta {
+  margin-top: var(--space-3);
+}

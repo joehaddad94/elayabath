@@ -22,6 +22,11 @@ insert into public.products (id, sku, slug, name, category_id, status)
 values ('00000000-0000-0000-0000-00000000d001', 'T-1', 't-1', 'One', '00000000-0000-0000-0000-00000000c001', 'draft'),
        ('00000000-0000-0000-0000-00000000d002', 'T-2', 't-2', 'Two', '00000000-0000-0000-0000-00000000c001', 'draft');
 
+-- Collections (2026-11-26): a product is on the site only in a collection.
+alter table public.products disable trigger products_stamp;
+select public.group_into_collections();
+alter table public.products enable trigger products_stamp;
+
 -- Anonymous visitors can't change the site.
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);

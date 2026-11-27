@@ -31,6 +31,21 @@
   color: color-mix(in srgb, var(--color-text) 70%, transparent);
 }
 
+/* "Collections" and "Products", when a search finds both. */
+.group {
+  margin: calc(var(--space-8) * 1.2) 0 0;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.group + .results {
+  margin-top: var(--space-3);
+}
+
 .results {
   list-style: none;
   margin: var(--space-6) 0 0;

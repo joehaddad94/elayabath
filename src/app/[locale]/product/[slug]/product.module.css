@@ -48,6 +48,17 @@
   margin: var(--space-3) 0;
 }
 
+/* The way back to the product's collection, between its name and code. */
+.collection {
+  margin: 0 0 var(--space-2);
+  font-size: 0.85rem;
+}
+
+.collection a {
+  color: var(--accent-text);
+  text-underline-offset: 0.2em;
+}
+
 .sku {
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--color-text) 72%, transparent);

@@ -5,7 +5,7 @@ import type { ProductRow } from "./grid-types";
 export type { ProductRow };
 
 /** The `admin_products` columns a list row is made from. */
-export const LIST_COLUMNS = "id, sku, name, category_id, type_id, status, dimensions, image_path, missing, version, updated_at";
+export const LIST_COLUMNS = "id, sku, name, category_id, collection_id, type_id, status, dimensions, image_path, missing, version, updated_at";
 
 /** A row from `admin_products`, with its image path turned into a URL on the
  *  server, so the browser never needs to know where Storage lives. */
